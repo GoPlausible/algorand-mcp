@@ -194,17 +194,12 @@ export class AlgodManager {
     try {
       // Convert string source to Buffer
       if (typeof source === 'string') {
-        // Add debug logging
-        console.error('Original source:', source);
         // Ensure proper line endings and add final newline
         source = source.replace(/\r\n/g, '\n');
         if (!source.endsWith('\n')) {
           source += '\n';
         }
-        console.error('Processed source:', source);
-        // Convert to Uint8Array
         source = new TextEncoder().encode(source);
-        console.error('Encoded bytes:', Buffer.from(source).toString('hex'));
       }
       const response = await algodClient.compile(source).do() as CompileResponse;
       return response;

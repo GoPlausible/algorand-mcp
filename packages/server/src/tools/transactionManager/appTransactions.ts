@@ -443,10 +443,10 @@ export class AppTransactionManager {
         // Create transaction with proper parameter handling
         const txnParams: Record<string, any> = {
           from: String(args.from),
-          numGlobalByteSlices: Number(args.numGlobalByteSlices),
-          numGlobalInts: Number(args.numGlobalInts),
-          numLocalByteSlices: Number(args.numLocalByteSlices),
-          numLocalInts: Number(args.numLocalInts),
+          globalByteSlices: Number(args.numGlobalByteSlices),
+          globalInts: Number(args.numGlobalInts),
+          localByteSlices: Number(args.numLocalByteSlices),
+          localInts: Number(args.numLocalInts),
           fee: suggestedParams.fee,
           firstRound: suggestedParams.firstRound,
           lastRound: suggestedParams.lastRound,
@@ -464,6 +464,7 @@ export class AppTransactionManager {
         if (typeof args.extraPages === 'number') {
           txnParams.extraPages = args.extraPages;
         }
+       
         if (typeof args.note === 'string') {
           const noteBytes = new TextEncoder().encode(args.note);
           txnParams.note = Buffer.from(noteBytes).toString('base64');

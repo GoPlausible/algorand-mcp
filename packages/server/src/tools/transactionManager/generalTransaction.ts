@@ -133,9 +133,6 @@ export class GeneralTransactionManager {
 
         try {
           const transaction = args.transaction as any;
-          
-          // Debug logging
-          console.error('Transaction before conversion:', JSON.stringify(transaction, null, 2));
 
           // Create a new transaction object with proper fields
           const txnParams: any = {
@@ -160,22 +157,21 @@ export class GeneralTransactionManager {
             // Set approval program
             if (transaction.approvalProgram) {
               const approvalBytes = Buffer.from(transaction.approvalProgram, 'base64');
-              console.error('Approval program bytes:', approvalBytes);
               txnParams.appApprovalProgram = new Uint8Array(approvalBytes);
             }
 
             // Set clear program
             if (transaction.clearProgram) {
               const clearBytes = Buffer.from(transaction.clearProgram, 'base64');
-              console.error('Clear program bytes:', clearBytes);
               txnParams.appClearProgram = new Uint8Array(clearBytes);
             }
 
             // Set schema
-            txnParams.appGlobalInts = transaction.numGlobalInts || 0;
-            txnParams.appGlobalByteSlices = transaction.numGlobalByteSlices || 0;
-            txnParams.appLocalInts = transaction.numLocalInts || 0;
-            txnParams.appLocalByteSlices = transaction.numLocalByteSlices || 0;
+            txnParams.extraPages = transaction.extraPages || 0;
+            txnParams.appGlobalInts = transaction.globalInts || 0;
+            txnParams.appGlobalByteSlices = transaction.globalByteSlices || 0;
+            txnParams.appLocalInts = transaction.localInts || 0;
+            txnParams.appLocalByteSlices = transaction.localByteSlices || 0;
 
             // Set optional arrays
             if (transaction.appArgs) {
@@ -194,22 +190,8 @@ export class GeneralTransactionManager {
             }
           }
 
-          // Debug logging
-          console.error('Transaction params:', {
-            ...txnParams,
-            appApprovalProgram: txnParams.appApprovalProgram ? '<bytes>' : undefined,
-            appClearProgram: txnParams.appClearProgram ? '<bytes>' : undefined
-          });
-
           // Create transaction
           const txn = new algosdk.Transaction(txnParams);
-
-          // Debug logging
-          console.error('Created transaction:', {
-            ...txn,
-            appApprovalProgram: txn.appApprovalProgram ? '<bytes>' : undefined,
-            appClearProgram: txn.appClearProgram ? '<bytes>' : undefined
-          });
 
           // Convert hex string secret key to Uint8Array
           const sk = new Uint8Array(Buffer.from(args.sk, 'hex'));
