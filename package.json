@@ -1,0 +1,28 @@
+{
+  "name": "algorand-mcp",
+  "version": "1.0.0",
+  "description": "Algorand Model Context Protocol Implementation",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "clean": "npm run clean --workspaces"
+  },
+  "keywords": [
+    "algorand",
+    "mcp",
+    "blockchain"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "algosdk": "^2.9.0"
+  }
+}
