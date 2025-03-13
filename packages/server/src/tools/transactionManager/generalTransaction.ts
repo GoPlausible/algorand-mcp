@@ -133,13 +133,87 @@ export class GeneralTransactionManager {
 
         try {
           const transaction = args.transaction as any;
-          // Convert base64 note to Uint8Array if present
-          if (transaction.note && typeof transaction.note === 'string') {
-            transaction.note = new Uint8Array(Buffer.from(transaction.note, 'base64'));
+          
+          // Debug logging
+          console.error('Transaction before conversion:', JSON.stringify(transaction, null, 2));
+
+          // Create a new transaction object with proper fields
+          const txnParams: any = {
+            from: transaction.from,
+            fee: transaction.fee,
+            firstRound: transaction.firstRound,
+            lastRound: transaction.lastRound,
+            genesisID: transaction.genesisID,
+            genesisHash: transaction.genesisHash,
+            type: transaction.type,
+            appIndex: transaction.appIndex || 0,
+            onComplete: transaction.onComplete || 0
+          };
+
+          // Convert base64 fields
+          if (transaction.note) {
+            txnParams.note = new Uint8Array(Buffer.from(transaction.note, 'base64'));
           }
+
+          // Handle application-specific fields
+          if (transaction.type === 'appl') {
+            // Set approval program
+            if (transaction.approvalProgram) {
+              const approvalBytes = Buffer.from(transaction.approvalProgram, 'base64');
+              console.error('Approval program bytes:', approvalBytes);
+              txnParams.appApprovalProgram = new Uint8Array(approvalBytes);
+            }
+
+            // Set clear program
+            if (transaction.clearProgram) {
+              const clearBytes = Buffer.from(transaction.clearProgram, 'base64');
+              console.error('Clear program bytes:', clearBytes);
+              txnParams.appClearProgram = new Uint8Array(clearBytes);
+            }
+
+            // Set schema
+            txnParams.appGlobalInts = transaction.numGlobalInts || 0;
+            txnParams.appGlobalByteSlices = transaction.numGlobalByteSlices || 0;
+            txnParams.appLocalInts = transaction.numLocalInts || 0;
+            txnParams.appLocalByteSlices = transaction.numLocalByteSlices || 0;
+
+            // Set optional arrays
+            if (transaction.appArgs) {
+              txnParams.appArgs = transaction.appArgs.map((arg: string) => 
+                new Uint8Array(Buffer.from(arg, 'base64'))
+              );
+            }
+            if (transaction.accounts) {
+              txnParams.appAccounts = transaction.accounts;
+            }
+            if (transaction.foreignApps) {
+              txnParams.appForeignApps = transaction.foreignApps;
+            }
+            if (transaction.foreignAssets) {
+              txnParams.appForeignAssets = transaction.foreignAssets;
+            }
+          }
+
+          // Debug logging
+          console.error('Transaction params:', {
+            ...txnParams,
+            appApprovalProgram: txnParams.appApprovalProgram ? '<bytes>' : undefined,
+            appClearProgram: txnParams.appClearProgram ? '<bytes>' : undefined
+          });
+
+          // Create transaction
+          const txn = new algosdk.Transaction(txnParams);
+
+          // Debug logging
+          console.error('Created transaction:', {
+            ...txn,
+            appApprovalProgram: txn.appApprovalProgram ? '<bytes>' : undefined,
+            appClearProgram: txn.appClearProgram ? '<bytes>' : undefined
+          });
+
           // Convert hex string secret key to Uint8Array
           const sk = new Uint8Array(Buffer.from(args.sk, 'hex'));
-          const signedTxn = algosdk.signTransaction(transaction, sk);
+          const signedTxn = algosdk.signTransaction(txn, sk);
           return {
             content: [{
               type: 'text',

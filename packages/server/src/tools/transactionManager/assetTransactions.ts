@@ -211,27 +211,58 @@ export class AssetTransactionManager {
             typeof args.defaultFrozen !== 'boolean') {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid asset creation parameters');
         }
-        const assetCreateTxn = AssetTransactionManager.makeAssetCreateTxn({
+        // Create transaction with proper parameter handling
+        const createTxnParams: Record<string, any> = {
           from: String(args.from),
           total: Number(args.total),
           decimals: Number(args.decimals),
           defaultFrozen: Boolean(args.defaultFrozen),
-          unitName: typeof args.unitName === 'string' ? args.unitName : undefined,
-          assetName: typeof args.assetName === 'string' ? args.assetName : undefined,
-          assetURL: typeof args.assetURL === 'string' ? args.assetURL : undefined,
-          assetMetadataHash: typeof args.assetMetadataHash === 'string' ? args.assetMetadataHash : undefined,
-          manager: typeof args.manager === 'string' ? args.manager : undefined,
-          reserve: typeof args.reserve === 'string' ? args.reserve : undefined,
-          freeze: typeof args.freeze === 'string' ? args.freeze : undefined,
-          clawback: typeof args.clawback === 'string' ? args.clawback : undefined,
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          suggestedParams,
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'acfg'
+        };
+
+        // Handle optional fields
+        if (typeof args.unitName === 'string') {
+          createTxnParams.unitName = args.unitName;
+        }
+        if (typeof args.assetName === 'string') {
+          createTxnParams.assetName = args.assetName;
+        }
+        if (typeof args.assetURL === 'string') {
+          createTxnParams.assetURL = args.assetURL;
+        }
+        if (typeof args.assetMetadataHash === 'string') {
+          const metadataBytes = new TextEncoder().encode(args.assetMetadataHash);
+          createTxnParams.assetMetadataHash = Buffer.from(metadataBytes).toString('base64');
+        }
+        if (typeof args.manager === 'string') {
+          createTxnParams.manager = args.manager;
+        }
+        if (typeof args.reserve === 'string') {
+          createTxnParams.reserve = args.reserve;
+        }
+        if (typeof args.freeze === 'string') {
+          createTxnParams.freeze = args.freeze;
+        }
+        if (typeof args.clawback === 'string') {
+          createTxnParams.clawback = args.clawback;
+        }
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          createTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          createTxnParams.rekeyTo = args.rekeyTo;
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(assetCreateTxn, null, 2),
+            text: JSON.stringify(createTxnParams, null, 2),
           }],
         };
 
@@ -239,22 +270,44 @@ export class AssetTransactionManager {
         if (!args.from || typeof args.assetIndex !== 'number' || typeof args.strictEmptyAddressChecking !== 'boolean') {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid asset configuration parameters');
         }
-        const assetConfigTxn = AssetTransactionManager.makeAssetConfigTxn({
+        // Create transaction with proper parameter handling
+        const configTxnParams: Record<string, any> = {
           from: String(args.from),
           assetIndex: Number(args.assetIndex),
-          manager: typeof args.manager === 'string' ? args.manager : undefined,
-          reserve: typeof args.reserve === 'string' ? args.reserve : undefined,
-          freeze: typeof args.freeze === 'string' ? args.freeze : undefined,
-          clawback: typeof args.clawback === 'string' ? args.clawback : undefined,
-          strictEmptyAddressChecking: Boolean(args.strictEmptyAddressChecking),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          suggestedParams,
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'acfg',
+          strictEmptyAddressChecking: Boolean(args.strictEmptyAddressChecking)
+        };
+
+        // Handle optional fields
+        if (typeof args.manager === 'string') {
+          configTxnParams.manager = args.manager;
+        }
+        if (typeof args.reserve === 'string') {
+          configTxnParams.reserve = args.reserve;
+        }
+        if (typeof args.freeze === 'string') {
+          configTxnParams.freeze = args.freeze;
+        }
+        if (typeof args.clawback === 'string') {
+          configTxnParams.clawback = args.clawback;
+        }
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          configTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          configTxnParams.rekeyTo = args.rekeyTo;
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(assetConfigTxn, null, 2),
+            text: JSON.stringify(configTxnParams, null, 2),
           }],
         };
 
@@ -262,17 +315,31 @@ export class AssetTransactionManager {
         if (!args.from || typeof args.assetIndex !== 'number') {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid asset destroy parameters');
         }
-        const assetDestroyTxn = AssetTransactionManager.makeAssetDestroyTxn({
+        // Create transaction with proper parameter handling
+        const destroyTxnParams: Record<string, any> = {
           from: String(args.from),
           assetIndex: Number(args.assetIndex),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          suggestedParams,
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'acfg'
+        };
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          destroyTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          destroyTxnParams.rekeyTo = args.rekeyTo;
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(assetDestroyTxn, null, 2),
+            text: JSON.stringify(destroyTxnParams, null, 2),
           }],
         };
 
@@ -281,19 +348,33 @@ export class AssetTransactionManager {
             typeof args.freezeState !== 'boolean') {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid asset freeze parameters');
         }
-        const assetFreezeTxn = AssetTransactionManager.makeAssetFreezeTxn({
+        // Create transaction with proper parameter handling
+        const freezeTxnParams: Record<string, any> = {
           from: String(args.from),
           assetIndex: Number(args.assetIndex),
           freezeTarget: String(args.freezeTarget),
           freezeState: Boolean(args.freezeState),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          suggestedParams,
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'afrz'
+        };
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          freezeTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          freezeTxnParams.rekeyTo = args.rekeyTo;
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(assetFreezeTxn, null, 2),
+            text: JSON.stringify(freezeTxnParams, null, 2),
           }],
         };
 
@@ -301,20 +382,36 @@ export class AssetTransactionManager {
         if (!args.from || !args.to || !args.assetIndex || typeof args.amount !== 'number') {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid asset transfer parameters');
         }
-        const assetTxn = AssetTransactionManager.makeAssetTransferTxn({
+        // Create transaction with proper parameter handling
+        const transferTxnParams: Record<string, any> = {
           from: String(args.from),
           to: String(args.to),
           assetIndex: Number(args.assetIndex),
           amount: Number(args.amount),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          closeRemainderTo: typeof args.closeRemainderTo === 'string' ? args.closeRemainderTo : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          suggestedParams,
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'axfer'
+        };
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          transferTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.closeRemainderTo === 'string') {
+          transferTxnParams.closeRemainderTo = args.closeRemainderTo;
+        }
+        if (typeof args.rekeyTo === 'string') {
+          transferTxnParams.rekeyTo = args.rekeyTo;
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(assetTxn, null, 2),
+            text: JSON.stringify(transferTxnParams, null, 2),
           }],
         };
 

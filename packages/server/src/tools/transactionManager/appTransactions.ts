@@ -309,7 +309,7 @@ export class AppTransactionManager {
   /**
    * Creates an application update transaction
    */
-  static makeApplicationUpdateTxn(params: {
+  static makeApplicationUpdateTxn(txn: {
     from: string;
     suggestedParams: SuggestedParams;
     appIndex: number;
@@ -325,13 +325,13 @@ export class AppTransactionManager {
     boxes?: Array<{ appIndex: number; name: Uint8Array }>;
     onComplete: OnApplicationComplete;
   }): Transaction {
-    return makeApplicationUpdateTxnFromObject(params);
+    return makeApplicationUpdateTxnFromObject(txn);
   }
 
   /**
    * Creates an application delete transaction
    */
-  static makeApplicationDeleteTxn(params: {
+  static makeApplicationDeleteTxn(txn: {
     from: string;
     suggestedParams: SuggestedParams;
     appIndex: number;
@@ -345,13 +345,13 @@ export class AppTransactionManager {
     boxes?: Array<{ appIndex: number; name: Uint8Array }>;
     onComplete: OnApplicationComplete;
   }): Transaction {
-    return makeApplicationDeleteTxnFromObject(params);
+    return makeApplicationDeleteTxnFromObject(txn);
   }
 
   /**
    * Creates an application opt-in transaction
    */
-  static makeApplicationOptInTxn(params: {
+  static makeApplicationOptInTxn(txn: {
     from: string;
     suggestedParams: SuggestedParams;
     appIndex: number;
@@ -365,13 +365,13 @@ export class AppTransactionManager {
     boxes?: Array<{ appIndex: number; name: Uint8Array }>;
     onComplete: OnApplicationComplete;
   }): Transaction {
-    return makeApplicationOptInTxnFromObject(params);
+    return makeApplicationOptInTxnFromObject(txn);
   }
 
   /**
    * Creates an application close out transaction
    */
-  static makeApplicationCloseOutTxn(params: {
+  static makeApplicationCloseOutTxn(txn: {
     from: string;
     suggestedParams: SuggestedParams;
     appIndex: number;
@@ -385,13 +385,13 @@ export class AppTransactionManager {
     boxes?: Array<{ appIndex: number; name: Uint8Array }>;
     onComplete: OnApplicationComplete;
   }): Transaction {
-    return makeApplicationCloseOutTxnFromObject(params);
+    return makeApplicationCloseOutTxnFromObject(txn);
   }
 
   /**
    * Creates an application clear state transaction
    */
-  static makeApplicationClearStateTxn(params: {
+  static makeApplicationClearStateTxn(txn: {
     from: string;
     suggestedParams: SuggestedParams;
     appIndex: number;
@@ -405,13 +405,13 @@ export class AppTransactionManager {
     boxes?: Array<{ appIndex: number; name: Uint8Array }>;
     onComplete: OnApplicationComplete;
   }): Transaction {
-    return makeApplicationClearStateTxnFromObject(params);
+    return makeApplicationClearStateTxnFromObject(txn);
   }
 
   /**
    * Creates an application no-op transaction
    */
-  static makeApplicationNoOpTxn(params: {
+  static makeApplicationNoOpTxn(txn: {
     from: string;
     suggestedParams: SuggestedParams;
     appIndex: number;
@@ -425,7 +425,7 @@ export class AppTransactionManager {
     boxes?: Array<{ appIndex: number; name: Uint8Array }>;
     onComplete: OnApplicationComplete;
   }): Transaction {
-    return makeApplicationNoOpTxnFromObject(params);
+    return makeApplicationNoOpTxnFromObject(txn);
   }
 
   // Tool handlers
@@ -440,29 +440,61 @@ export class AppTransactionManager {
             typeof args.numLocalByteSlices !== 'number' || typeof args.numLocalInts !== 'number') {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid application creation parameters');
         }
-        const appCreateTxn = AppTransactionManager.makeApplicationCreateTxn({
+        // Create transaction with proper parameter handling
+        const txnParams: Record<string, any> = {
           from: String(args.from),
-          approvalProgram: new TextEncoder().encode(args.approvalProgram as string),
-          clearProgram: new TextEncoder().encode(args.clearProgram as string),
           numGlobalByteSlices: Number(args.numGlobalByteSlices),
           numGlobalInts: Number(args.numGlobalInts),
           numLocalByteSlices: Number(args.numLocalByteSlices),
           numLocalInts: Number(args.numLocalInts),
-          extraPages: typeof args.extraPages === 'number' ? args.extraPages : undefined,
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          lease: typeof args.lease === 'string' ? new TextEncoder().encode(args.lease) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          appArgs: Array.isArray(args.appArgs) ? args.appArgs.map(arg => new TextEncoder().encode(String(arg))) : undefined,
-          accounts: Array.isArray(args.accounts) ? args.accounts.filter((acc): acc is string => typeof acc === 'string') : undefined,
-          foreignApps: Array.isArray(args.foreignApps) ? args.foreignApps.filter((app): app is number => typeof app === 'number') : undefined,
-          foreignAssets: Array.isArray(args.foreignAssets) ? args.foreignAssets.filter((asset): asset is number => typeof asset === 'number') : undefined,
-          suggestedParams,
-          onComplete: 0, // NoOp
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'appl',
+          onComplete: 0 // NoOp
+        };
+
+        // Handle required program fields - keep as base64 strings
+        txnParams.approvalProgram = args.approvalProgram as string;
+        txnParams.clearProgram = args.clearProgram as string;
+
+        // Handle optional fields
+        if (typeof args.extraPages === 'number') {
+          txnParams.extraPages = args.extraPages;
+        }
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          txnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.lease === 'string') {
+          const leaseBytes = new TextEncoder().encode(args.lease);
+          txnParams.lease = Buffer.from(leaseBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          txnParams.rekeyTo = String(args.rekeyTo);
+        }
+        if (Array.isArray(args.appArgs)) {
+          txnParams.appArgs = args.appArgs.map(arg => {
+            const bytes = new TextEncoder().encode(String(arg));
+            return Buffer.from(bytes).toString('base64');
+          });
+        }
+        if (Array.isArray(args.accounts)) {
+          txnParams.accounts = args.accounts.filter((acc): acc is string => typeof acc === 'string');
+        }
+        if (Array.isArray(args.foreignApps)) {
+          txnParams.foreignApps = args.foreignApps.filter((app): app is number => typeof app === 'number');
+        }
+        if (Array.isArray(args.foreignAssets)) {
+          txnParams.foreignAssets = args.foreignAssets.filter((asset): asset is number => typeof asset === 'number');
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(appCreateTxn, null, 2),
+            text: JSON.stringify(txnParams, null, 2),
           }],
         };
 
@@ -470,25 +502,57 @@ export class AppTransactionManager {
         if (!args.from || !args.appIndex || !args.approvalProgram || !args.clearProgram) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid application update parameters');
         }
-        const appUpdateTxn = AppTransactionManager.makeApplicationUpdateTxn({
+        // Create transaction with proper parameter handling
+        const updateTxnParams: Record<string, any> = {
           from: String(args.from),
           appIndex: Number(args.appIndex),
-          approvalProgram: new TextEncoder().encode(args.approvalProgram as string),
-          clearProgram: new TextEncoder().encode(args.clearProgram as string),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          lease: typeof args.lease === 'string' ? new TextEncoder().encode(args.lease) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          appArgs: Array.isArray(args.appArgs) ? args.appArgs.map(arg => new TextEncoder().encode(String(arg))) : undefined,
-          accounts: Array.isArray(args.accounts) ? args.accounts.filter((acc): acc is string => typeof acc === 'string') : undefined,
-          foreignApps: Array.isArray(args.foreignApps) ? args.foreignApps.filter((app): app is number => typeof app === 'number') : undefined,
-          foreignAssets: Array.isArray(args.foreignAssets) ? args.foreignAssets.filter((asset): asset is number => typeof asset === 'number') : undefined,
-          suggestedParams,
-          onComplete: 4, // UpdateApplication
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'appl',
+          onComplete: 4 // UpdateApplication
+        };
+
+        // Handle required program fields
+        const updateApprovalProgram = new TextEncoder().encode(args.approvalProgram as string);
+        const updateClearProgram = new TextEncoder().encode(args.clearProgram as string);
+        updateTxnParams.approvalProgram = Buffer.from(updateApprovalProgram).toString('base64');
+        updateTxnParams.clearProgram = Buffer.from(updateClearProgram).toString('base64');
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          updateTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.lease === 'string') {
+          const leaseBytes = new TextEncoder().encode(args.lease);
+          updateTxnParams.lease = Buffer.from(leaseBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          updateTxnParams.rekeyTo = String(args.rekeyTo);
+        }
+        if (Array.isArray(args.appArgs)) {
+          updateTxnParams.appArgs = args.appArgs.map(arg => {
+            const bytes = new TextEncoder().encode(String(arg));
+            return Buffer.from(bytes).toString('base64');
+          });
+        }
+        if (Array.isArray(args.accounts)) {
+          updateTxnParams.accounts = args.accounts.filter((acc): acc is string => typeof acc === 'string');
+        }
+        if (Array.isArray(args.foreignApps)) {
+          updateTxnParams.foreignApps = args.foreignApps.filter((app): app is number => typeof app === 'number');
+        }
+        if (Array.isArray(args.foreignAssets)) {
+          updateTxnParams.foreignAssets = args.foreignAssets.filter((asset): asset is number => typeof asset === 'number');
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(appUpdateTxn, null, 2),
+            text: JSON.stringify(updateTxnParams, null, 2),
           }],
         };
 
@@ -496,23 +560,51 @@ export class AppTransactionManager {
         if (!args.from || !args.appIndex) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid application delete parameters');
         }
-        const appDeleteTxn = AppTransactionManager.makeApplicationDeleteTxn({
+        // Create transaction with proper parameter handling
+        const deleteTxnParams: Record<string, any> = {
           from: String(args.from),
           appIndex: Number(args.appIndex),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          lease: typeof args.lease === 'string' ? new TextEncoder().encode(args.lease) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          appArgs: Array.isArray(args.appArgs) ? args.appArgs.map(arg => new TextEncoder().encode(String(arg))) : undefined,
-          accounts: Array.isArray(args.accounts) ? args.accounts.filter((acc): acc is string => typeof acc === 'string') : undefined,
-          foreignApps: Array.isArray(args.foreignApps) ? args.foreignApps.filter((app): app is number => typeof app === 'number') : undefined,
-          foreignAssets: Array.isArray(args.foreignAssets) ? args.foreignAssets.filter((asset): asset is number => typeof asset === 'number') : undefined,
-          suggestedParams,
-          onComplete: 5, // DeleteApplication
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'appl',
+          onComplete: 5 // DeleteApplication
+        };
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          deleteTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.lease === 'string') {
+          const leaseBytes = new TextEncoder().encode(args.lease);
+          deleteTxnParams.lease = Buffer.from(leaseBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          deleteTxnParams.rekeyTo = String(args.rekeyTo);
+        }
+        if (Array.isArray(args.appArgs)) {
+          deleteTxnParams.appArgs = args.appArgs.map(arg => {
+            const bytes = new TextEncoder().encode(String(arg));
+            return Buffer.from(bytes).toString('base64');
+          });
+        }
+        if (Array.isArray(args.accounts)) {
+          deleteTxnParams.accounts = args.accounts.filter((acc): acc is string => typeof acc === 'string');
+        }
+        if (Array.isArray(args.foreignApps)) {
+          deleteTxnParams.foreignApps = args.foreignApps.filter((app): app is number => typeof app === 'number');
+        }
+        if (Array.isArray(args.foreignAssets)) {
+          deleteTxnParams.foreignAssets = args.foreignAssets.filter((asset): asset is number => typeof asset === 'number');
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(appDeleteTxn, null, 2),
+            text: JSON.stringify(deleteTxnParams, null, 2),
           }],
         };
 
@@ -520,23 +612,51 @@ export class AppTransactionManager {
         if (!args.from || !args.appIndex) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid application opt-in parameters');
         }
-        const appOptInTxn = AppTransactionManager.makeApplicationOptInTxn({
+        // Create transaction with proper parameter handling
+        const optInTxnParams: Record<string, any> = {
           from: String(args.from),
           appIndex: Number(args.appIndex),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          lease: typeof args.lease === 'string' ? new TextEncoder().encode(args.lease) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          appArgs: Array.isArray(args.appArgs) ? args.appArgs.map(arg => new TextEncoder().encode(String(arg))) : undefined,
-          accounts: Array.isArray(args.accounts) ? args.accounts.filter((acc): acc is string => typeof acc === 'string') : undefined,
-          foreignApps: Array.isArray(args.foreignApps) ? args.foreignApps.filter((app): app is number => typeof app === 'number') : undefined,
-          foreignAssets: Array.isArray(args.foreignAssets) ? args.foreignAssets.filter((asset): asset is number => typeof asset === 'number') : undefined,
-          suggestedParams,
-          onComplete: 1, // OptIn
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'appl',
+          onComplete: 1 // OptIn
+        };
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          optInTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.lease === 'string') {
+          const leaseBytes = new TextEncoder().encode(args.lease);
+          optInTxnParams.lease = Buffer.from(leaseBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          optInTxnParams.rekeyTo = String(args.rekeyTo);
+        }
+        if (Array.isArray(args.appArgs)) {
+          optInTxnParams.appArgs = args.appArgs.map(arg => {
+            const bytes = new TextEncoder().encode(String(arg));
+            return Buffer.from(bytes).toString('base64');
+          });
+        }
+        if (Array.isArray(args.accounts)) {
+          optInTxnParams.accounts = args.accounts.filter((acc): acc is string => typeof acc === 'string');
+        }
+        if (Array.isArray(args.foreignApps)) {
+          optInTxnParams.foreignApps = args.foreignApps.filter((app): app is number => typeof app === 'number');
+        }
+        if (Array.isArray(args.foreignAssets)) {
+          optInTxnParams.foreignAssets = args.foreignAssets.filter((asset): asset is number => typeof asset === 'number');
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(appOptInTxn, null, 2),
+            text: JSON.stringify(optInTxnParams, null, 2),
           }],
         };
 
@@ -544,23 +664,51 @@ export class AppTransactionManager {
         if (!args.from || !args.appIndex) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid application close out parameters');
         }
-        const appCloseOutTxn = AppTransactionManager.makeApplicationCloseOutTxn({
+        // Create transaction with proper parameter handling
+        const closeOutTxnParams: Record<string, any> = {
           from: String(args.from),
           appIndex: Number(args.appIndex),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          lease: typeof args.lease === 'string' ? new TextEncoder().encode(args.lease) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          appArgs: Array.isArray(args.appArgs) ? args.appArgs.map(arg => new TextEncoder().encode(String(arg))) : undefined,
-          accounts: Array.isArray(args.accounts) ? args.accounts.filter((acc): acc is string => typeof acc === 'string') : undefined,
-          foreignApps: Array.isArray(args.foreignApps) ? args.foreignApps.filter((app): app is number => typeof app === 'number') : undefined,
-          foreignAssets: Array.isArray(args.foreignAssets) ? args.foreignAssets.filter((asset): asset is number => typeof asset === 'number') : undefined,
-          suggestedParams,
-          onComplete: 2, // CloseOut
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'appl',
+          onComplete: 2 // CloseOut
+        };
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          closeOutTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.lease === 'string') {
+          const leaseBytes = new TextEncoder().encode(args.lease);
+          closeOutTxnParams.lease = Buffer.from(leaseBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          closeOutTxnParams.rekeyTo = String(args.rekeyTo);
+        }
+        if (Array.isArray(args.appArgs)) {
+          closeOutTxnParams.appArgs = args.appArgs.map(arg => {
+            const bytes = new TextEncoder().encode(String(arg));
+            return Buffer.from(bytes).toString('base64');
+          });
+        }
+        if (Array.isArray(args.accounts)) {
+          closeOutTxnParams.accounts = args.accounts.filter((acc): acc is string => typeof acc === 'string');
+        }
+        if (Array.isArray(args.foreignApps)) {
+          closeOutTxnParams.foreignApps = args.foreignApps.filter((app): app is number => typeof app === 'number');
+        }
+        if (Array.isArray(args.foreignAssets)) {
+          closeOutTxnParams.foreignAssets = args.foreignAssets.filter((asset): asset is number => typeof asset === 'number');
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(appCloseOutTxn, null, 2),
+            text: JSON.stringify(closeOutTxnParams, null, 2),
           }],
         };
 
@@ -568,23 +716,51 @@ export class AppTransactionManager {
         if (!args.from || !args.appIndex) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid application clear state parameters');
         }
-        const appClearTxn = AppTransactionManager.makeApplicationClearStateTxn({
+        // Create transaction with proper parameter handling
+        const clearTxnParams: Record<string, any> = {
           from: String(args.from),
           appIndex: Number(args.appIndex),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          lease: typeof args.lease === 'string' ? new TextEncoder().encode(args.lease) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          appArgs: Array.isArray(args.appArgs) ? args.appArgs.map(arg => new TextEncoder().encode(String(arg))) : undefined,
-          accounts: Array.isArray(args.accounts) ? args.accounts.filter((acc): acc is string => typeof acc === 'string') : undefined,
-          foreignApps: Array.isArray(args.foreignApps) ? args.foreignApps.filter((app): app is number => typeof app === 'number') : undefined,
-          foreignAssets: Array.isArray(args.foreignAssets) ? args.foreignAssets.filter((asset): asset is number => typeof asset === 'number') : undefined,
-          suggestedParams,
-          onComplete: 3, // ClearState
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'appl',
+          onComplete: 3 // ClearState
+        };
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          clearTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.lease === 'string') {
+          const leaseBytes = new TextEncoder().encode(args.lease);
+          clearTxnParams.lease = Buffer.from(leaseBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          clearTxnParams.rekeyTo = String(args.rekeyTo);
+        }
+        if (Array.isArray(args.appArgs)) {
+          clearTxnParams.appArgs = args.appArgs.map(arg => {
+            const bytes = new TextEncoder().encode(String(arg));
+            return Buffer.from(bytes).toString('base64');
+          });
+        }
+        if (Array.isArray(args.accounts)) {
+          clearTxnParams.accounts = args.accounts.filter((acc): acc is string => typeof acc === 'string');
+        }
+        if (Array.isArray(args.foreignApps)) {
+          clearTxnParams.foreignApps = args.foreignApps.filter((app): app is number => typeof app === 'number');
+        }
+        if (Array.isArray(args.foreignAssets)) {
+          clearTxnParams.foreignAssets = args.foreignAssets.filter((asset): asset is number => typeof asset === 'number');
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(appClearTxn, null, 2),
+            text: JSON.stringify(clearTxnParams, null, 2),
           }],
         };
 
@@ -592,23 +768,51 @@ export class AppTransactionManager {
         if (!args.from || !args.appIndex) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid application call parameters');
         }
-        const appCallTxn = AppTransactionManager.makeApplicationNoOpTxn({
+        // Create transaction with proper parameter handling
+        const callTxnParams: Record<string, any> = {
           from: String(args.from),
           appIndex: Number(args.appIndex),
-          note: typeof args.note === 'string' ? new TextEncoder().encode(args.note) : undefined,
-          lease: typeof args.lease === 'string' ? new TextEncoder().encode(args.lease) : undefined,
-          rekeyTo: typeof args.rekeyTo === 'string' ? args.rekeyTo : undefined,
-          appArgs: Array.isArray(args.appArgs) ? args.appArgs.map(arg => new TextEncoder().encode(String(arg))) : undefined,
-          accounts: Array.isArray(args.accounts) ? args.accounts.filter((acc): acc is string => typeof acc === 'string') : undefined,
-          foreignApps: Array.isArray(args.foreignApps) ? args.foreignApps.filter((app): app is number => typeof app === 'number') : undefined,
-          foreignAssets: Array.isArray(args.foreignAssets) ? args.foreignAssets.filter((asset): asset is number => typeof asset === 'number') : undefined,
-          suggestedParams,
-          onComplete: 0, // NoOp
-        });
+          fee: suggestedParams.fee,
+          firstRound: suggestedParams.firstRound,
+          lastRound: suggestedParams.lastRound,
+          genesisID: suggestedParams.genesisID,
+          genesisHash: suggestedParams.genesisHash,
+          type: 'appl',
+          onComplete: 0 // NoOp
+        };
+
+        // Handle optional fields
+        if (typeof args.note === 'string') {
+          const noteBytes = new TextEncoder().encode(args.note);
+          callTxnParams.note = Buffer.from(noteBytes).toString('base64');
+        }
+        if (typeof args.lease === 'string') {
+          const leaseBytes = new TextEncoder().encode(args.lease);
+          callTxnParams.lease = Buffer.from(leaseBytes).toString('base64');
+        }
+        if (typeof args.rekeyTo === 'string') {
+          callTxnParams.rekeyTo = String(args.rekeyTo);
+        }
+        if (Array.isArray(args.appArgs)) {
+          callTxnParams.appArgs = args.appArgs.map(arg => {
+            const bytes = new TextEncoder().encode(String(arg));
+            return Buffer.from(bytes).toString('base64');
+          });
+        }
+        if (Array.isArray(args.accounts)) {
+          callTxnParams.accounts = args.accounts.filter((acc): acc is string => typeof acc === 'string');
+        }
+        if (Array.isArray(args.foreignApps)) {
+          callTxnParams.foreignApps = args.foreignApps.filter((app): app is number => typeof app === 'number');
+        }
+        if (Array.isArray(args.foreignAssets)) {
+          callTxnParams.foreignAssets = args.foreignAssets.filter((asset): asset is number => typeof asset === 'number');
+        }
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(appCallTxn, null, 2),
+            text: JSON.stringify(callTxnParams, null, 2),
           }],
         };
 

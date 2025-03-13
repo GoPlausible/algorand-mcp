@@ -165,7 +165,7 @@ describe('AppTransactionManager', () => {
     it('should create an application update transaction', async () => {
       const args = {
         from: 'sender',
-        appIndex: 123,
+        appID: 123,
         approvalProgram: '#pragma version 6\nint 1',
         clearProgram: '#pragma version 6\nint 1',
       };
@@ -175,7 +175,7 @@ describe('AppTransactionManager', () => {
       expect(algosdk.makeApplicationUpdateTxnFromObject).toHaveBeenCalledWith(
         expect.objectContaining({
           from: 'sender',
-          appIndex: 123,
+          appID: 123,
           approvalProgram: new TextEncoder().encode(args.approvalProgram),
           clearProgram: new TextEncoder().encode(args.clearProgram),
           onComplete: 4,
@@ -195,7 +195,7 @@ describe('AppTransactionManager', () => {
     it('should create an application delete transaction', async () => {
       const args = {
         from: 'sender',
-        appIndex: 123,
+        appID: 123,
       };
 
       const result = await AppTransactionManager.handleTool('make_app_delete_txn', args);
@@ -203,7 +203,7 @@ describe('AppTransactionManager', () => {
       expect(algosdk.makeApplicationDeleteTxnFromObject).toHaveBeenCalledWith(
         expect.objectContaining({
           from: 'sender',
-          appIndex: 123,
+          appID: 123,
           onComplete: 5,
           suggestedParams: expect.objectContaining(mockSuggestedParams),
         })
@@ -221,7 +221,7 @@ describe('AppTransactionManager', () => {
     it('should create an application opt-in transaction', async () => {
       const args = {
         from: 'sender',
-        appIndex: 123,
+        appID: 123,
       };
 
       const result = await AppTransactionManager.handleTool('make_app_optin_txn', args);
@@ -229,7 +229,7 @@ describe('AppTransactionManager', () => {
       expect(algosdk.makeApplicationOptInTxnFromObject).toHaveBeenCalledWith(
         expect.objectContaining({
           from: 'sender',
-          appIndex: 123,
+          appID: 123,
           onComplete: 1,
           suggestedParams: expect.objectContaining(mockSuggestedParams),
         })
@@ -247,7 +247,7 @@ describe('AppTransactionManager', () => {
     it('should create an application close-out transaction', async () => {
       const args = {
         from: 'sender',
-        appIndex: 123,
+        appID: 123,
       };
 
       const result = await AppTransactionManager.handleTool('make_app_closeout_txn', args);
@@ -255,7 +255,7 @@ describe('AppTransactionManager', () => {
       expect(algosdk.makeApplicationCloseOutTxnFromObject).toHaveBeenCalledWith(
         expect.objectContaining({
           from: 'sender',
-          appIndex: 123,
+          appID: 123,
           onComplete: 2,
           suggestedParams: expect.objectContaining(mockSuggestedParams),
         })
@@ -273,7 +273,7 @@ describe('AppTransactionManager', () => {
     it('should create an application clear state transaction', async () => {
       const args = {
         from: 'sender',
-        appIndex: 123,
+        appID: 123,
       };
 
       const result = await AppTransactionManager.handleTool('make_app_clear_txn', args);
@@ -281,7 +281,7 @@ describe('AppTransactionManager', () => {
       expect(algosdk.makeApplicationClearStateTxnFromObject).toHaveBeenCalledWith(
         expect.objectContaining({
           from: 'sender',
-          appIndex: 123,
+          appID: 123,
           onComplete: 3,
           suggestedParams: expect.objectContaining(mockSuggestedParams),
         })
@@ -299,7 +299,7 @@ describe('AppTransactionManager', () => {
     it('should create an application call transaction', async () => {
       const args = {
         from: 'sender',
-        appIndex: 123,
+        appID: 123,
         appArgs: ['method', 'arg1'],
         accounts: ['acc1'],
         foreignApps: [1],
@@ -311,7 +311,7 @@ describe('AppTransactionManager', () => {
       expect(algosdk.makeApplicationNoOpTxnFromObject).toHaveBeenCalledWith(
         expect.objectContaining({
           from: 'sender',
-          appIndex: 123,
+          appID: 123,
           appArgs: args.appArgs.map(arg => new TextEncoder().encode(arg)),
           accounts: ['acc1'],
           foreignApps: [1],

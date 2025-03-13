@@ -132,11 +132,37 @@ export class AccountTransactionManager {
             suggestedParams
           });
 
-          // Return the transaction directly
+          // Create a clean transaction object for JSON serialization
+          const cleanTxn: Record<string, any> = {
+            from: String(args.from),
+            to: String(args.to),
+            amount: Number(args.amount),
+            fee: suggestedParams.fee,
+            firstRound: suggestedParams.firstRound,
+            lastRound: suggestedParams.lastRound,
+            genesisID: suggestedParams.genesisID,
+            genesisHash: suggestedParams.genesisHash,
+            type: 'pay'
+          };
+
+          // Add note if provided
+          if (typeof args.note === 'string') {
+            const noteBytes = new TextEncoder().encode(args.note);
+            cleanTxn['note'] = Buffer.from(noteBytes).toString('base64');
+          }
+
+          // Add optional parameters if they exist
+          if (args.closeRemainderTo) {
+            cleanTxn['closeRemainderTo'] = String(args.closeRemainderTo);
+          }
+          if (args.rekeyTo) {
+            cleanTxn['rekeyTo'] = String(args.rekeyTo);
+          }
+
           return {
             content: [{
               type: 'text',
-              text: JSON.stringify(txn, null, 2),
+              text: JSON.stringify(cleanTxn, null, 2),
             }],
           };
         } catch (error) {
