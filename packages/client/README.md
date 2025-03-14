@@ -1,16 +1,20 @@
 # Algorand MCP Client
 
 ## Overview
-The Algorand MCP Client provides a unified interface for wallet connectivity and transaction signing in both browser and Node.js environments. It offers seamless integration with multiple wallet providers and secure local wallet functionality, making it easy to manage Algorand accounts and sign transactions.
+The Algorand MCP Client provides a unified interface for wallet connectivity and transaction signing. It offers seamless integration with multiple wallet providers and secure local wallet functionality, making it easy to manage Algorand accounts and sign transactions.
+
+## Requirements
+- Node.js v23.6.1 or later
+- npm v10.2.4 or later
 
 ## Features
-- Universal wallet connectivity for browser and Node.js
-- Local wallet with secure credential storage
+- Comprehensive wallet connectivity
+- Local wallet with secure storage
 - Support for popular external wallets:
   - Pera Wallet
   - Defly Wallet
   - Daffi Wallet
-- Environment-aware secure storage
+- Secure credential management
 - Transaction signing and session management
 - TypeScript support with full type definitions
 
@@ -220,27 +224,17 @@ ALGOD_TOKEN="your_token"
 ALGOD_PORT="4001"
 ```
 
-## Browser Support
-
-The client is tested and supported on:
-- Chrome/Chromium (v80+)
-- Firefox (v75+)
-- Safari (v13+)
-- Edge (v80+)
-
 ## Security Considerations
 
 ### Local Wallet
 - Mnemonics are always encrypted before storage
-- Browser uses Credentials API for secure storage
-- Node.js uses encrypted files with secure permissions
+- Secure credential management
 - Memory is cleared after use
 
 ### External Wallets
 - No sensitive data is stored by the client
 - All signing happens in the wallet
 - Session data is encrypted
-- Auto-disconnect on page reload
 
 ## Best Practices
 

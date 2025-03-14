@@ -1,15 +1,21 @@
 # Algorand MCP Implementation
 
 ## Overview
-A Model Context Protocol (MCP) implementation for Algorand blockchain interactions, providing universal ES module support for both browser and Node.js environments. This implementation includes both client and server components for wallet management, transaction signing, and blockchain state queries.
+A Model Context Protocol (MCP) implementation for Algorand blockchain interactions. The implementation consists of:
+- A client package for wallet management and transaction signing (supports both browser and Node.js)
+- A server package for blockchain interactions (Node.js only)
 
 ## Features
-- Universal ES module support for browser and Node.js
 - Complete Algorand blockchain interaction capabilities
 - Extensive wallet management system
 - Comprehensive transaction handling
 - Rich blockchain state querying
 - Built-in security features
+- Support for Claude Desktop and Cursor integration
+
+## Requirements
+- Node.js v23.6.1 or later
+- npm v10.2.4 or later
 
 ## Installation
 
@@ -92,33 +98,175 @@ algorand-mcp/
 
 The Algorand MCP implementation provides 100+ tools and resources for blockchain interaction. For detailed documentation and usage instructions, please refer to the server package README.
 
-### Tool Categories
-1. Account Management Tools
-2. Transaction Creation Tools
-3. Application Interaction Tools
-4. Asset Management Tools
-5. Utility Tools
-6. Blockchain Query Tools
+### Available Tools (40)
 
-### Resource Categories
-1. Account Resources
-2. Transaction Resources
-3. Application Resources
-4. Asset Resources
-5. Node Status Resources
-6. Indexer Resources
+#### Account Management Tools
+- create_account
+- rekey_account
+- mnemonic_to_mdk
+- mdk_to_mnemonic
+- secret_key_to_mnemonic
+- mnemonic_to_secret_key
+- seed_from_mnemonic
+- mnemonic_from_seed
+- validate_address
+- encode_address
+- decode_address
 
-## Environment Support
+#### Application Tools
+- make_app_create_txn
+- make_app_update_txn
+- make_app_delete_txn
+- make_app_optin_txn
+- make_app_closeout_txn
+- make_app_clear_txn
+- make_app_call_txn
+- get_application_address
 
-### Browser Environment
-- Uses Credentials API for secure storage
-- Supports all major browsers
-- No Node.js specific dependencies
+#### Asset Tools
+- make_asset_create_txn
+- make_asset_config_txn
+- make_asset_destroy_txn
+- make_asset_freeze_txn
+- make_asset_transfer_txn
 
-### Node.js Environment
-- File-based secure storage
-- Dynamic module imports
-- ES module compatible
+#### Transaction Tools
+- make_payment_txn
+- assign_group_id
+- sign_transaction
+- sign_bytes
+- send_raw_transaction
+- simulate_raw_transactions
+
+#### Key Management Tools
+- generate_key_pair
+- derive_key
+
+#### Utility Tools
+- encode_obj
+- decode_obj
+- bytes_to_bigint
+- bigint_to_bytes
+- encode_uint64
+- decode_uint64
+- compile_teal
+- disassemble_teal
+
+### Available Resources (60)
+
+#### Algod Resources
+- accounts/{address}
+- accounts/{address}/application/{app-id}
+- accounts/{address}/asset/{asset-id}
+- applications/{app-id}
+- applications/{app-id}/box/{name}
+- applications/{app-id}/boxes
+- assets/{asset-id}
+- transactions/pending/{txid}
+- accounts/{address}/transactions/pending
+- transactions/pending
+- transactions/params
+- status
+
+#### Block Resources
+- blocks/latest
+- blocks/{round}
+- blocks/{round}/transactions
+- indexer/blocks/{round}
+
+#### Health Resources
+- health
+- indexer/health
+
+#### Genesis Resources
+- genesis
+- indexer/genesis
+
+#### Network Resources
+- versions
+- metrics
+
+#### Supply Resources
+- ledger/supply
+- indexer/supply
+
+#### Participation Resources
+- participation
+- participation/keys
+- participation/keys/{id}
+
+#### Fee Resources
+- transactions/fee
+- indexer/fee-distribution
+
+#### Protocol Resources
+- protocol
+- indexer/protocol-upgrades
+
+#### Node Resources
+- ready
+- sync
+- peers
+- catchup
+
+#### Compile Resources
+- compile/teal
+- compile/teal/disassemble
+- compile/teal/dryrun
+
+#### Debug Resources
+- debug/accounts/{address}
+- debug/txns/{txid}
+- debug/blocks/{round}
+- debug/ledger
+
+#### Indexer Resources
+- indexer/accounts/{address}
+- indexer/accounts/{address}/transactions
+- indexer/accounts/{address}/apps-local-state
+- indexer/accounts/{address}/created-applications
+- indexer/applications/{app-id}
+- indexer/applications/{app-id}/logs
+- indexer/applications/{app-id}/box/{name}
+- indexer/applications/{app-id}/boxes
+- indexer/applications
+- indexer/assets/{asset-id}
+- indexer/assets/{asset-id}/balances
+- indexer/assets/{asset-id}/transactions
+- indexer/assets/{asset-id}/balances/{address}
+- indexer/assets/{asset-id}/transactions/{txid}
+- indexer/assets
+- indexer/transactions/{txid}
+- indexer/transactions
+
+## Using with AI Development Environments
+
+### Claude Desktop
+1. Open Claude Desktop settings (`~/Library/Application Support/Claude/claude_desktop_config.json`)
+2. Add the following configuration:
+```json
+{
+  "mcpServers": {
+    "algorand": {
+      "command": "node",
+      "args": ["path/to/server/dist/index.js"],
+      "env": {
+        "ALGORAND_NETWORK": "testnet",
+        "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
+        "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
+        "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
+        "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud"
+      }
+    }
+  }
+}
+```
+
+### Cursor
+1. Open Cursor settings (`~/Library/Application Support/Cursor/User/settings/cursor_mcp_settings.json`)
+2. Add the same configuration as above, adjusting the server path accordingly
+
+Note: The server path in the configuration should be the absolute path to your compiled server's index.js file.
 
 ## Dependencies
 

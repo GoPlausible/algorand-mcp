@@ -1,11 +1,15 @@
 # Algorand MCP Server
 
 ## Overview
-The Algorand MCP Server provides a comprehensive set of tools and resources for interacting with the Algorand blockchain through the Model Context Protocol (MCP). It enables seamless blockchain interactions with built-in support for account management, asset operations, application interactions, and blockchain queries.
+The Algorand MCP Server provides a comprehensive set of tools and resources for interacting with the Algorand blockchain through the Model Context Protocol (MCP). Running exclusively in Node.js environments, it enables seamless blockchain interactions with built-in support for account management, asset operations, application interactions, and blockchain queries.
+
+## Requirements
+- Node.js v23.6.1 or later
+- npm v10.2.4 or later
 
 ## Features
-- 38+ powerful blockchain interaction tools
-- 29+ resource endpoints for data access
+- 40 powerful blockchain interaction tools
+- 60 resource endpoints for data access
 - Built-in default configuration for quick setup
 - Comprehensive transaction management
 - Complete application lifecycle support
@@ -22,9 +26,9 @@ npm install @algorand-mcp/server
 cp .env.example .env
 ```
 
-The server comes with built-in defaults for testnet:
+The server comes with built-in defaults for testnet, no additional configuration required:
 ```bash
-# Default configuration (no setup required)
+# Default configuration
 ALGORAND_NETWORK="testnet"
 ALGORAND_ALGOD_API="https://testnet-api.algonode.cloud/v2"
 ALGORAND_ALGOD="https://testnet-api.algonode.cloud"
@@ -32,7 +36,10 @@ ALGORAND_INDEXER_API="https://testnet-idx.algonode.cloud/v2"
 ALGORAND_INDEXER="https://testnet-idx.algonode.cloud"
 ```
 
-Override defaults by setting environment variables or creating a .env file.
+Override defaults by:
+1. Setting environment variables
+2. Creating a .env file
+3. Configuring in Claude Desktop/Cursor settings (see root README)
 
 ## Installation
 
@@ -291,37 +298,48 @@ src/
     - Simulates raw transactions
     - Parameters: `{ txns: string[] }`
 
+### Key Management Tools
+
+31. `generate_key_pair`
+    - Generates new public/private key pair
+    - Parameters: None
+    - Returns: `{ publicKey: string, privateKey: string }`
+
+32. `derive_key`
+    - Derives a key from a master key
+    - Parameters: `{ masterKey: string, index: number }`
+
 ### Utility Tools
 
-31. `encode_obj`
+33. `encode_obj`
     - Encodes object to msgpack
     - Parameters: `{ obj: any }`
 
-32. `decode_obj`
+34. `decode_obj`
     - Decodes msgpack to object
     - Parameters: `{ bytes: string }`
 
-33. `bytes_to_bigint`
+35. `bytes_to_bigint`
     - Converts bytes to BigInt
     - Parameters: `{ bytes: string }`
 
-34. `bigint_to_bytes`
+36. `bigint_to_bytes`
     - Converts BigInt to bytes
     - Parameters: `{ value: string, size: number }`
 
-35. `encode_uint64`
+37. `encode_uint64`
     - Encodes uint64 to bytes
     - Parameters: `{ value: string }`
 
-36. `decode_uint64`
+38. `decode_uint64`
     - Decodes bytes to uint64
     - Parameters: `{ bytes: string }`
 
-37. `compile_teal`
+39. `compile_teal`
     - Compiles TEAL source code
     - Parameters: `{ source: string }`
 
-38. `disassemble_teal`
+40. `disassemble_teal`
     - Disassembles TEAL bytecode
     - Parameters: `{ bytecode: string }`
 
@@ -377,73 +395,215 @@ src/
     - Gets node status
     - Returns: Current round, versions
 
+### Block Resources
+
+1. `algorand://algod/blocks/latest`
+   - Gets latest block information
+   - Returns: Latest block header and transactions
+
+2. `algorand://algod/blocks/{round}`
+   - Gets specific block information
+   - Returns: Block header and transactions
+
+3. `algorand://algod/blocks/{round}/transactions`
+   - Gets transactions in specific block
+   - Returns: Array of transactions
+
+4. `algorand://indexer/blocks/{round}`
+   - Gets historical block information
+   - Returns: Block details with transactions
+
+### Health Resources
+
+5. `algorand://algod/health`
+   - Gets node health status
+   - Returns: Node health information
+
+6. `algorand://indexer/health`
+   - Gets indexer health status
+   - Returns: Indexer health information
+
+### Genesis Resources
+
+7. `algorand://algod/genesis`
+   - Gets genesis information
+   - Returns: Network genesis configuration
+
+8. `algorand://indexer/genesis`
+   - Gets historical genesis information
+   - Returns: Network genesis details
+
+### Network Resources
+
+9. `algorand://algod/versions`
+   - Gets supported protocol versions
+   - Returns: Supported versions information
+
+10. `algorand://algod/metrics`
+    - Gets node metrics
+    - Returns: Performance metrics
+
+### Supply Resources
+
+11. `algorand://algod/ledger/supply`
+    - Gets current supply information
+    - Returns: Total and online stake
+
+12. `algorand://indexer/supply`
+    - Gets historical supply information
+    - Returns: Historical supply data
+
+### Participation Resources
+
+13. `algorand://algod/participation`
+    - Gets participation key information
+    - Returns: Key registration info
+
+14. `algorand://algod/participation/keys`
+    - Lists participation keys
+    - Returns: Array of keys
+
+15. `algorand://algod/participation/keys/{id}`
+    - Gets specific participation key
+    - Returns: Key details
+
+### Fee Resources
+
+16. `algorand://algod/transactions/fee`
+    - Gets suggested fee
+    - Returns: Current fee information
+
+17. `algorand://indexer/fee-distribution`
+    - Gets historical fee distribution
+    - Returns: Fee statistics
+
+### Protocol Resources
+
+18. `algorand://algod/protocol`
+    - Gets current protocol parameters
+    - Returns: Protocol configuration
+
+19. `algorand://indexer/protocol-upgrades`
+    - Gets protocol upgrade history
+    - Returns: Upgrade information
+
+### Node Resources
+
+20. `algorand://algod/ready`
+    - Checks if node is ready
+    - Returns: Readiness status
+
+21. `algorand://algod/sync`
+    - Gets node sync status
+    - Returns: Sync information
+
+22. `algorand://algod/peers`
+    - Lists connected peers
+    - Returns: Peer information
+
+23. `algorand://algod/catchup`
+    - Gets catchup information
+    - Returns: Catchup status
+
+### Compile Resources
+
+24. `algorand://algod/compile/teal`
+    - Compiles TEAL program
+    - Returns: Compilation result
+
+25. `algorand://algod/compile/teal/disassemble`
+    - Disassembles TEAL bytecode
+    - Returns: Source code
+
+26. `algorand://algod/compile/teal/dryrun`
+    - Dry runs TEAL program
+    - Returns: Execution result
+
+### Debug Resources
+
+27. `algorand://algod/debug/accounts/{address}`
+    - Gets detailed account debug info
+    - Returns: Internal state
+
+28. `algorand://algod/debug/txns/{txid}`
+    - Gets transaction debug info
+    - Returns: Execution details
+
+29. `algorand://algod/debug/blocks/{round}`
+    - Gets block debug info
+    - Returns: Internal state
+
+30. `algorand://algod/debug/ledger`
+    - Gets ledger debug info
+    - Returns: Database state
+
 ### Indexer Resources (Historical Data)
 
-13. `algorand://indexer/accounts/{address}`
+31. `algorand://indexer/accounts/{address}`
     - Gets account history
     - Returns: Historical account state
 
-14. `algorand://indexer/accounts/{address}/transactions`
+32. `algorand://indexer/accounts/{address}/transactions`
     - Gets account transactions
     - Returns: Transaction history
 
-15. `algorand://indexer/accounts/{address}/apps-local-state`
+33. `algorand://indexer/accounts/{address}/apps-local-state`
     - Gets account's application states
     - Returns: All local states
 
-16. `algorand://indexer/accounts/{address}/created-applications`
+34. `algorand://indexer/accounts/{address}/created-applications`
     - Gets created applications
     - Returns: Applications created by account
 
-17. `algorand://indexer/applications/{app-id}`
+35. `algorand://indexer/applications/{app-id}`
     - Gets application history
     - Returns: Historical application state
 
-18. `algorand://indexer/applications/{app-id}/logs`
+36. `algorand://indexer/applications/{app-id}/logs`
     - Gets application logs
     - Returns: Historical log messages
 
-19. `algorand://indexer/applications/{app-id}/box/{name}`
+37. `algorand://indexer/applications/{app-id}/box/{name}`
     - Gets historical box state
     - Returns: Box value at specific round
 
-20. `algorand://indexer/applications/{app-id}/boxes`
+38. `algorand://indexer/applications/{app-id}/boxes`
     - Lists historical boxes
     - Returns: Box names at specific round
 
-21. `algorand://indexer/applications`
+39. `algorand://indexer/applications`
     - Searches applications
     - Returns: Matching applications
 
-22. `algorand://indexer/assets/{asset-id}`
+40. `algorand://indexer/assets/{asset-id}`
     - Gets asset history
     - Returns: Historical asset state
 
-23. `algorand://indexer/assets/{asset-id}/balances`
+41. `algorand://indexer/assets/{asset-id}/balances`
     - Gets asset holders
     - Returns: Accounts holding asset
 
-24. `algorand://indexer/assets/{asset-id}/transactions`
+42. `algorand://indexer/assets/{asset-id}/transactions`
     - Gets asset transactions
     - Returns: Transactions involving asset
 
-25. `algorand://indexer/assets/{asset-id}/balances/{address}`
+43. `algorand://indexer/assets/{asset-id}/balances/{address}`
     - Gets historical asset balance
     - Returns: Account's asset balance
 
-26. `algorand://indexer/assets/{asset-id}/transactions/{txid}`
+44. `algorand://indexer/assets/{asset-id}/transactions/{txid}`
     - Gets specific asset transaction
     - Returns: Transaction details
 
-27. `algorand://indexer/assets`
+45. `algorand://indexer/assets`
     - Searches assets
     - Returns: Matching assets
 
-28. `algorand://indexer/transactions/{txid}`
+46. `algorand://indexer/transactions/{txid}`
     - Gets transaction details
     - Returns: Historical transaction
 
-29. `algorand://indexer/transactions`
+47. `algorand://indexer/transactions`
     - Searches transactions
     - Returns: Matching transactions
 
