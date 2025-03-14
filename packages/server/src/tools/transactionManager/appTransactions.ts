@@ -435,18 +435,16 @@ export class AppTransactionManager {
 
     switch (name) {
       case 'make_app_create_txn':
-        if (!args.from || !args.approvalProgram || !args.clearProgram ||
-            typeof args.numGlobalByteSlices !== 'number' || typeof args.numGlobalInts !== 'number' ||
-            typeof args.numLocalByteSlices !== 'number' || typeof args.numLocalInts !== 'number') {
+        if (!args.from || !args.approvalProgram || !args.clearProgram) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid application creation parameters');
         }
         // Create transaction with proper parameter handling
         const txnParams: Record<string, any> = {
           from: String(args.from),
-          globalByteSlices: Number(args.numGlobalByteSlices),
-          globalInts: Number(args.numGlobalInts),
-          localByteSlices: Number(args.numLocalByteSlices),
-          localInts: Number(args.numLocalInts),
+          numGlobalByteSlices: Number(args.numGlobalByteSlices),
+          numGlobalInts: Number(args.numGlobalInts),
+          numLocalByteSlices: Number(args.numLocalByteSlices),
+          numLocalInts: Number(args.numLocalInts),
           fee: suggestedParams.fee,
           firstRound: suggestedParams.firstRound,
           lastRound: suggestedParams.lastRound,

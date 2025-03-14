@@ -168,10 +168,10 @@ export class GeneralTransactionManager {
 
             // Set schema
             txnParams.extraPages = transaction.extraPages || 0;
-            txnParams.appGlobalInts = transaction.globalInts || 0;
-            txnParams.appGlobalByteSlices = transaction.globalByteSlices || 0;
-            txnParams.appLocalInts = transaction.localInts || 0;
-            txnParams.appLocalByteSlices = transaction.localByteSlices || 0;
+            // txnParams.appGlobalInts = transaction.globalInts || 0;
+            // txnParams.appGlobalByteSlices = transaction.globalByteSlices || 0;
+            // txnParams.appLocalInts = transaction.localInts || 0;
+            // txnParams.appLocalByteSlices = transaction.localByteSlices || 0;
 
             // Set optional arrays
             if (transaction.appArgs) {
