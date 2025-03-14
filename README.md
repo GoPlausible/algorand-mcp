@@ -32,20 +32,13 @@ IMPORTANT: The client package is still a work in progress and is not yet fully f
 ### Via NPM
 ```bash
 # Install both client and server packages
-npm install @algorand-mcp/client @algorand-mcp/server
+npm install algorand-mcp
 
-# Or install individually
-npm install @algorand-mcp/client  # For wallet and transaction signing
-npm install @algorand-mcp/server  # For blockchain interactions
 ```
 
 ### Via Smithery
 ```bash
-# Install the server package
-smithery install algorand-mcp/server
-
-# Or install both packages
-smithery install algorand-mcp/client algorand-mcp/server
+npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client claude
 ```
 
 ## Project Architecture

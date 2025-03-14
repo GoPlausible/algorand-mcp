@@ -21,7 +21,7 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 
 ```bash
 # Install the server package
-npm install @algorand-mcp/server
+npm install algorand-mcp
 
 # Optional: Create .env file for custom configuration
 cp .env.example .env
@@ -29,10 +29,7 @@ cp .env.example .env
 ### Via Smithery
 ```bash
 # Install the server package
-smithery install algorand-mcp/server
-
-# Or install both packages
-smithery install algorand-mcp/client algorand-mcp/server
+npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client claude
 ```
 
 The server comes with built-in defaults for testnet, no additional configuration required:
