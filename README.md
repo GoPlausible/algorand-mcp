@@ -5,6 +5,10 @@ A Model Context Protocol (MCP) implementation for Algorand blockchain interactio
 - (PRODUCTION) A server package for blockchain interactions (Node.js only)
 - (WIP) A client package for wallet management and transaction signing (supports both browser and Node.js)
 
+**📦 Packages:**
+- **[Algorand MCP Server](packages/server/README.md)** - Algorand MCP server full implementation.
+- **[Algorand MCP Client](packages/client/README.md)** - Algorand MCP Client for client side Wallet management and transaction signing, as well as integration by other Agent hosts.
+
 IMPORTANT: The client package is still a work in progress and is not yet fully functional. The server package, however, is fully operational and can be used for to integrate Algorand blockchain to any agent system that supports Model Context Protocol (MCP).
 
 ## Features
