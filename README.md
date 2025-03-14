@@ -1,6 +1,42 @@
 # Algorand MCP Implementation
 
+## Overview
 A Model Context Protocol (MCP) implementation for Algorand blockchain interactions, providing universal ES module support for both browser and Node.js environments. This implementation includes both client and server components for wallet management, transaction signing, and blockchain state queries.
+
+## Features
+- Universal ES module support for browser and Node.js
+- Complete Algorand blockchain interaction capabilities
+- Extensive wallet management system
+- Comprehensive transaction handling
+- Rich blockchain state querying
+- Built-in security features
+
+## Installation
+
+```bash
+# Install both client and server packages
+npm install @algorand-mcp/client @algorand-mcp/server
+
+# Or install individually
+npm install @algorand-mcp/client  # For wallet and transaction signing
+npm install @algorand-mcp/server  # For blockchain interactions
+```
+
+## Project Architecture
+
+The project follows a modular architecture with two main packages:
+
+1. **Client Package (`@algorand-mcp/client`)**
+   - Handles wallet connections and transaction signing
+   - Supports both local and external wallets
+   - Universal compatibility (browser/Node.js)
+   - Secure credential management
+
+2. **Server Package (`@algorand-mcp/server`)**
+   - Provides MCP tools and resources
+   - Manages blockchain interactions
+   - Handles transaction creation and submission
+   - Offers comprehensive blockchain queries
 
 ## Project Structure
 
@@ -10,32 +46,24 @@ algorand-mcp/
 │   ├── client/                    # Client Package
 │   │   ├── src/
 │   │   │   ├── index.ts          # Client entry point and wallet management
-│   │   │   └── LocalWallet.ts    # Local wallet implementation (browser/Node.js)
+│   │   │   └── LocalWallet.ts    # Local wallet implementation
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   └── server/                    # Server Package
 │       ├── src/
 │       │   ├── resources/         # MCP Resources
-│       │   │   ├── index.ts      # Resource exports (algod/indexer namespaces)
 │       │   │   ├── algod/        # Real-time blockchain state
-│       │   │   │   ├── index.ts  # Algod blockchain states resources
-│       │   │   │   ├── account.ts        # Account information
-│       │   │   │   ├── application.ts    # Application state
-│       │   │   │   ├── asset.ts          # Asset details
-│       │   │   │   └── transaction.ts    # Pending transactions
 │       │   │   └── indexer/      # Historical blockchain data
-│       │   │       ├── index.ts  # Indexer resource exports
-│       │   │       ├── account.ts        # Account history
-│       │   │       ├── application.ts    # Application history
-│       │   │       ├── asset.ts          # Asset history
-│       │   │       └── transaction.ts    # Transaction history
 │       │   ├── tools/            # MCP Tools
-│       │   │   ├── index.ts      # Tool exports
 │       │   │   ├── accountManager.ts     # Account operations
 │       │   │   ├── algodManager.ts       # Node interactions
-│       │   │   ├── transactionManager.ts # Transaction handling
-│       │   │   └── utilityManager.ts     # Utility functions
-│       │   ├── config.ts         # Server configuration
+│       │   │   ├── utilityManager.ts     # Utility functions
+│       │   │   └── transactionManager/   # Transaction handling
+│       │   │       ├── accountTransactions.ts
+│       │   │       ├── assetTransactions.ts
+│       │   │       ├── generalTransaction.ts
+│       │   │       └── appTransactions/
+│       │   ├── env.ts            # Environment configuration
 │       │   └── index.ts          # Server entry point
 │       ├── package.json
 │       └── tsconfig.json
@@ -43,183 +71,54 @@ algorand-mcp/
 └── tsconfig.json                 # Root TypeScript config
 ```
 
-## Features
+## Core Functionalities
 
-### Universal ES Module Support
-- Works in both browser and Node.js environments
-- No environment-specific dependencies
-- Dynamic imports for Node.js modules
-- Browser-compatible credential storage
+### Client Features
+- Local wallet with secure storage
+- External wallet support (Pera, Defly, Daffi)
+- Transaction signing
+- Session management
+- Universal ES module support
 
-### Client Capabilities
+### Server Features
+- Account management
+- Asset operations
+- Application interactions
+- Transaction creation and submission
+- Blockchain state queries
+- Comprehensive utility functions
 
-#### Wallet Support
-- **Local Wallet**
-  - Browser: Uses Credentials API for secure mnemonic storage
-  - Node.js: Uses .mnemonic files in project directory
-  - Methods:
-    - `connect()`: Creates new account if none exists
-    - `reconnectSession()`: Reconnects to existing account
-    - `disconnect()`: Clears current session
-    - `signTransactions()`: Signs transaction groups
-    - `makeTransactionSigner()`: Creates algosdk-compatible transaction signer
+## Available Tools and Resources
 
-- **External Wallets**
-  - Pera Wallet
-  - Defly Wallet
-  - Daffi Wallet
-  - Methods:
-    - `connect()`: Initiates wallet connection
-    - `reconnectSession()`: Restores previous session
-    - `disconnect()`: Ends wallet session
-    - `signTransactions()`: Signs transaction groups
+The Algorand MCP implementation provides 100+ tools and resources for blockchain interaction. For detailed documentation and usage instructions, please refer to the server package README.
 
-### Server Resources
+### Tool Categories
+1. Account Management Tools
+2. Transaction Creation Tools
+3. Application Interaction Tools
+4. Asset Management Tools
+5. Utility Tools
+6. Blockchain Query Tools
 
-1. **Account Information**
-   - URI: `algorand://account/{address}`
-   - Returns: Account balance, assets, and auth address
-   - Source: Algod API
-
-2. **Transaction History**
-   - URI: `algorand://account/{address}/transactions`
-   - Returns: Account transaction history
-   - Source: Indexer API
-
-3. **Asset Holdings**
-   - URI: `algorand://account/{address}/assets`
-   - Returns: Account's ASA holdings
-   - Source: Indexer API
-
-4. **Application State**
-   - URI: `algorand://app/{app-id}/state`
-   - Returns: Application global and local state
-   - Source: Algod API
-
-### Server Tools
-
-1. **create_account**
-   - Creates new Algorand account
-   - Returns: `{ address: string, mnemonic: string }`
-   - No parameters required
-
-2. **rekey_account**
-   - Creates rekey transaction
-   - Parameters:
-     ```typescript
-     {
-       sourceAddress: string,  // Account to rekey
-       targetAddress: string   // New authorized address
-     }
-     ```
-
-## Installation
-
-```bash
-npm install @algorand-mcp/client @algorand-mcp/server
-```
-
-## Usage Examples
-
-### Client Usage
-
-```typescript
-import { AlgorandMcpClient } from '@algorand-mcp/client';
-
-// Initialize client
-const client = new AlgorandMcpClient({
-  network: 'testnet'  // or 'mainnet' or 'localnet'
-});
-
-// Using Local Wallet
-async function useLocalWallet() {
-  // Connect creates new account if none exists
-  const [address] = await client.connect('local');
-  
-  // Sign transactions
-  const signedTxns = await client.signTransactions([[
-    { txn: someTransaction, message: 'Optional message' }
-  ]]);
-  
-  // Get transaction signer (algosdk compatible)
-  const signer = await client.makeTransactionSigner();
-  const signedTxn = await signer([transaction], [0]);
-  
-  await client.disconnect();
-}
-
-// Using External Wallet (Pera, Defly, or Daffi)
-async function useExternalWallet() {
-  // Connect to Pera wallet
-  const addresses = await client.connect('pera');
-  
-  // Sign transaction group
-  const signedTxns = await client.signTransactions([
-    [{ txn: tx1 }, { txn: tx2 }]  // Transaction group
-  ]);
-  
-  await client.disconnect();
-}
-
-// Reconnecting to previous session
-async function reconnect() {
-  const addresses = await client.reconnectSession('pera');
-  // Wallet is ready to use
-}
-```
-
-### Server Usage
-
-```typescript
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { AlgorandMcpServer } from '@algorand-mcp/server';
-
-const server = new AlgorandMcpServer();
-await server.run();
-
-// Example resource request
-GET algorand://account/ABCD1234/assets
-Response: {
-  "assets": [
-    {
-      "asset-id": 123,
-      "amount": 1000
-    }
-  ]
-}
-
-// Example tool request
-POST /tools/create_account
-Response: {
-  "address": "ABCD1234...",
-  "mnemonic": "word1 word2 ..."
-}
-```
+### Resource Categories
+1. Account Resources
+2. Transaction Resources
+3. Application Resources
+4. Asset Resources
+5. Node Status Resources
+6. Indexer Resources
 
 ## Environment Support
 
 ### Browser Environment
-- Uses Credentials API for secure mnemonic storage
+- Uses Credentials API for secure storage
 - Supports all major browsers
-- No Node.js specific imports
+- No Node.js specific dependencies
 
 ### Node.js Environment
-- Uses .mnemonic files in project directory
-- Dynamic imports for fs/promises and path
+- File-based secure storage
+- Dynamic module imports
 - ES module compatible
-
-## Development
-
-1. Build packages:
-   ```bash
-   npm run build
-   ```
-
-2. Run tests:
-   ```bash
-   npm test
-   ```
 
 ## Dependencies
 
