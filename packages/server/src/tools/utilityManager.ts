@@ -108,7 +108,8 @@ export class UtilityManager {
 
   // Tool handlers
   static async handleTool(name: string, args: Record<string, unknown>) {
-    switch (name) {
+    try {
+      switch (name) {
       case 'validate_address':
         if (!args.address || typeof args.address !== 'string') {
           throw new McpError(ErrorCode.InvalidParams, 'Address is required');
@@ -206,10 +207,22 @@ export class UtilityManager {
         };
 
       default:
+        console.error(`[MCP Error] Unknown tool requested: ${name}`);
         throw new McpError(
           ErrorCode.MethodNotFound,
           `Unknown tool: ${name}`
         );
+    }
+    } catch (error) {
+      if (error instanceof McpError) {
+        console.error(`[MCP Error] ${error.code}: ${error.message}`);
+        throw error;
+      }
+      console.error('[MCP Error] Unexpected error:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -219,7 +232,15 @@ export class UtilityManager {
    * @returns True if the address is valid, false otherwise
    */
   static isValidAddress(address: string): boolean {
-    return algosdk.isValidAddress(address);
+    try {
+      return algosdk.isValidAddress(address);
+    } catch (error) {
+      console.error('[MCP Error] Failed to validate address:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid address format: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -228,7 +249,15 @@ export class UtilityManager {
    * @returns The encoded address
    */
   static encodeAddress(publicKey: Uint8Array): string {
-    return algosdk.encodeAddress(publicKey);
+    try {
+      return algosdk.encodeAddress(publicKey);
+    } catch (error) {
+      console.error('[MCP Error] Failed to encode address:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid public key: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -237,7 +266,15 @@ export class UtilityManager {
    * @returns The decoded public key
    */
   static decodeAddress(address: string): Uint8Array {
-    return algosdk.decodeAddress(address).publicKey;
+    try {
+      return algosdk.decodeAddress(address).publicKey;
+    } catch (error) {
+      console.error('[MCP Error] Failed to decode address:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid address: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -246,7 +283,15 @@ export class UtilityManager {
    * @returns The application address
    */
   static getApplicationAddress(appId: number): string {
-    return algosdk.getApplicationAddress(appId);
+    try {
+      return algosdk.getApplicationAddress(appId);
+    } catch (error) {
+      console.error('[MCP Error] Failed to get application address:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid application ID: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -255,7 +300,15 @@ export class UtilityManager {
    * @returns The BigInt value
    */
   static bytesToBigInt(bytes: Uint8Array): bigint {
-    return BigInt('0x' + Buffer.from(bytes).toString('hex'));
+    try {
+      return BigInt('0x' + Buffer.from(bytes).toString('hex'));
+    } catch (error) {
+      console.error('[MCP Error] Failed to convert bytes to BigInt:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid bytes format: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -265,8 +318,16 @@ export class UtilityManager {
    * @returns The bytes representation
    */
   static bigIntToBytes(value: bigint, size: number): Uint8Array {
-    const hex = value.toString(16).padStart(size * 2, '0');
-    return Buffer.from(hex, 'hex');
+    try {
+      const hex = value.toString(16).padStart(size * 2, '0');
+      return Buffer.from(hex, 'hex');
+    } catch (error) {
+      console.error('[MCP Error] Failed to convert BigInt to bytes:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid BigInt value or size: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -275,7 +336,15 @@ export class UtilityManager {
    * @returns The encoded bytes
    */
   static encodeUint64(value: bigint): Uint8Array {
-    return this.bigIntToBytes(value, 8);
+    try {
+      return this.bigIntToBytes(value, 8);
+    } catch (error) {
+      console.error('[MCP Error] Failed to encode uint64:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid uint64 value: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -284,6 +353,14 @@ export class UtilityManager {
    * @returns The decoded uint64 value
    */
   static decodeUint64(bytes: Uint8Array): bigint {
-    return this.bytesToBigInt(bytes);
+    try {
+      return this.bytesToBigInt(bytes);
+    } catch (error) {
+      console.error('[MCP Error] Failed to decode uint64:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid uint64 bytes: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 }

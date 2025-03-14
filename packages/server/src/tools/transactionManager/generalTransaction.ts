@@ -135,21 +135,22 @@ export class GeneralTransactionManager {
           const transaction = args.transaction as any;
 
           // Create a new transaction object with proper fields
-          const txnParams: any = {
-            from: transaction.from,
-            fee: transaction.fee,
-            firstRound: transaction.firstRound,
-            lastRound: transaction.lastRound,
-            genesisID: transaction.genesisID,
-            genesisHash: transaction.genesisHash,
-            type: transaction.type,
-            appIndex: transaction.appIndex || 0,
-            onComplete: transaction.onComplete || 0
-          };
+          // const txn: any = {
+          //   from: transaction.from,
+          //   fee: transaction.fee,
+          //   firstRound: transaction.firstRound,
+          //   lastRound: transaction.lastRound,
+          //   genesisID: transaction.genesisID,
+          //   genesisHash: transaction.genesisHash,
+          //   type: transaction.type,
+          //   appIndex: transaction.appIndex || 0,
+          //   onComplete: transaction.onComplete,
+
+          // };
 
           // Convert base64 fields
           if (transaction.note) {
-            txnParams.note = new Uint8Array(Buffer.from(transaction.note, 'base64'));
+            transaction.note = new Uint8Array(Buffer.from(transaction.note, 'base64'));
           }
 
           // Handle application-specific fields
@@ -157,45 +158,50 @@ export class GeneralTransactionManager {
             // Set approval program
             if (transaction.approvalProgram) {
               const approvalBytes = Buffer.from(transaction.approvalProgram, 'base64');
-              txnParams.appApprovalProgram = new Uint8Array(approvalBytes);
+              transaction.appApprovalProgram = new Uint8Array(approvalBytes);
             }
 
             // Set clear program
             if (transaction.clearProgram) {
               const clearBytes = Buffer.from(transaction.clearProgram, 'base64');
-              txnParams.appClearProgram = new Uint8Array(clearBytes);
+              transaction.appClearProgram = new Uint8Array(clearBytes);
             }
 
             // Set schema
-            txnParams.extraPages = transaction.extraPages || 0;
-            // txnParams.appGlobalInts = transaction.globalInts || 0;
-            // txnParams.appGlobalByteSlices = transaction.globalByteSlices || 0;
-            // txnParams.appLocalInts = transaction.localInts || 0;
-            // txnParams.appLocalByteSlices = transaction.localByteSlices || 0;
+        
+            if (transaction.numGlobalInts !== undefined) {
+              transaction.appGlobalInts = transaction.numGlobalInts;
+            }
+            if (transaction.numGlobalByteSlices !== undefined) {
+              transaction.appGlobalByteSlices = transaction.numGlobalByteSlices;
+            }
+            if (transaction.numLocalInts !== undefined) {
+              transaction.appLocalInts = transaction.numLocalInts;
+            }
+            if (transaction.numLocalByteSlices !== undefined) {
+              transaction.appLocalByteSlices = transaction.numLocalByteSlices;
+            }
+            if(transaction.onComplete)transaction.appOnComplete = transaction.onComplete;
 
             // Set optional arrays
             if (transaction.appArgs) {
-              txnParams.appArgs = transaction.appArgs.map((arg: string) => 
+              transaction.appArgs = transaction.appArgs.map((arg: string) => 
                 new Uint8Array(Buffer.from(arg, 'base64'))
               );
             }
             if (transaction.accounts) {
-              txnParams.appAccounts = transaction.accounts;
+              transaction.appAccounts = transaction.accounts;
             }
             if (transaction.foreignApps) {
-              txnParams.appForeignApps = transaction.foreignApps;
+              transaction.appForeignApps = transaction.foreignApps;
             }
             if (transaction.foreignAssets) {
-              txnParams.appForeignAssets = transaction.foreignAssets;
+              transaction.appForeignAssets = transaction.foreignAssets;
             }
           }
-
-          // Create transaction
-          const txn = new algosdk.Transaction(txnParams);
-
           // Convert hex string secret key to Uint8Array
           const sk = new Uint8Array(Buffer.from(args.sk, 'hex'));
-          const signedTxn = algosdk.signTransaction(txn, sk);
+          const signedTxn = algosdk.signTransaction(new algosdk.Transaction(transaction), sk);
           return {
             content: [{
               type: 'text',

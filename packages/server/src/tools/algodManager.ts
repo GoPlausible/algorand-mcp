@@ -87,7 +87,7 @@ export class AlgodManager {
     },
     {
       name: 'send_raw_transaction',
-      description: 'Broadcast signed transactions to the network',
+      description: 'Submit signed transactions to the Algorand network',
       inputSchema: algodToolSchemas.sendRawTransaction,
     },
     {
@@ -104,7 +104,8 @@ export class AlgodManager {
 
   // Tool handlers
   static async handleTool(name: string, args: Record<string, unknown>) {
-    switch (name) {
+    try {
+      switch (name) {
       case 'compile_teal':
         if (!args.source || typeof args.source !== 'string') {
           throw new McpError(ErrorCode.InvalidParams, 'TEAL source code is required');
@@ -178,10 +179,22 @@ export class AlgodManager {
         };
 
       default:
+        console.error(`[MCP Error] Unknown tool requested: ${name}`);
         throw new McpError(
           ErrorCode.MethodNotFound,
           `Unknown tool: ${name}`
         );
+    }
+    } catch (error) {
+      if (error instanceof McpError) {
+        console.error(`[MCP Error] ${error.code}: ${error.message}`);
+        throw error;
+      }
+      console.error('[MCP Error] Unexpected error:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -204,7 +217,11 @@ export class AlgodManager {
       const response = await algodClient.compile(source).do() as CompileResponse;
       return response;
     } catch (error) {
-      throw new Error(`Failed to compile TEAL: ${error instanceof Error ? error.message : String(error)}`);
+      console.error('[MCP Error] Failed to compile TEAL:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Failed to compile TEAL: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -218,7 +235,11 @@ export class AlgodManager {
       const response = await algodClient.disassemble(bytecode).do() as DisassembleResponse;
       return response;
     } catch (error) {
-      throw new Error(`Failed to disassemble TEAL: ${error instanceof Error ? error.message : String(error)}`);
+      console.error('[MCP Error] Failed to disassemble TEAL:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Failed to disassemble TEAL: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -232,7 +253,11 @@ export class AlgodManager {
       const response = await algodClient.sendRawTransaction(signedTxns).do() as PostTransactionsResponse;
       return response;
     } catch (error) {
-      throw new Error(`Failed to send transaction: ${error instanceof Error ? error.message : String(error)}`);
+      console.error('[MCP Error] Failed to send transaction:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Failed to send transaction: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -246,7 +271,11 @@ export class AlgodManager {
       const response = await algodClient.simulateRawTransactions(txns).do() as SimulateResponse;
       return response;
     } catch (error) {
-      throw new Error(`Failed to simulate raw transactions: ${error instanceof Error ? error.message : String(error)}`);
+      console.error('[MCP Error] Failed to simulate raw transactions:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Failed to simulate raw transactions: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -280,7 +309,11 @@ export class AlgodManager {
       const response = await algodClient.simulateTransactions(simulateRequest).do() as SimulateResponse;
       return response;
     } catch (error) {
-      throw new Error(`Failed to simulate transactions: ${error instanceof Error ? error.message : String(error)}`);
+      console.error('[MCP Error] Failed to simulate transactions:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Failed to simulate transactions: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 }

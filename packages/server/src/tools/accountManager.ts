@@ -107,7 +107,8 @@ export class AccountManager {
 
   // Tool handlers
   static async handleTool(name: string, args: Record<string, unknown>) {
-    switch (name) {
+    try {
+      switch (name) {
       case 'create_account':
         return {
           content: [{
@@ -212,10 +213,22 @@ export class AccountManager {
         };
 
       default:
+        console.error(`[MCP Error] Unknown tool requested: ${name}`);
         throw new McpError(
           ErrorCode.MethodNotFound,
           `Unknown tool: ${name}`
         );
+    }
+    } catch (error) {
+      if (error instanceof McpError) {
+        console.error(`[MCP Error] ${error.code}: ${error.message}`);
+        throw error;
+      }
+      console.error('[MCP Error] Unexpected error:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -224,12 +237,20 @@ export class AccountManager {
    * @returns Object containing the address and mnemonic
    */
   static createAccount(): { address: string; mnemonic: string } {
-    const account = algosdk.generateAccount();
-    const mnemonic = algosdk.secretKeyToMnemonic(account.sk);
-    return {
-      address: account.addr,
-      mnemonic,
-    };
+    try {
+      const account = algosdk.generateAccount();
+      const mnemonic = algosdk.secretKeyToMnemonic(account.sk);
+      return {
+        address: account.addr,
+        mnemonic,
+      };
+    } catch (error) {
+      console.error('[MCP Error] Failed to create account:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Failed to create account: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -239,16 +260,24 @@ export class AccountManager {
    * @returns The rekey transaction object
    */
   static async createRekeyTransaction(fromAddress: string, toAddress: string): Promise<algosdk.Transaction> {
-    const params = await algodClient.getTransactionParams().do();
-    const suggestedParams = { ...params, flatFee: true, fee: params.minFee };
+    try {
+      const params = await algodClient.getTransactionParams().do();
+      const suggestedParams = { ...params, flatFee: true, fee: params.minFee };
 
-    return algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      from: fromAddress,
-      to: fromAddress,
-      amount: 0,
-      rekeyTo: toAddress,
-      suggestedParams,
-    });
+      return algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: fromAddress,
+        to: fromAddress,
+        amount: 0,
+        rekeyTo: toAddress,
+        suggestedParams,
+      });
+    } catch (error) {
+      console.error('[MCP Error] Failed to create rekey transaction:', error);
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Failed to create rekey transaction: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -257,7 +286,15 @@ export class AccountManager {
    * @returns The master derivation key
    */
   static mnemonicToMasterDerivationKey(mnemonic: string): Uint8Array {
-    return algosdk.mnemonicToMasterDerivationKey(mnemonic);
+    try {
+      return algosdk.mnemonicToMasterDerivationKey(mnemonic);
+    } catch (error) {
+      console.error('[MCP Error] Failed to convert mnemonic to MDK:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid mnemonic provided: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -266,7 +303,15 @@ export class AccountManager {
    * @returns The mnemonic
    */
   static masterDerivationKeyToMnemonic(mdk: Uint8Array): string {
-    return algosdk.masterDerivationKeyToMnemonic(mdk);
+    try {
+      return algosdk.masterDerivationKeyToMnemonic(mdk);
+    } catch (error) {
+      console.error('[MCP Error] Failed to convert MDK to mnemonic:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid master derivation key provided: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -275,7 +320,15 @@ export class AccountManager {
    * @returns The mnemonic
    */
   static secretKeyToMnemonic(secretKey: Uint8Array): string {
-    return algosdk.secretKeyToMnemonic(secretKey);
+    try {
+      return algosdk.secretKeyToMnemonic(secretKey);
+    } catch (error) {
+      console.error('[MCP Error] Failed to convert secret key to mnemonic:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid secret key provided: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -284,7 +337,15 @@ export class AccountManager {
    * @returns The secret key
    */
   static mnemonicToSecretKey(mnemonic: string): { sk: Uint8Array; addr: string } {
-    return algosdk.mnemonicToSecretKey(mnemonic);
+    try {
+      return algosdk.mnemonicToSecretKey(mnemonic);
+    } catch (error) {
+      console.error('[MCP Error] Failed to convert mnemonic to secret key:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid mnemonic provided: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -293,7 +354,15 @@ export class AccountManager {
    * @returns The seed
    */
   static seedFromMnemonic(mnemonic: string): Uint8Array {
-    return algosdk.seedFromMnemonic(mnemonic);
+    try {
+      return algosdk.seedFromMnemonic(mnemonic);
+    } catch (error) {
+      console.error('[MCP Error] Failed to generate seed from mnemonic:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid mnemonic provided: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   /**
@@ -302,6 +371,14 @@ export class AccountManager {
    * @returns The mnemonic
    */
   static mnemonicFromSeed(seed: Uint8Array): string {
-    return algosdk.mnemonicFromSeed(seed);
+    try {
+      return algosdk.mnemonicFromSeed(seed);
+    } catch (error) {
+      console.error('[MCP Error] Failed to generate mnemonic from seed:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid seed provided: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { AccountTransactionManager, accountTransactionTools } from './accountTransactions.js';
 import { AssetTransactionManager, assetTransactionTools } from './assetTransactions.js';
-import { AppTransactionManager, appTransactionTools } from './appTransactions.js';
+import { AppTransactionManager, appTransactionTools } from './appTransactions/index.js';
 import { GeneralTransactionManager, generalTransactionTools } from './generalTransaction.js';
 
 // Combine all transaction tools
