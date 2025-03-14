@@ -1,0 +1,50 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+build:
+  dockerBuildPath: ../..
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    properties:
+      ALGORAND_NETWORK:
+        type: string
+        default: testnet
+        description: Algorand network to connect to, e.g., testnet or mainnet
+      ALGORAND_ALGOD_API:
+        type: string
+        default: https://testnet-api.algonode.cloud/v2
+        description: Algod API endpoint URL
+      ALGORAND_ALGOD:
+        type: string
+        default: https://testnet-api.algonode.cloud
+        description: Algod node base URL
+      ALGORAND_INDEXER_API:
+        type: string
+        default: https://testnet-idx.algonode.cloud/v2
+        description: Indexer API endpoint URL
+      ALGORAND_INDEXER:
+        type: string
+        default: https://testnet-idx.algonode.cloud
+        description: Indexer base URL
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['packages/server/dist/index.js'],
+      env: {
+        ALGORAND_NETWORK: config.ALGORAND_NETWORK,
+        ALGORAND_ALGOD_API: config.ALGORAND_ALGOD_API,
+        ALGORAND_ALGOD: config.ALGORAND_ALGOD,
+        ALGORAND_INDEXER_API: config.ALGORAND_INDEXER_API,
+        ALGORAND_INDEXER: config.ALGORAND_INDEXER
+      }
+    })
+  exampleConfig:
+    ALGORAND_NETWORK: testnet
+    ALGORAND_ALGOD_API: https://testnet-api.algonode.cloud/v2
+    ALGORAND_ALGOD: https://testnet-api.algonode.cloud
+    ALGORAND_INDEXER_API: https://testnet-idx.algonode.cloud/v2
+    ALGORAND_INDEXER: https://testnet-idx.algonode.cloud
