@@ -26,6 +26,14 @@ npm install @algorand-mcp/server
 # Optional: Create .env file for custom configuration
 cp .env.example .env
 ```
+### Via Smithery
+```bash
+# Install the server package
+smithery install algorand-mcp/server
+
+# Or install both packages
+smithery install algorand-mcp/client algorand-mcp/server
+```
 
 The server comes with built-in defaults for testnet, no additional configuration required:
 ```bash

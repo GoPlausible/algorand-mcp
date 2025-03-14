@@ -9,6 +9,10 @@ A Model Context Protocol (MCP) implementation for Algorand blockchain interactio
 - **[Algorand MCP Server](packages/server/README.md)** - Algorand MCP server full implementation.
 - **[Algorand MCP Client](packages/client/README.md)** - Algorand MCP Client for client side Wallet management and transaction signing, as well as integration by other Agent hosts.
 
+**📦 Smithery:**
+- **[Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp)** - Algorand MCP server implementation via smithery.
+
+
 IMPORTANT: The client package is still a work in progress and is not yet fully functional. The server package, however, is fully operational and can be used for to integrate Algorand blockchain to any agent system that supports Model Context Protocol (MCP).
 
 ## Features
@@ -25,6 +29,7 @@ IMPORTANT: The client package is still a work in progress and is not yet fully f
 
 ## Installation
 
+### Via NPM
 ```bash
 # Install both client and server packages
 npm install @algorand-mcp/client @algorand-mcp/server
@@ -32,6 +37,15 @@ npm install @algorand-mcp/client @algorand-mcp/server
 # Or install individually
 npm install @algorand-mcp/client  # For wallet and transaction signing
 npm install @algorand-mcp/server  # For blockchain interactions
+```
+
+### Via Smithery
+```bash
+# Install the server package
+smithery install algorand-mcp/server
+
+# Or install both packages
+smithery install algorand-mcp/client algorand-mcp/server
 ```
 
 ## Project Architecture
