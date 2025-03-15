@@ -37,9 +37,41 @@ npm install algorand-mcp
 ```
 
 ### Via Smithery
-```bash
-npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client claude
-```
+Go to [Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp) and select your AI tool and platform. Copy either command or copy depending on if you are using the command or MCP config JSON to connect to MCP Server. Click connect to start!
+
+![Screenshot 2025-03-15 at 00 50 12](https://github.com/user-attachments/assets/f9ea0572-6919-44b0-85e7-c6153fce9b2f)
+
+#### Using command
+
+First let's copy the command from Smithery (Please make sure your tool of choice and platform are selected correctly!)
+
+![Screenshot 2025-03-15 at 14 45 24](https://github.com/user-attachments/assets/d747ea60-732a-43e9-957f-051bfec5d134)
+
+Then paste that in the command field of New MCP server dialog
+
+![Screenshot 2025-03-15 at 14 51 06](https://github.com/user-attachments/assets/5f5d9c1a-297c-4685-928d-ddc6ed3950fa)
+
+Then The MCP server is detected and loading tools and resources
+
+![Screenshot 2025-03-15 at 14 51 31](https://github.com/user-attachments/assets/badfc6e9-fe98-4ba1-9b14-1cd4c11829ce)
+
+And it is good to go!
+
+![Screenshot 2025-03-15 at 14 51 43](https://github.com/user-attachments/assets/d2505413-61d7-4af4-9ba0-18eb58b70a51)
+
+
+#### Using settings JSON
+
+Copy the JSON from Smithery
+
+![Screenshot 2025-03-15 at 15 09 04](https://github.com/user-attachments/assets/9d9dbcfe-9870-4dd6-bf0c-ebe895480951)
+
+Now open MCP settings in your tool of choice (Claud Desktop, Cursor,...) and Paste the copied JSON there as a whole and save the file.
+
+You are good to go!
+
+![6z7Q0fuH (1)](https://github.com/user-attachments/assets/4f62ac1e-4e16-47ee-85c5-296d80b4039e)
+
 
 ## Project Architecture
 
