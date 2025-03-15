@@ -3,7 +3,11 @@
 ## Overview
 Model context protocol:
 
-Quoting from [MCP website](https://modelcontextprotocol.io/), MCP (Model Context Protocol) is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools. [MCP Github](https://github.com/modelcontextprotocol) contains more information and different tools and specifications plus documentation of MCP.
+Quoting from [MCP website](https://modelcontextprotocol.io/), MCP (Model Context Protocol) is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools.
+
+![Screenshot 2025-03-15 at 17 47 54](https://github.com/user-attachments/assets/db561f9f-5f95-4b07-914b-a71f48bb5399)
+
+[MCP Github](https://github.com/modelcontextprotocol) contains more information and different tools and specifications plus documentation of MCP.
 
 This repository is a Model Context Protocol (MCP) implementation for Algorand blockchain interactions. The implementation consists of:
 - (PRODUCTION) A server package for blockchain interactions (Node.js only)
