@@ -1,7 +1,11 @@
 # Algorand MCP Implementation
 
 ## Overview
-A Model Context Protocol (MCP) implementation for Algorand blockchain interactions. The implementation consists of:
+Model context protocol:
+
+Quoting from [MCP website](https://modelcontextprotocol.io/), MCP (Model Context Protocol) is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools. [MCP Github](https://github.com/modelcontextprotocol) contains more information and different tools and specifications plus documentation of MCP.
+
+This repository is a Model Context Protocol (MCP) implementation for Algorand blockchain interactions. The implementation consists of:
 - (PRODUCTION) A server package for blockchain interactions (Node.js only)
 - (WIP) A client package for wallet management and transaction signing (supports both browser and Node.js)
 
