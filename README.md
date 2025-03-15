@@ -29,14 +29,14 @@ IMPORTANT: The client package is still a work in progress and is not yet fully f
 
 ## Installation
 
-### Via NPM
+### Via NPM (for developers who wish to run their own instances)
 ```bash
 # Install both client and server packages
 npm install algorand-mcp
 
 ```
 
-### Via Smithery
+### Via Smithery (For all users)
 Go to [Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp) and select your AI tool and platform. Copy either command or copy depending on if you are using the command or MCP config JSON to connect to MCP Server. Click connect to start!
 
 ![Screenshot 2025-03-15 at 00 50 12](https://github.com/user-attachments/assets/f9ea0572-6919-44b0-85e7-c6153fce9b2f)
