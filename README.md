@@ -72,6 +72,10 @@ You are good to go!
 
 ![6z7Q0fuH (1)](https://github.com/user-attachments/assets/4f62ac1e-4e16-47ee-85c5-296d80b4039e)
 
+#### Important note for Windows OS Users
+Please not that if you receive "Server Closed" or "Connection Closed" Then you need to try and change the `cmd` command with `C:\Windows\System32\cmd.exe` as suggested by Smithery!
+
+![Screenshot 2025-03-15 at 15 51 13](https://github.com/user-attachments/assets/c5b013a9-33c4-4a5f-bd7a-00502334e747)
 
 ## Project Architecture
 
