@@ -303,32 +303,6 @@ The Algorand MCP implementation provides 100+ tools and resources for blockchain
 - indexer/transactions/{txid}
 - indexer/transactions
 
-## Using with AI Development Environments
-
-### Claude Desktop
-1. Open Claude Desktop settings (`~/Library/Application Support/Claude/claude_desktop_config.json`)
-2. Add the following configuration:
-```json
-{
-  "mcpServers": {
-    "algorand": {
-      "command": "node",
-      "args": ["path/to/server/dist/index.js"],
-      "env": {
-        "ALGORAND_NETWORK": "testnet",
-        "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
-        "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
-        "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
-        "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud"
-      }
-    }
-  }
-}
-```
-
-### Cursor
-1. Open Cursor settings (`~/Library/Application Support/Cursor/User/settings/cursor_mcp_settings.json`)
-2. Add the same configuration as above, adjusting the server path accordingly
 
 Note: The server path in the configuration should be the absolute path to your compiled server's index.js file.
 
