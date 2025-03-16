@@ -85,6 +85,10 @@ Please not that if you receive "Server Closed" or "Connection Closed" Then you n
 
 ![Screenshot 2025-03-15 at 15 51 13](https://github.com/user-attachments/assets/c5b013a9-33c4-4a5f-bd7a-00502334e747)
 
+
+#### Important note for Cursor Users
+Cursor does not yet support the `Resources` Capability of MCP protocol! They are working on it.
+
 ## Project Architecture
 
 The project follows a modular architecture with two main packages:
