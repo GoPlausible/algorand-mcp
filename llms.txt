@@ -3,7 +3,7 @@
 project_name: algorand-mcp
 version: 1.2.0
 description: Model Context Protocol (MCP) server for Algorand blockchain interactions, providing tools and resources for account management, asset operations, application interactions, and transaction handling
-base_url: node /Users/mg/Documents/GitHub/GoPlausible/algorand-mcp/packages/server/dist/index.js
+base_url: node algorand-mcp/packages/server/dist/index.js
 docs_url: https://github.com/GoPlausible/algorand-mcp
 
 # API Endpoints
