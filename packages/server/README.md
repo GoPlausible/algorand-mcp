@@ -12,7 +12,8 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 
 ## Features
 - 40 powerful blockchain interaction tools
-- 60 resource endpoints for data access
+- 30 resource tools for direct data access
+- 30 resource endpoints for data access
 - Built-in default configuration for quick setup
 - Comprehensive transaction management
 - Complete application lifecycle support
@@ -83,6 +84,38 @@ src/
 ```
 
 ## Available Tools
+
+### Resource Tools
+- resource_tool_get_account_info: Get current account balance, assets, and auth address from algod
+- resource_tool_get_account_application_info: Get account-specific application information from algod
+- resource_tool_get_account_asset_info: Get account-specific asset information from algod
+- resource_tool_get_application_by_id: Get application information
+- resource_tool_get_application_box: Get application box by name
+- resource_tool_get_application_boxes: Get all application boxes
+- resource_tool_get_asset_by_id: Get current asset information from algod
+- resource_tool_get_pending_transaction: Get pending transaction information
+- resource_tool_get_pending_transactions_by_address: Get pending transactions for an address
+- resource_tool_get_pending_transactions: Get all pending transactions
+- resource_tool_get_transaction_params: Get suggested transaction parameters
+- resource_tool_get_node_status: Get current node status
+- resource_tool_get_node_status_after_block: Get node status after a specific round
+- resource_tool_lookup_account_by_id: Get account information from indexer
+- resource_tool_lookup_account_transactions: Get account transaction history
+- resource_tool_lookup_account_assets: Get account assets
+- resource_tool_lookup_account_app_local_states: Get account application local states
+- resource_tool_lookup_account_created_applications: Get applications created by this account
+- resource_tool_lookup_applications: Get application information from indexer
+- resource_tool_lookup_application_logs: Get application log messages
+- resource_tool_lookup_application_box: Get application box by name
+- resource_tool_lookup_application_boxes: Get all application boxes
+- resource_tool_lookup_asset_by_id: Get asset information and configuration
+- resource_tool_lookup_asset_balances: Get accounts holding this asset and their balances
+- resource_tool_lookup_asset_transactions: Get transactions involving this asset
+- resource_tool_lookup_transaction_by_id: Get transaction information by ID
+- resource_tool_search_accounts: Search for accounts with various criteria
+- resource_tool_search_for_applications: Search for applications with various criteria
+- resource_tool_search_for_assets: Search for assets with various criteria
+- resource_tool_search_for_transactions: Search for transactions with various criteria
 
 ### Account Management Tools
 

@@ -9,22 +9,23 @@ import {
   ListToolsRequestSchema,
   McpError,
   ReadResourceRequestSchema,
-  ServerResult,
 } from '@modelcontextprotocol/sdk/types.js';
-import { 
+import {
   AccountManager,
   UtilityManager,
   TransactionManager,
   AlgodManager,
-  transactionTools
+  transactionTools,
+  resourceTools,
+  handleResourceTools
 } from './tools/index.js';
 import { ResourceManager } from './resources/index.js';
 
 class AlgorandMcpServer {
-  protected server: Server;
+  private server: Server;
   private name: string;
 
-  constructor(name: string = 'algorand-mcp-server', version: string = '1.0.0') {
+  constructor(name = 'algorand-mcp-server', version = '1.0.0') {
     this.name = name;
     this.server = new Server(
       {
@@ -34,14 +35,7 @@ class AlgorandMcpServer {
       {
         capabilities: {
           resources: {
-            schemas: ResourceManager.schemas,
-            templates: ResourceManager.resources.map(resource => ({
-              uriTemplate: resource.uri,
-              name: resource.name,
-              description: resource.description,
-              mimeType: 'application/json',
-              schema: ResourceManager.schemas[resource.uri]
-            }))
+            schemas: ResourceManager.schemas
           },
           tools: {},
         },
@@ -59,13 +53,8 @@ class AlgorandMcpServer {
     });
   }
 
-  protected setupResourceHandlers() {
-    // List available resources
-    this.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
-      resources: ResourceManager.resources
-    }));
-
-    // List resource templates
+  private setupResourceHandlers() {
+    // List resource templates only (no need for direct resources as they're the same)
     this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => ({
       resourceTemplates: ResourceManager.resources.map(resource => ({
         uriTemplate: resource.uri,
@@ -82,7 +71,7 @@ class AlgorandMcpServer {
     });
   }
 
-  protected setupToolHandlers() {
+  private setupToolHandlers() {
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
@@ -94,55 +83,67 @@ class AlgorandMcpServer {
         ...AlgodManager.algodTools,
         // Transaction Tools
         ...transactionTools,
+        // Resource Tools
+        ...resourceTools,
       ],
     }));
 
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const { name, arguments: args = {} as Record<string, unknown> } = request.params;
+      const { name, arguments: args = {} } = request.params;
 
       // Handle account tools
-      if (name.startsWith('create_account') || 
-          name.startsWith('rekey_account') || 
-          name.startsWith('mnemonic_') || 
-          name.startsWith('mdk_') || 
-          name.startsWith('seed_') || 
-          name.startsWith('secret_key_')) {
+      if (
+        name.startsWith('create_account') ||
+        name.startsWith('rekey_account') ||
+        name.startsWith('mnemonic_') ||
+        name.startsWith('mdk_') ||
+        name.startsWith('seed_') ||
+        name.startsWith('secret_key_')
+      ) {
         return AccountManager.handleTool(name, args);
       }
 
       // Handle utility tools
-      if (name.startsWith('validate_') ||
-          name.startsWith('encode_') ||
-          name.startsWith('decode_') ||
-          name.startsWith('get_application_address') ||
-          name.startsWith('bytes_to_') ||
-          name.startsWith('bigint_to_')) {
+      if (
+        name.startsWith('validate_') ||
+        name.startsWith('encode_') ||
+        name.startsWith('decode_') ||
+        name.startsWith('get_application_address') ||
+        name.startsWith('bytes_to_') ||
+        name.startsWith('bigint_to_')
+      ) {
         return UtilityManager.handleTool(name, args);
       }
 
       // Handle algod tools
-      if (name.startsWith('compile_') ||
-          name.startsWith('disassemble_') ||
-          name.startsWith('send_raw_') ||
-          name.startsWith('simulate_')) {
+      if (
+        name.startsWith('compile_') ||
+        name.startsWith('disassemble_') ||
+        name.startsWith('send_raw_') ||
+        name.startsWith('simulate_')
+      ) {
         return AlgodManager.handleTool(name, args);
       }
 
       // Handle transaction tools
-      if (name.startsWith('make_') || 
-          name === 'assign_group_id' ||
-          name === 'sign_transaction' ||
-          name === 'sign_bytes' ||
-          name === 'encode_obj' ||
-          name === 'decode_obj') {
+      if (
+        name.startsWith('make_') ||
+        name === 'assign_group_id' ||
+        name === 'sign_transaction' ||
+        name === 'sign_bytes' ||
+        name === 'encode_obj' ||
+        name === 'decode_obj'
+      ) {
         return TransactionManager.handleTool(name, args);
       }
 
-      throw new McpError(
-        ErrorCode.MethodNotFound,
-        `Unknown tool: ${name}`
-      );
+      // Handle resource tools
+      if (name.startsWith('resource_tool_')) {
+        return handleResourceTools(name, args);
+      }
+
+      throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
     });
   }
 
