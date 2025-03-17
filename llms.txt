@@ -1,0 +1,110 @@
+# llms.txt - Optimized Documentation for AI Developer Tools
+
+project_name: algorand-mcp
+version: 1.2.0
+description: Model Context Protocol (MCP) server for Algorand blockchain interactions, providing tools and resources for account management, asset operations, application interactions, and transaction handling
+base_url: node /Users/mg/Documents/GitHub/GoPlausible/algorand-mcp/packages/server/dist/index.js
+docs_url: https://github.com/GoPlausible/algorand-mcp
+
+# API Endpoints
+
+## Tools
+  - /tools/account
+    - create_account - Create new Algorand account
+    - rekey_account - Rekey account to new address
+    - mnemonic_operations - Convert between mnemonic, MDK, secret key, and seed
+  
+  - /tools/utility
+    - address_validation - Validate and encode/decode Algorand addresses
+    - application_address - Get address for application ID
+    - bytes_conversion - Convert between bytes, BigInt, and uint64
+  
+  - /tools/algod
+    - compile_teal - Compile TEAL source code
+    - disassemble_teal - Disassemble TEAL bytecode
+    - send_transaction - Submit signed transactions
+    - simulate_transaction - Simulate transaction execution
+  
+  - /tools/transaction
+    - payment - Create payment transactions
+    - keyreg - Create key registration transactions
+    - asset
+      - create - Create new assets
+      - config - Modify asset configuration
+      - destroy - Remove assets
+      - freeze - Freeze/unfreeze assets
+      - transfer - Transfer assets between accounts
+    - application
+      - create - Deploy new applications
+      - update - Update application code
+      - delete - Remove applications
+      - opt_in - Opt into applications
+      - close_out - Close out from applications
+      - clear - Clear application state
+      - call - Call application methods
+
+## Resources
+  - /algod/accounts/{address}
+    - Get account information
+    - Get application-specific info
+    - Get asset-specific info
+  
+  - /algod/applications/{app-id}
+    - Get application info
+    - Get application boxes
+    - Get box by name
+  
+  - /algod/assets/{asset-id}
+    - Get asset information
+  
+  - /algod/transactions
+    - Get pending transaction info
+    - Get pending transactions by address
+    - Get all pending transactions
+    - Get transaction parameters
+    - Get node status
+  
+  - /indexer/accounts/{address}
+    - Lookup account details
+    - Get transaction history
+    - Get asset holdings
+    - Get application states
+    - Get created applications
+    - Search accounts
+  
+  - /indexer/applications/{app-id}
+    - Get application details
+    - Get application logs
+    - Get application boxes
+    - Search applications
+  
+  - /indexer/assets/{asset-id}
+    - Get asset details
+    - Get asset balances
+    - Get asset transactions
+    - Search assets
+  
+  - /indexer/transactions
+    - Lookup by transaction ID
+    - Search transactions
+
+# Authentication
+auth_method: Environment Variables
+auth_details: Requires Algorand node access credentials configured via environment variables
+
+# Rate Limits
+rate_limit: Determined by connected Algorand node
+rate_limit_upgrade_url: N/A - Self-hosted
+
+# SDKs
+sdks:
+  - language: JavaScript/TypeScript
+    sdk_url: https://www.npmjs.com/package/algosdk
+    version: 2.9.0
+  - language: TypeScript
+    sdk_url: https://www.npmjs.com/package/@modelcontextprotocol/sdk
+    version: 1.6.1
+
+# Support
+support_contact: GitHub Issues
+support_url: https://github.com/GoPlausible/algorand-mcp/issues
