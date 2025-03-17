@@ -248,6 +248,8 @@ The Algorand MCP implementation provides 100+ tools and resources for blockchain
 
 ### Available Resources (60)
 
+![Screenshot 2025-03-18 at 00 09 06](https://github.com/user-attachments/assets/ef8f4584-5b1b-46ca-b47e-64fcaaad60f8)
+
 #### Algod Resources
 - accounts/{address}
 - accounts/{address}/application/{app-id}
