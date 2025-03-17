@@ -1,3 +1,4 @@
+[![smithery badge](https://smithery.ai/badge/@GoPlausible/algorand-mcp)](https://smithery.ai/server/@GoPlausible/algorand-mcp)
 # Algorand MCP Implementation
 
 ## Overview
