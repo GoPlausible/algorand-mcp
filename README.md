@@ -4,9 +4,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
-Model context protocol:
 
-Quoting from [MCP website](https://modelcontextprotocol.io/), MCP (Model Context Protocol) is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools.
+[Model context protocol](https://modelcontextprotocol.io/) or MCP, is an open protocol that standardizes how applications provide context to LLMs. MCP provides specification standards to give LLMs tools, resources and instructions to be more useful and effective.
 
 ![Screenshot 2025-03-15 at 17 47 54](https://github.com/user-attachments/assets/db561f9f-5f95-4b07-914b-a71f48bb5399)
 
