@@ -15,9 +15,9 @@ export const indexerTools = [
 // Handle all indexer resource tools
 export async function handleIndexerTools(name: string, args: any): Promise<any> {
   // Transaction tools (including account transactions)
-  if (name.startsWith('resource_tool_lookup_transaction') || 
-      name.startsWith('resource_tool_search_for_transaction') ||
-      name === 'resource_tool_lookup_account_transactions') {
+  if (name === 'resource_tool_lookup_transaction_by_id' ||
+      name === 'resource_tool_lookup_account_transactions' ||
+      name.startsWith('resource_tool_search_for_transaction')) {
     return handleTransactionTools(name, args);
   }
   
