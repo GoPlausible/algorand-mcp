@@ -138,32 +138,35 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
     case 'resource_tool_get_account_info': {
       const { address } = args;
       const info = await getAccountInfo(address);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify(info, null, 2)
         }]
       };
+      return result;
     }
     case 'resource_tool_get_account_application_info': {
       const { address, appId } = args;
       const info = await getAccountApplicationInfo(address, appId);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify(info, null, 2)
         }]
       };
+      return result;
     }
     case 'resource_tool_get_account_asset_info': {
       const { address, assetId } = args;
       const info = await getAccountAssetInfo(address, assetId);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify(info, null, 2)
         }]
       };
+      return result;
     }
     default:
       throw new McpError(

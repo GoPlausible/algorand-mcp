@@ -320,7 +320,7 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
     case 'resource_tool_lookup_account_by_id': {
       const { address } = args;
       const info = await lookupAccountByID(address);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify({
@@ -329,11 +329,12 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
           }, null, 2)
         }]
       };
+      return result;
     }
     case 'resource_tool_lookup_account_transactions': {
       const { address, ...params } = args;
       const info = await lookupAccountTransactions(address, params);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify({
@@ -342,11 +343,12 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
           }, null, 2)
         }]
       };
+      return result;
     }
     case 'resource_tool_lookup_account_app_local_states': {
       const { address } = args;
       const info = await lookupAccountAppLocalStates(address);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify({
@@ -355,11 +357,12 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
           }, null, 2)
         }]
       };
+      return result;
     }
     case 'resource_tool_lookup_account_created_applications': {
       const { address } = args;
       const info = await lookupAccountCreatedApplications(address);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify({
@@ -368,25 +371,28 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
           }, null, 2)
         }]
       };
+      return result;
     }
     case 'resource_tool_search_accounts': {
       const info = await searchAccounts(args);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify(info, null, 2)
         }]
       };
+      return result;
     }
     case 'resource_tool_lookup_account_assets': {
       const { address, ...params } = args;
       const info = await lookupAccountAssets(address, params);
-      return {
+      const result = {
         content: [{
           type: 'text',
           text: JSON.stringify(info, null, 2)
         }]
       };
+      return result;
     }
     default:
       throw new McpError(

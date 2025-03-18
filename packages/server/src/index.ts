@@ -5,7 +5,6 @@ import {
   CallToolRequestSchema,
   ErrorCode,
   ListResourcesRequestSchema,
-  ListResourceTemplatesRequestSchema,
   ListToolsRequestSchema,
   McpError,
   ReadResourceRequestSchema,
@@ -54,19 +53,42 @@ class AlgorandMcpServer {
   }
 
   private setupResourceHandlers() {
-    // List resource templates only (no need for direct resources as they're the same)
-    this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => ({
-      resourceTemplates: ResourceManager.resources.map(resource => ({
-        uriTemplate: resource.uri,
+    // Implement resources/list method
+    this.server.setRequestHandler(ListResourcesRequestSchema, async (request) => {
+      const cursor = request.params?.cursor;
+      const pageSize = 10; // Default page size
+      
+      let resources = ResourceManager.resources.map(resource => ({
+        uri: resource.uri,
         name: resource.name,
         description: resource.description,
         mimeType: 'application/json',
         schema: ResourceManager.schemas[resource.uri]
-      }))
-    }));
+      }));
+
+      // Handle pagination if cursor is provided
+      if (cursor) {
+        const startIndex = resources.findIndex(r => r.uri === cursor);
+        if (startIndex !== -1) {
+          resources = resources.slice(startIndex + 1);
+        }
+      }
+
+      // Return paginated results
+      const hasMore = resources.length > pageSize;
+      const paginatedResources = resources.slice(0, pageSize);
+      
+      return {
+        resources: paginatedResources,
+        cursor: hasMore ? paginatedResources[paginatedResources.length - 1].uri : undefined
+      };
+    });
 
     // Handle resource reads
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+      if (!request.params?.uri) {
+        throw new McpError(ErrorCode.InvalidRequest, 'URI parameter is required');
+      }
       return await ResourceManager.handleResource(request.params.uri);
     });
   }
