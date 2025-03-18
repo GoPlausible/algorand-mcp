@@ -25,36 +25,6 @@ export const accountTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_account_transactions',
-    description: 'Get account transaction history',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        address: {
-          type: 'string',
-          description: 'Account address'
-        },
-        limit: {
-          type: 'integer',
-          description: 'Maximum number of transactions to return'
-        },
-        beforeTime: {
-          type: 'string',
-          description: 'Only return transactions before this time'
-        },
-        afterTime: {
-          type: 'string',
-          description: 'Only return transactions after this time'
-        },
-        nextToken: {
-          type: 'string',
-          description: 'Token for retrieving the next page of results'
-        }
-      },
-      required: ['address']
-    }
-  },
-  {
     name: 'resource_tool_lookup_account_assets',
     description: 'Get account assets',
     inputSchema: {
@@ -157,44 +127,6 @@ export async function lookupAccountByID(address: string): Promise<AccountRespons
     throw new McpError(
       ErrorCode.InternalError,
       `Failed to get account info: ${error instanceof Error ? error.message : String(error)}`
-    );
-  }
-}
-
-export async function lookupAccountTransactions(address: string, params?: {
-  limit?: number;
-  beforeTime?: string;
-  afterTime?: string;
-  nextToken?: string;
-}): Promise<TransactionsResponse> {
-  try {
-    console.log(`Looking up transactions for address ${address}`);
-    let search = indexerClient.lookupAccountTransactions(address);
-
-    if (params?.limit) {
-      search = search.limit(params.limit);
-    }
-    if (params?.beforeTime) {
-      search = search.beforeTime(params.beforeTime);
-    }
-    if (params?.afterTime) {
-      search = search.afterTime(params.afterTime);
-    }
-    if (params?.nextToken) {
-      search = search.nextToken(params.nextToken);
-    }
-
-    const response = await search.do() as TransactionsResponse;
-    console.log('Transactions response:', JSON.stringify(response, null, 2));
-    return response;
-  } catch (error) {
-    console.error('Transactions lookup error:', error);
-    if (error instanceof McpError) {
-      throw error;
-    }
-    throw new McpError(
-      ErrorCode.InternalError,
-      `Failed to get account transactions: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -320,16 +252,6 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
     case 'resource_tool_lookup_account_by_id': {
       const { address } = args;
       const info = await lookupAccountByID(address);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
-    }
-    case 'resource_tool_lookup_account_transactions': {
-      const { address, ...params } = args;
-      const info = await lookupAccountTransactions(address, params);
       return {
         content: [{
           type: 'text',
