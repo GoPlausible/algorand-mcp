@@ -320,10 +320,7 @@ export async function handleApplicationTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            application: info.application,
-            currentRound: info.currentRound
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }
@@ -333,10 +330,7 @@ export async function handleApplicationTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            logs: logs.logData,
-            currentRound: logs.currentRound
-          }, null, 2)
+          text: JSON.stringify(logs, null, 2)
         }]
       };
     }
@@ -345,10 +339,7 @@ export async function handleApplicationTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            applications: info.applications,
-            currentRound: info.currentRound
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }

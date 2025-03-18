@@ -206,10 +206,7 @@ export async function handleAccountResources(uri: string): Promise<ResourceConte
         return [{
           uri,
           mimeType: 'application/json',
-          text: JSON.stringify({
-            account: response.account,
-            currentRound: response.currentRound
-          }, null, 2),
+          text: JSON.stringify(response, null, 2),
         }];
       } catch (error) {
         console.error('Error fetching account details:', error);
@@ -224,14 +221,11 @@ export async function handleAccountResources(uri: string): Promise<ResourceConte
     match = uri.match(/^algorand:\/\/indexer\/accounts\/([^/]+)\/transactions$/);
     if (match) {
       const address = match[1];
-      const history = await lookupAccountTransactions(address);
+      const response = await lookupAccountTransactions(address);
       return [{
         uri,
         mimeType: 'application/json',
-        text: JSON.stringify({
-          transactions: history.transactions,
-          currentRound: history.currentRound
-        }, null, 2),
+        text: JSON.stringify(response, null, 2),
       }];
     }
 
@@ -243,10 +237,7 @@ export async function handleAccountResources(uri: string): Promise<ResourceConte
       return [{
         uri,
         mimeType: 'application/json',
-        text: JSON.stringify({
-          appsLocalStates: response.appsLocalStates,
-          currentRound: response.currentRound
-        }, null, 2),
+        text: JSON.stringify(response, null, 2),
       }];
     }
 
@@ -258,10 +249,7 @@ export async function handleAccountResources(uri: string): Promise<ResourceConte
       return [{
         uri,
         mimeType: 'application/json',
-        text: JSON.stringify({
-          applications: response.applications,
-          currentRound: response.currentRound
-        }, null, 2),
+        text: JSON.stringify(response, null, 2),
       }];
     }
 

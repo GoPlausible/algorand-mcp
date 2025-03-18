@@ -54,33 +54,15 @@ class AlgorandMcpServer {
 
   private setupResourceHandlers() {
     // Implement resources/list method
-    this.server.setRequestHandler(ListResourcesRequestSchema, async (request) => {
-      const cursor = request.params?.cursor;
-      const pageSize = 10; // Default page size
-      
-      let resources = ResourceManager.resources.map(resource => ({
-        uri: resource.uri,
-        name: resource.name,
-        description: resource.description,
-        mimeType: 'application/json',
-        schema: ResourceManager.schemas[resource.uri]
-      }));
-
-      // Handle pagination if cursor is provided
-      if (cursor) {
-        const startIndex = resources.findIndex(r => r.uri === cursor);
-        if (startIndex !== -1) {
-          resources = resources.slice(startIndex + 1);
-        }
-      }
-
-      // Return paginated results
-      const hasMore = resources.length > pageSize;
-      const paginatedResources = resources.slice(0, pageSize);
-      
+    this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
       return {
-        resources: paginatedResources,
-        cursor: hasMore ? paginatedResources[paginatedResources.length - 1].uri : undefined
+        resources: ResourceManager.resources.map(resource => ({
+          uri: resource.uri,
+          name: resource.name,
+          description: resource.description,
+          mimeType: 'application/json',
+          schema: ResourceManager.schemas[resource.uri]
+        }))
       };
     });
 

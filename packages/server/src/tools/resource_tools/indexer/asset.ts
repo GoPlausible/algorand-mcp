@@ -315,10 +315,7 @@ export async function handleAssetTools(name: string, args: any): Promise<any> {
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            asset: info.asset,
-            currentRound: info.currentRound
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }
@@ -328,10 +325,7 @@ export async function handleAssetTools(name: string, args: any): Promise<any> {
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            balances: balances.balances,
-            currentRound: balances.currentRound
-          }, null, 2)
+          text: JSON.stringify(balances, null, 2)
         }]
       };
     }
@@ -341,10 +335,7 @@ export async function handleAssetTools(name: string, args: any): Promise<any> {
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            transactions: transactions.transactions,
-            currentRound: transactions.currentRound
-          }, null, 2)
+          text: JSON.stringify(transactions, null, 2)
         }]
       };
     }
@@ -353,10 +344,7 @@ export async function handleAssetTools(name: string, args: any): Promise<any> {
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            assets: assets.assets,
-            currentRound: assets.currentRound
-          }, null, 2)
+          text: JSON.stringify(assets, null, 2)
         }]
       };
     }

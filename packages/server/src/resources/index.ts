@@ -1,5 +1,6 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { ResourceContent, ResourceResponse } from './types.js';
+import { ResourceContent, ResourceResponse, ResourceDefinition } from './types.js';
+import { URI_TEMPLATES } from './uri-config.js';
 
 // Import algod resources
 import { 

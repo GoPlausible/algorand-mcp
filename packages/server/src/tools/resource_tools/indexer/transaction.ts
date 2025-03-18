@@ -283,10 +283,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            transaction: info.transaction,
-            currentRound: info.currentRound
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }
@@ -296,10 +293,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            transactions: info.transactions,
-            currentRound: info.currentRound
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }
@@ -308,10 +302,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            transactions: info.transactions,
-            currentRound: info.currentRound
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }

@@ -201,10 +201,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            transaction: info,
-            currentRound: info.poolError ? 0 : info.confirmedRound
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }
@@ -214,10 +211,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            transactions: info.topTransactions,
-            totalTransactions: info.totalTransactions
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }
@@ -227,10 +221,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            transactions: info.topTransactions,
-            totalTransactions: info.totalTransactions
-          }, null, 2)
+          text: JSON.stringify(info, null, 2)
         }]
       };
     }
@@ -239,7 +230,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({ params }, null, 2)
+          text: JSON.stringify(params, null, 2)
         }]
       };
     }
@@ -248,7 +239,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({ status: nodeStatus }, null, 2)
+          text: JSON.stringify(nodeStatus, null, 2)
         }]
       };
     }
@@ -258,7 +249,7 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({ status: nodeStatus }, null, 2)
+          text: JSON.stringify(nodeStatus, null, 2)
         }]
       };
     }
