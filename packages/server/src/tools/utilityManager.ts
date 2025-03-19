@@ -6,57 +6,57 @@ export const utilityToolSchemas = {
   validateAddress: {
     type: 'object',
     properties: {
-      address: { type: 'string' }
+      address: { type: 'string', description: 'Address in standard Algorand format (58 characters)' }
     },
     required: ['address']
   },
   encodeAddress: {
     type: 'object',
     properties: {
-      publicKey: { type: 'string' }
+      publicKey: { type: 'string', description: 'Public key in hexadecimal format to encode into an address' }
     },
     required: ['publicKey']
   },
   decodeAddress: {
     type: 'object',
     properties: {
-      address: { type: 'string' }
+      address: { type: 'string', description: 'Address in standard Algorand format (58 characters) to decode' }
     },
     required: ['address']
   },
   getApplicationAddress: {
     type: 'object',
     properties: {
-      appId: { type: 'integer' }
+      appId: { type: 'integer', description: 'Application ID to get the address for' }
     },
     required: ['appId']
   },
   bytesToBigint: {
     type: 'object',
     properties: {
-      bytes: { type: 'string' }
+      bytes: { type: 'string', description: 'Bytes in hexadecimal format to convert to a BigInt' }
     },
     required: ['bytes']
   },
   bigintToBytes: {
     type: 'object',
     properties: {
-      value: { type: 'string' },
-      size: { type: 'integer' }
+      value: { type: 'string', description: 'BigInt value as a string to convert to bytes' },
+      size: { type: 'integer', description: 'Size of the resulting byte array' }
     },
     required: ['value', 'size']
   },
   encodeUint64: {
     type: 'object',
     properties: {
-      value: { type: 'string' }
+      value: { type: 'string', description: 'Uint64 value as a string to encode into bytes' }
     },
     required: ['value']
   },
   decodeUint64: {
     type: 'object',
     properties: {
-      bytes: { type: 'string' }
+      bytes: { type: 'string', description: 'Bytes in hexadecimal format to decode into a uint64' }
     },
     required: ['bytes']
   }

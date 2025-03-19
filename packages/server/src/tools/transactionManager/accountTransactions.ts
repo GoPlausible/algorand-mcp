@@ -46,16 +46,16 @@ export const accountTransactionSchemas = {
   makeKeyRegTxn: {
     type: 'object',
     properties: {
-      from: { type: 'string' },
-      voteKey: { type: 'string' },
-      selectionKey: { type: 'string' },
-      stateProofKey: { type: 'string' },
-      voteFirst: { type: 'integer' },
-      voteLast: { type: 'integer' },
-      voteKeyDilution: { type: 'integer' },
-      nonParticipation: { type: 'boolean', optional: true },
-      note: { type: 'string', optional: true },
-      rekeyTo: { type: 'string', optional: true }
+      from: { type: 'string', description: 'Sender address in standard Algorand format (58 characters)' },
+      voteKey: { type: 'string', description: 'The root participation public key (58 bytes base64 encoded)' },
+      selectionKey: { type: 'string', description: 'VRF public key (32 bytes base64 encoded)' },
+      stateProofKey: { type: 'string', description: 'State proof public key (64 bytes base64 encoded)' },
+      voteFirst: { type: 'integer', description: 'First round this participation key is valid' },
+      voteLast: { type: 'integer', description: 'Last round this participation key is valid' },
+      voteKeyDilution: { type: 'integer', description: 'Dilution for the 2-level participation key' },
+      nonParticipation: { type: 'boolean', optional: true, description: 'Mark account as nonparticipating for rewards' },
+      note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' },
+      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' }
     },
     required: ['from', 'voteKey', 'selectionKey', 'stateProofKey', 'voteFirst', 'voteLast', 'voteKeyDilution']
   }

@@ -13,7 +13,8 @@ export const generalTransactionSchemas = {
     properties: {
       transactions: {
         type: 'array',
-        items: { type: 'object' }
+        items: { type: 'object' },
+        description: 'Array of transaction objects to be assigned a group ID'
       }
     },
     required: ['transactions']
@@ -21,30 +22,30 @@ export const generalTransactionSchemas = {
   signTransaction: {
     type: 'object',
     properties: {
-      transaction: { type: 'object' },
-      sk: { type: 'string' }
+      transaction: { type: 'object', description: 'Transaction object to be signed' },
+      sk: { type: 'string', description: 'Secret key in hexadecimal format to sign the transaction with' }
     },
     required: ['transaction', 'sk']
   },
   signBytes: {
     type: 'object',
     properties: {
-      bytes: { type: 'string' },
-      sk: { type: 'string' }
+      bytes: { type: 'string', description: 'Base64-encoded bytes to be signed' },
+      sk: { type: 'string', description: 'Secret key in hexadecimal format to sign the bytes with' }
     },
     required: ['bytes', 'sk']
   },
   encodeObj: {
     type: 'object',
     properties: {
-      obj: { type: 'object' }
+      obj: { type: 'object', description: 'Object to be encoded into msgpack format' }
     },
     required: ['obj']
   },
   decodeObj: {
     type: 'object',
     properties: {
-      bytes: { type: 'string' }
+      bytes: { type: 'string', description: 'Base64-encoded msgpack bytes to be decoded into an object' }
     },
     required: ['bytes']
   }

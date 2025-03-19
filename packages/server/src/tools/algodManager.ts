@@ -15,14 +15,14 @@ export const algodToolSchemas = {
   compileTeal: {
     type: 'object',
     properties: {
-      source: { type: 'string' }
+      source: { type: 'string', description: 'Logic that executes when the app is called (compiled TEAL as base64)' }
     },
     required: ['source']
   },
   disassembleTeal: {
     type: 'object',
     properties: {
-      bytecode: { type: 'string' }
+      bytecode: { type: 'string', description: 'TEAL bytecode to disassemble into source code' }
     },
     required: ['bytecode']
   },
@@ -31,7 +31,8 @@ export const algodToolSchemas = {
     properties: {
       signedTxns: {
         type: 'array',
-        items: { type: 'string' }
+        items: { type: 'string', description: 'Base64-encoded signed transaction' },
+        description: 'Array of signed transactions to submit to the network'
       }
     },
     required: ['signedTxns']
@@ -41,7 +42,8 @@ export const algodToolSchemas = {
     properties: {
       txns: {
         type: 'array',
-        items: { type: 'string' }
+        items: { type: 'string', description: 'Base64-encoded transaction' },
+        description: 'Array of transactions to simulate'
       }
     },
     required: ['txns']
@@ -56,18 +58,21 @@ export const algodToolSchemas = {
           properties: {
             txns: {
               type: 'array',
-              items: { type: 'object' }
+              items: { type: 'object', description: 'Transaction object to simulate' },
+              description: 'Array of transactions in this group'
             }
           },
-          required: ['txns']
-        }
+          required: ['txns'],
+          description: 'Group of transactions to simulate together'
+        },
+        description: 'Array of transaction groups to simulate'
       },
-      allowEmptySignatures: { type: 'boolean', optional: true },
-      allowMoreLogging: { type: 'boolean', optional: true },
-      allowUnnamedResources: { type: 'boolean', optional: true },
-      execTraceConfig: { type: 'object', optional: true },
-      extraOpcodeBudget: { type: 'integer', optional: true },
-      round: { type: 'integer', optional: true }
+      allowEmptySignatures: { type: 'boolean', optional: true, description: 'Allow transactions without signatures' },
+      allowMoreLogging: { type: 'boolean', optional: true, description: 'Enable additional logging during simulation' },
+      allowUnnamedResources: { type: 'boolean', optional: true, description: 'Allow access to resources not listed in transaction' },
+      execTraceConfig: { type: 'object', optional: true, description: 'Configuration for execution trace output' },
+      extraOpcodeBudget: { type: 'integer', optional: true, description: 'Additional budget for TEAL program execution' },
+      round: { type: 'integer', optional: true, description: 'Round at which to simulate the transactions' }
     },
     required: ['txnGroups']
   }

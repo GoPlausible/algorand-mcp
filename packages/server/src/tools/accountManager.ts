@@ -12,50 +12,50 @@ export const accountToolSchemas = {
   rekeyAccount: {
     type: 'object',
     properties: {
-      sourceAddress: { type: 'string' },
-      targetAddress: { type: 'string' }
+      sourceAddress: { type: 'string', description: 'Sender address in standard Algorand format (58 characters)' },
+      targetAddress: { type: 'string', description: 'Address to rekey the sender account to' }
     },
     required: ['sourceAddress', 'targetAddress']
   },
   mnemonicToMdk: {
     type: 'object',
     properties: {
-      mnemonic: { type: 'string' }
+      mnemonic: { type: 'string', description: 'The mnemonic phrase to convert to a master derivation key' }
     },
     required: ['mnemonic']
   },
   mdkToMnemonic: {
     type: 'object',
     properties: {
-      mdk: { type: 'string' }
+      mdk: { type: 'string', description: 'The master derivation key in hexadecimal format' }
     },
     required: ['mdk']
   },
   secretKeyToMnemonic: {
     type: 'object',
     properties: {
-      secretKey: { type: 'string' }
+      secretKey: { type: 'string', description: 'The secret key in hexadecimal format' }
     },
     required: ['secretKey']
   },
   mnemonicToSecretKey: {
     type: 'object',
     properties: {
-      mnemonic: { type: 'string' }
+      mnemonic: { type: 'string', description: 'The mnemonic phrase to convert to a secret key' }
     },
     required: ['mnemonic']
   },
   seedFromMnemonic: {
     type: 'object',
     properties: {
-      mnemonic: { type: 'string' }
+      mnemonic: { type: 'string', description: 'The mnemonic phrase to generate a seed from' }
     },
     required: ['mnemonic']
   },
   mnemonicFromSeed: {
     type: 'object',
     properties: {
-      seed: { type: 'string' }
+      seed: { type: 'string', description: 'The seed in hexadecimal format to generate a mnemonic from' }
     },
     required: ['seed']
   }

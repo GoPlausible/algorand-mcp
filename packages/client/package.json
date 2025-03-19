@@ -1,6 +1,6 @@
 {
   "name": "@algorand-mcp/client",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Algorand MCP Client Implementation",
   "type": "module",
   "main": "dist/index.js",
