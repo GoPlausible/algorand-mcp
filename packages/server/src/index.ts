@@ -36,7 +36,35 @@ class AlgorandMcpServer {
           resources: {
             schemas: ResourceManager.schemas
           },
-          tools: {},
+          tools: {
+            schemas: {
+              // Account Management Tools
+              ...AccountManager.accountTools.reduce((acc, tool) => ({
+                ...acc,
+                [tool.name]: tool.inputSchema
+              }), {}),
+              // Utility Tools
+              ...UtilityManager.utilityTools.reduce((acc, tool) => ({
+                ...acc,
+                [tool.name]: tool.inputSchema
+              }), {}),
+              // Algod Tools
+              ...AlgodManager.algodTools.reduce((acc, tool) => ({
+                ...acc,
+                [tool.name]: tool.inputSchema
+              }), {}),
+              // Transaction Tools
+              ...transactionTools.reduce((acc, tool) => ({
+                ...acc,
+                [tool.name]: tool.inputSchema
+              }), {}),
+              // Resource Tools
+              ...resourceTools.reduce((acc, tool) => ({
+                ...acc,
+                [tool.name]: tool.inputSchema
+              }), {})
+            }
+          },
         },
       }
     );
