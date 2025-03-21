@@ -3,6 +3,7 @@ import { indexerTools, handleIndexerTools } from './indexer/index.js';
 import { nfdTools, handleNFDTools } from './nfd/index.js';
 import { vestigeTools, handleVestigeTools } from './vestige/index.js';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ResponseProcessor } from '../utils/responseProcessor.js';
 
 // Combine all resource tools
 export const resourceTools = [
@@ -15,33 +16,34 @@ export const resourceTools = [
 // Handle all resource tools
 export async function handleResourceTools(name: string, args: any): Promise<any> {
   try {
+    let response;
+
     // Vestige tools
-    if (name.startsWith('resource_tool_view_')) {
-      return handleVestigeTools(name, args);
+    if (name.startsWith('resource_vestige_')) {
+      response = await handleVestigeTools(name, args);
     }
-
     // NFD tools - check first since they're most specific
-    if (name.startsWith('resource_tool_get_nfd') || 
-        name.startsWith('resource_tool_browse_nfds') ||
-        name.startsWith('resource_tool_search_nfds')) {
-      return handleNFDTools(name, args);
+    else if (name.startsWith('resource_nfd_')) {
+      response = await handleNFDTools(name, args);
     }
-    
     // Indexer tools
-    if (name.startsWith('resource_tool_lookup_') || 
-        name.startsWith('resource_tool_search_')) {
-      return handleIndexerTools(name, args);
+    else if (name.startsWith('resource_indexer_')) {
+      response = await handleIndexerTools(name, args);
     }
-
     // Algod tools - most general get_ prefix, check last
-    if (name.startsWith('resource_tool_get_')) {
-      return handleAlgodTools(name, args);
+    else if (name.startsWith('resource_algod_')) {
+      response = await handleAlgodTools(name, args);
+    }
+    else {
+      throw new McpError(
+        ErrorCode.MethodNotFound,
+        `Unknown tool: ${name}`
+      );
     }
 
-    throw new McpError(
-      ErrorCode.MethodNotFound,
-      `Unknown tool: ${name}`
-    );
+    // Process and format the response
+    return ResponseProcessor.processResponse(response, args?.nextPageToken);
+
   } catch (error) {
     if (error instanceof McpError) {
       throw error;

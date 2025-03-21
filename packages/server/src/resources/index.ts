@@ -2,6 +2,20 @@ import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResourceContent, ResourceResponse, ResourceDefinition } from './types.js';
 import { URI_TEMPLATES } from './uri-config.js';
 
+// Import NFD resources
+import {
+  nfdResources,
+  nfdResourceSchemas,
+  handleNFDResources
+} from './nfd/index.js';
+
+// Import Vestige resources
+import {
+  vestigeResources,
+  vestigeResourceSchemas,
+  handleVestigeResources
+} from './vestige/index.js';
+
 // Import algod resources
 import { 
   accountResources as algodAccountResources, 
@@ -43,7 +57,9 @@ export class ResourceManager {
     ...algodAssetResources,
     ...assetResources,
     ...transactionResources,
-    ...indexerTransactionResources
+    ...indexerTransactionResources,
+    ...nfdResources,
+    ...vestigeResources
   ];
 
   static schemas = {
@@ -54,7 +70,9 @@ export class ResourceManager {
     ...algodAssetSchemas,
     ...assetResourceSchemas,
     ...transactionResourceSchemas,
-    ...indexerTransactionSchemas
+    ...indexerTransactionSchemas,
+    ...nfdResourceSchemas,
+    ...vestigeResourceSchemas
   };
 
   static async handleResource(uri: string): Promise<ResourceResponse> {
@@ -66,8 +84,8 @@ export class ResourceManager {
         throw new McpError(ErrorCode.InvalidRequest, 'URI must start with algorand://');
       }
 
-      // Extract the source (algod/indexer) and resource type from URI
-      const [, source, resourceType] = uri.match(/^algorand:\/\/(algod|indexer)\/([^/]+)/) || [];
+      // Extract the source (algod/indexer/nfd/vestige) and resource type from URI
+      const [, source, resourceType] = uri.match(/^algorand:\/\/([^/]+)\/([^/]+)/) || [];
 
       if (!source || !resourceType) {
         throw new McpError(ErrorCode.InvalidRequest, `Invalid URI format: ${uri}`);
@@ -89,8 +107,14 @@ export class ResourceManager {
             case 'transactions':
               contents = await handleTransactionResources(uri);
               break;
+              case 'status':
+              contents = await handleTransactionResources(uri);
+              break;
+            default:
+              throw new McpError(ErrorCode.InvalidRequest, `Invalid algod resource type: ${resourceType}`);
           }
           break;
+
         case 'indexer':
           switch (resourceType) {
             case 'accounts':
@@ -105,8 +129,21 @@ export class ResourceManager {
             case 'transactions':
               contents = await handleIndexerTransactionResources(uri);
               break;
+            default:
+              throw new McpError(ErrorCode.InvalidRequest, `Invalid indexer resource type: ${resourceType}`);
           }
           break;
+
+        case 'nfd':
+          contents = await handleNFDResources(uri);
+          break;
+
+        case 'vestige':
+          contents = await handleVestigeResources(uri);
+          break;
+
+        default:
+          throw new McpError(ErrorCode.InvalidRequest, `Invalid source type: ${source}`);
       }
 
       if (contents.length > 0) {

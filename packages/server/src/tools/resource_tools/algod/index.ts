@@ -15,22 +15,22 @@ export const algodTools = [
 // Handle all algod resource tools
 export async function handleAlgodTools(name: string, args: any): Promise<any> {
   // Account tools
-  if (name.startsWith('resource_tool_get_account_')) {
+  if (name.startsWith('resource_algod_get_account_')) {
     return handleAccountTools(name, args);
   }
   
   // Application tools
-  if (name.startsWith('resource_tool_get_application_')) {
+  if (name.startsWith('resource_algod_get_application_')) {
     return handleApplicationTools(name, args);
   }
   
   // Asset tools
-  if (name.startsWith('resource_tool_get_asset_')) {
+  if (name.startsWith('resource_algod_get_asset_')) {
     return handleAssetTools(name, args);
   }
   
   // Transaction tools
-  if (name.startsWith('resource_tool_get_')) {
+  if (name.startsWith('resource_algod_get_')) {
     return handleTransactionTools(name, args);
   }
 

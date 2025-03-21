@@ -1,9 +1,11 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
+import { env } from '../../../env.js';
 
 export const currencyTools: Tool[] = [
   // Current Currency Prices
   {
-    name: 'resource_tool_view_currency_prices',
+    name: 'resource_vestige_view_currency_prices',
     description: 'Get all latest currency prices',
     inputSchema: {
       type: 'object',
@@ -13,7 +15,7 @@ export const currencyTools: Tool[] = [
 
   // Currency Price History
   {
-    name: 'resource_tool_view_currency_price_history',
+    name: 'resource_vestige_view_currency_price_history',
     description: 'Get currency prices by timestamp range',
     inputSchema: {
       type: 'object',
@@ -37,7 +39,7 @@ export const currencyTools: Tool[] = [
 
   // Single Currency Price
   {
-    name: 'resource_tool_view_currency_price',
+    name: 'resource_vestige_view_currency_price',
     description: 'Get currency price by timestamp',
     inputSchema: {
       type: 'object',
@@ -57,7 +59,7 @@ export const currencyTools: Tool[] = [
 
   // Currency Average Price
   {
-    name: 'resource_tool_view_currency_average_price',
+    name: 'resource_vestige_view_currency_average_price',
     description: 'Get average price for currency and starting timestamp',
     inputSchema: {
       type: 'object',
@@ -77,7 +79,7 @@ export const currencyTools: Tool[] = [
 
   // Simple Price History Endpoints
   {
-    name: 'resource_tool_view_currency_prices_simple_30d',
+    name: 'resource_vestige_view_currency_prices_simple_30d',
     description: 'Get currency prices for the last 30 days in 30 minute increments',
     inputSchema: {
       type: 'object',
@@ -91,7 +93,7 @@ export const currencyTools: Tool[] = [
     }
   },
   {
-    name: 'resource_tool_view_currency_prices_simple_7d',
+    name: 'resource_vestige_view_currency_prices_simple_7d',
     description: 'Get currency prices for the last week in 30 minute increments',
     inputSchema: {
       type: 'object',
@@ -105,7 +107,7 @@ export const currencyTools: Tool[] = [
     }
   },
   {
-    name: 'resource_tool_view_currency_prices_simple_1d',
+    name: 'resource_vestige_view_currency_prices_simple_1d',
     description: 'Get currency prices for the last day in 5 minute increments',
     inputSchema: {
       type: 'object',
@@ -120,30 +122,33 @@ export const currencyTools: Tool[] = [
   }
 ];
 
-export async function handleCurrencyTools(name: string, args: any): Promise<any> {
-  const baseUrl = 'https://free-api.vestige.fi';
+
+
+export const handleCurrencyTools = ResponseProcessor.wrapResourceHandler(async function handleCurrencyTools(args: any): Promise<any> {
+  const name = args.name;
+  const baseUrl = env.vestige_api_url;
   let endpoint = '';
 
   switch (name) {
-    case 'resource_tool_view_currency_prices':
+    case 'resource_vestige_view_currency_prices':
       endpoint = '/currency/prices';
       break;
-    case 'resource_tool_view_currency_price_history':
+    case 'resource_vestige_view_currency_price_history':
       endpoint = `/currency/${args.currency}/prices`;
       break;
-    case 'resource_tool_view_currency_price':
+    case 'resource_vestige_view_currency_price':
       endpoint = `/currency/${args.currency}/price`;
       break;
-    case 'resource_tool_view_currency_average_price':
+    case 'resource_vestige_view_currency_average_price':
       endpoint = `/currency/${args.currency}/average`;
       break;
-    case 'resource_tool_view_currency_prices_simple_30d':
+    case 'resource_vestige_view_currency_prices_simple_30d':
       endpoint = `/currency/${args.currency}/prices/simple/30D`;
       break;
-    case 'resource_tool_view_currency_prices_simple_7d':
+    case 'resource_vestige_view_currency_prices_simple_7d':
       endpoint = `/currency/${args.currency}/prices/simple/7D`;
       break;
-    case 'resource_tool_view_currency_prices_simple_1d':
+    case 'resource_vestige_view_currency_prices_simple_1d':
       endpoint = `/currency/${args.currency}/prices/simple/1D`;
       break;
     default:
@@ -171,13 +176,7 @@ export async function handleCurrencyTools(name: string, args: any): Promise<any>
       );
     }
     const data = await response.json();
-
-    return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(data, null, 2)
-      }]
-    };
+    return data;
   } catch (error) {
     if (error instanceof McpError) {
       throw error;
@@ -187,4 +186,4 @@ export async function handleCurrencyTools(name: string, args: any): Promise<any>
       `Failed to fetch currency data: ${error instanceof Error ? error.message : String(error)}`
     );
   }
-}
+});

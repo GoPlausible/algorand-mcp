@@ -9,7 +9,7 @@ import type { SuggestedParamsWithMinFee } from 'algosdk/dist/types/types/transac
 
 export const transactionTools = [
   {
-    name: 'resource_tool_get_pending_transaction',
+    name: 'resource_algod_get_pending_transaction',
     description: 'Get pending transaction information',
     inputSchema: {
       type: 'object',
@@ -23,7 +23,7 @@ export const transactionTools = [
     }
   },
   {
-    name: 'resource_tool_get_pending_transactions_by_address',
+    name: 'resource_algod_get_pending_transactions_by_address',
     description: 'Get pending transactions for an address',
     inputSchema: {
       type: 'object',
@@ -37,7 +37,7 @@ export const transactionTools = [
     }
   },
   {
-    name: 'resource_tool_get_pending_transactions',
+    name: 'resource_algod_get_pending_transactions',
     description: 'Get all pending transactions',
     inputSchema: {
       type: 'object',
@@ -50,7 +50,7 @@ export const transactionTools = [
     }
   },
   {
-    name: 'resource_tool_get_transaction_params',
+    name: 'resource_algod_get_transaction_params',
     description: 'Get suggested transaction parameters',
     inputSchema: {
       type: 'object',
@@ -58,7 +58,7 @@ export const transactionTools = [
     }
   },
   {
-    name: 'resource_tool_get_node_status',
+    name: 'resource_algod_get_node_status',
     description: 'Get current node status',
     inputSchema: {
       type: 'object',
@@ -66,7 +66,7 @@ export const transactionTools = [
     }
   },
   {
-    name: 'resource_tool_get_node_status_after_block',
+    name: 'resource_algod_get_node_status_after_block',
     description: 'Get node status after a specific round',
     inputSchema: {
       type: 'object',
@@ -195,63 +195,33 @@ export async function getNodeStatusAfterBlock(round: number): Promise<NodeStatus
 
 export async function handleTransactionTools(name: string, args: any): Promise<any> {
   switch (name) {
-    case 'resource_tool_get_pending_transaction': {
+    case 'resource_algod_get_pending_transaction': {
       const { txId } = args;
       const info = await getPendingTransaction(txId);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
-    case 'resource_tool_get_pending_transactions_by_address': {
+    case 'resource_algod_get_pending_transactions_by_address': {
       const { address } = args;
       const info = await getPendingTransactionsByAddress(address);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
-    case 'resource_tool_get_pending_transactions': {
+    case 'resource_algod_get_pending_transactions': {
       const { maxTxns } = args;
       const info = await getPendingTransactions(maxTxns);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
-    case 'resource_tool_get_transaction_params': {
+    case 'resource_algod_get_transaction_params': {
       const params = await getTransactionParams();
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(params, null, 2)
-        }]
-      };
+      return params;
     }
-    case 'resource_tool_get_node_status': {
+    case 'resource_algod_get_node_status': {
       const nodeStatus = await getNodeStatus();
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(nodeStatus, null, 2)
-        }]
-      };
+      return nodeStatus;
     }
-    case 'resource_tool_get_node_status_after_block': {
+    case 'resource_algod_get_node_status_after_block': {
       const { round } = args;
       const nodeStatus = await getNodeStatusAfterBlock(round);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(nodeStatus, null, 2)
-        }]
-      };
+      return nodeStatus;
     }
     default:
       throw new McpError(

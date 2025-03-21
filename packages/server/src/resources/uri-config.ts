@@ -1,5 +1,32 @@
 // Direct URI templates for resources
 export const URI_TEMPLATES = {
+  // NFD resources
+  NFD_GET: 'algorand://nfd/nfd/{nameOrID}',
+  NFD_ADDRESS: 'algorand://nfd/address/{address}/nfds',
+  NFD_ACTIVITY: 'algorand://nfd/activity/{name}',
+  NFD_ANALYTICS: 'algorand://nfd/analytics',
+  NFD_BROWSE: 'algorand://nfd/browse',
+  NFD_SEARCH: 'algorand://nfd/search',
+
+  // Vestige resources
+  VESTIGE_PROVIDERS: 'algorand://vestige/providers',
+  VESTIGE_PROVIDERS_TVL_90D: 'algorand://vestige/providers/tvl/90d',
+  VESTIGE_PROVIDERS_TVL_30D: 'algorand://vestige/providers/tvl/30d',
+  VESTIGE_PROVIDERS_TVL_7D: 'algorand://vestige/providers/tvl/7d',
+  VESTIGE_PROVIDERS_TVL_1D: 'algorand://vestige/providers/tvl/1d',
+  VESTIGE_ASSETS: 'algorand://vestige/assets',
+  VESTIGE_ASSETS_LIST: 'algorand://vestige/assets/list',
+  VESTIGE_ASSETS_SEARCH: 'algorand://vestige/assets/search/{query}',
+  VESTIGE_ASSET: 'algorand://vestige/assets/{asset_id}',
+  VESTIGE_POOLS_VOLUMES: 'algorand://vestige/pools/volumes',
+  VESTIGE_POOLS_PROVIDER: 'algorand://vestige/pools/{provider}',
+  VESTIGE_POOL_INFO: 'algorand://vestige/pools/{pool_id}/info',
+  VESTIGE_CURRENCY_PRICES: 'algorand://vestige/currency/prices',
+  VESTIGE_CURRENCY_PRICE: 'algorand://vestige/currency/{currency}/price',
+  VESTIGE_CURRENCY_HISTORY: 'algorand://vestige/currency/{currency}/history',
+  VESTIGE_VAULT: 'algorand://vestige/vaults/{vault_id}',
+  VESTIGE_VAULTS_RECENT: 'algorand://vestige/vaults/recent',
+
   // Algod resources
   ALGOD_ACCOUNT: 'algorand://algod/accounts/{address}',
   ALGOD_ACCOUNT_APPLICATION: 'algorand://algod/accounts/{address}/application/{app-id}',

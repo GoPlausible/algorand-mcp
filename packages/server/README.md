@@ -11,14 +11,19 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 - npm v10.2.4 or later
 
 ## Features
-- 40 powerful blockchain interaction tools
-- 30 resource tools for direct data access
+- 104 total tools:
+  - 40 base tools (account, asset, application, transaction management)
+  - 30 resource tools (algod and indexer)
+  - 6 NFDomains (NFD) tools for name services
+  - 28 Vestige tools for DeFi analytics
 - 30 resource endpoints for data access
 - Built-in default configuration for quick setup
 - Comprehensive transaction management
 - Complete application lifecycle support
 - Asset creation and management
 - Real-time and historical data access
+- NFDomains integration for name resolution and management
+- Vestige integration for DeFi analytics and tracking
 
 ## Installation
 
@@ -43,12 +48,15 @@ ALGORAND_ALGOD_API="https://testnet-api.algonode.cloud/v2"
 ALGORAND_ALGOD="https://testnet-api.algonode.cloud"
 ALGORAND_INDEXER_API="https://testnet-idx.algonode.cloud/v2"
 ALGORAND_INDEXER="https://testnet-idx.algonode.cloud"
+NFD_API_URL=https://api.nf.domains
+VESTIGE_API_URL=https://free-api.vestige.fi
+ITEMS_PER_PAGE=10
 ```
 
-Override defaults by:
-1. Setting environment variables
-2. Creating a .env file
-3. Configuring in Claude Desktop/Cursor settings (see root README)
+Override defaults by doing either:
+- Setting environment variables
+- Creating a .env file
+- Configuring in Claude Desktop/Cursor settings (see root README)
 
 ## Installation
 
@@ -60,62 +68,116 @@ npm install @algorand-mcp/server
 
 ```
 src/
-├── resources/              # MCP Resources
-│   ├── algod/             # Real-time blockchain state
-│   │   ├── account.ts     # Account information
-│   │   ├── application.ts # Application state
-│   │   ├── asset.ts      # Asset details
-│   │   └── transaction.ts # Pending transactions
-│   └── indexer/          # Historical blockchain data
-│       ├── account.ts     # Account history
-│       ├── application.ts # Application history
-│       ├── asset.ts      # Asset history
-│       └── transaction.ts # Transaction history
-├── tools/                # MCP Tools
-│   ├── accountManager.ts  # Account operations
-│   ├── algodManager.ts    # Node interactions
-│   ├── utilityManager.ts  # Utility functions
-│   └── transactionManager/# Transaction handling
+├── resources/                # MCP Resources
+│   ├── algod/               # Real-time blockchain state
+│   │   ├── account.ts       # Account information
+│   │   ├── application.ts   # Application state
+│   │   ├── asset.ts        # Asset details
+│   │   └── transaction.ts   # Pending transactions
+│   ├── indexer/            # Historical blockchain data
+│   │   ├── account.ts       # Account history
+│   │   ├── application.ts   # Application history
+│   │   ├── asset.ts        # Asset history
+│   │   └── transaction.ts   # Transaction history
+│   ├── nfd/               # NFDomains resources
+│   │   └── index.ts        # NFD name service endpoints
+│   └── vestige/           # Vestige DeFi resources
+│       └── index.ts        # DeFi analytics endpoints
+├── tools/                  # MCP Tools
+│   ├── accountManager.ts    # Account operations
+│   ├── algodManager.ts      # Node interactions
+│   ├── utilityManager.ts    # Utility functions
+│   ├── resource_tools/      # Resource Tools
+│   │   ├── algod/          # Algod resource tools
+│   │   ├── indexer/        # Indexer resource tools
+│   │   ├── nfd/            # NFDomains tools
+│   │   └── vestige/        # Vestige DeFi tools
+│   └── transactionManager/ # Transaction handling
 │       ├── accountTransactions.ts
 │       ├── assetTransactions.ts
 │       ├── generalTransaction.ts
 │       └── appTransactions/
-└── index.ts             # Server entry point
+└── index.ts               # Server entry point
 ```
 
 ## Available Tools
 
 ### Resource Tools
-- resource_tool_get_account_info: Get current account balance, assets, and auth address from algod
-- resource_tool_get_account_application_info: Get account-specific application information from algod
-- resource_tool_get_account_asset_info: Get account-specific asset information from algod
-- resource_tool_get_application_by_id: Get application information
-- resource_tool_get_application_box: Get application box by name
-- resource_tool_get_application_boxes: Get all application boxes
-- resource_tool_get_asset_by_id: Get current asset information from algod
-- resource_tool_get_pending_transaction: Get pending transaction information
-- resource_tool_get_pending_transactions_by_address: Get pending transactions for an address
-- resource_tool_get_pending_transactions: Get all pending transactions
-- resource_tool_get_transaction_params: Get suggested transaction parameters
-- resource_tool_get_node_status: Get current node status
-- resource_tool_get_node_status_after_block: Get node status after a specific round
-- resource_tool_lookup_account_by_id: Get account information from indexer
-- resource_tool_lookup_account_transactions: Get account transaction history
-- resource_tool_lookup_account_assets: Get account assets
-- resource_tool_lookup_account_app_local_states: Get account application local states
-- resource_tool_lookup_account_created_applications: Get applications created by this account
-- resource_tool_lookup_applications: Get application information from indexer
-- resource_tool_lookup_application_logs: Get application log messages
-- resource_tool_lookup_application_box: Get application box by name
-- resource_tool_lookup_application_boxes: Get all application boxes
-- resource_tool_lookup_asset_by_id: Get asset information and configuration
-- resource_tool_lookup_asset_balances: Get accounts holding this asset and their balances
-- resource_tool_lookup_asset_transactions: Get transactions involving this asset
-- resource_tool_lookup_transaction_by_id: Get transaction information by ID
-- resource_tool_search_accounts: Search for accounts with various criteria
-- resource_tool_search_for_applications: Search for applications with various criteria
-- resource_tool_search_for_assets: Search for assets with various criteria
-- resource_tool_search_for_transactions: Search for transactions with various criteria
+It is important to note that the resource tools are read-only and do not modify the blockchain state. They provide a way to access real-time and historical data from the Algorand blockchain.
+
+Resource tools are designed as a redundant sets of resource accessing doing the same functionality as Resources do and this is because in majority of Agent systems the interpretation of MCP protocol capabilities is that Resources are invokable by users and tools are invokable by Agents. Therefore, the resource tools are designed as resources to be invokable by Agents in cases that Agent apps does not allow agent LLM to interact with Resources directly and autonomously(if allowed by user indeed).
+
+#### Algod Resource Tools
+- resource_algod_get_account_info: Get current account balance, assets, and auth address from algod
+- resource_algod_get_account_application_info: Get account-specific application information from algod
+- resource_algod_get_account_asset_info: Get account-specific asset information from algod
+- resource_algod_get_application_by_id: Get application information
+- resource_algod_get_application_box: Get application box by name
+- resource_algod_get_application_boxes: Get all application boxes
+- resource_algod_get_asset_by_id: Get current asset information from algod
+- resource_algod_get_pending_transaction: Get pending transaction information
+- resource_algod_get_pending_transactions_by_address: Get pending transactions for an address
+- resource_algod_get_pending_transactions: Get all pending transactions
+- resource_algod_get_transaction_params: Get suggested transaction parameters
+- resource_algod_get_node_status: Get current node status
+- resource_algod_get_node_status_after_block: Get node status after a specific round
+
+#### Indexer Resource Tools
+- resource_indexer_lookup_account_by_id: Get account information from indexer
+- resource_indexer_lookup_account_transactions: Get account transaction history
+- resource_indexer_lookup_account_assets: Get account assets
+- resource_indexer_lookup_account_app_local_states: Get account application local states
+- resource_indexer_lookup_account_created_applications: Get applications created by this account
+- resource_indexer_lookup_applications: Get application information from indexer
+- resource_indexer_lookup_application_logs: Get application log messages
+- resource_indexer_lookup_application_box: Get application box by name
+- resource_indexer_lookup_application_boxes: Get all application boxes
+- resource_indexer_lookup_asset_by_id: Get asset information and configuration
+- resource_indexer_lookup_asset_balances: Get accounts holding this asset and their balances
+- resource_indexer_lookup_asset_transactions: Get transactions involving this asset
+- resource_indexer_lookup_transaction_by_id: Get transaction information by ID
+- resource_indexer_search_accounts: Search for accounts with various criteria
+- resource_indexer_search_for_applications: Search for applications with various criteria
+- resource_indexer_search_for_assets: Search for assets with various criteria
+- resource_indexer_search_for_transactions: Search for transactions with various criteria
+
+#### NFDomains (NFD) Resource Tools
+- resource_nfd_get_nfd: Get a specific NFD by name or application ID
+- resource_nfd_get_nfds_for_addresses: Get NFDs for specific addresses
+- resource_nfd_get_nfd_activity: Get activity/changes for NFDs
+- resource_nfd_get_nfd_analytics: Get analytics data for NFDs
+- resource_nfd_browse_nfds: Browse NFDs with various filters
+- resource_nfd_search_nfds: Search NFDs with various filters
+
+#### Vestige Resource Tools
+- resource_vestige_view_providers: Get all supported providers
+- resource_vestige_view_providers_tvl_simple_90d: Get provider TVL for the last 90 days
+- resource_vestige_view_providers_tvl_simple_30d: Get provider TVL for the last 30 days
+- resource_vestige_view_providers_tvl_simple_7d: Get provider TVL for the last 7 days
+- resource_vestige_view_providers_tvl_simple_1d: Get provider TVL for the last day
+- resource_vestige_view_assets: Get all tracked assets
+- resource_vestige_view_assets_list: Get all tracked assets in a list format
+- resource_vestige_view_assets_by_name: Get assets that fit search query
+- resource_vestige_view_asset: Get asset info
+- resource_vestige_view_asset_price: Get estimated asset price
+- resource_vestige_view_asset_views: Get asset views
+- resource_vestige_view_asset_holders: Get asset holders
+- resource_vestige_view_asset_contributors: Get asset liquidity contributors
+- resource_vestige_view_pool_volumes: Get pool volumes and APY across providers
+- resource_vestige_view_pools: Get tracked pools or all pools by asset id
+- resource_vestige_view_pool: Get pool info
+- resource_vestige_view_pool_volume: Get pool volume and APY for a specific pool
+- resource_vestige_view_pool_price: Get last price of a pool
+- resource_vestige_view_pool_contributors: Get pool contributors
+- resource_vestige_view_currency_prices: Get all latest currency prices
+- resource_vestige_view_currency_price_history: Get currency prices by timestamp range
+- resource_vestige_view_currency_price: Get currency price by timestamp
+- resource_vestige_view_currency_average_price: Get average price for currency
+- resource_vestige_view_currency_prices_simple_30d: Get currency prices for last 30 days
+- resource_vestige_view_currency_prices_simple_7d: Get currency prices for last week
+- resource_vestige_view_currency_prices_simple_1d: Get currency prices for last day
+- resource_vestige_view_vault: Get vault by id
+- resource_vestige_view_recent_vaults: Get last 100 vaults
 
 ### Account Management Tools
 
@@ -717,6 +779,38 @@ ALGORAND_ALGOD="https://testnet-api.algonode.cloud"
 # Indexer API Configuration
 ALGORAND_INDEXER_API="https://testnet-idx.algonode.cloud/v2"
 ALGORAND_INDEXER="https://testnet-idx.algonode.cloud"
+
+# NFDomains API Configuration
+NFD_API_URL="https://api.nf.domains"
+NFD_API_KEY=""  # Required for authenticated endpoints
+
+# Vestige API Configuration
+VESTIGE_API_URL="https://free-api.vestige.fi"
+VESTIGE_API_KEY=""  # Required for authenticated endpoints
+
+# Pagination Configuration
+ITEMS_PER_PAGE=10  # Default number of items per page for paginated responses
+```
+
+## Response Format
+
+All responses follow a standardized format using ResponseProcessor:
+
+```typescript
+{
+  "data": {
+    // Response data here
+  },
+  "metadata": {  // Only for paginated responses
+    "totalItems": number,
+    "itemsPerPage": number,
+    "currentPage": number,
+    "totalPages": number,
+    "hasNextPage": boolean,
+    "nextPageToken": string,
+    "arrayField": string  // Name of paginated array field
+  }
+}
 ```
 
 ## Error Handling
@@ -728,6 +822,16 @@ The server provides detailed error messages for common issues:
 - Transaction failures
 - Resource not found errors
 - Authorization errors
+
+Errors are returned in a standardized format:
+```typescript
+{
+  "error": {
+    "code": string,
+    "message": string
+  }
+}
+```
 
 ## Best Practices
 

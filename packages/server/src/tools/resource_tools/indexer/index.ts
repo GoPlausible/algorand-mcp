@@ -14,29 +14,32 @@ export const indexerTools = [
 
 // Handle all indexer resource tools
 export async function handleIndexerTools(name: string, args: any): Promise<any> {
+  const toolArgs = { ...args, name };
+
   // Transaction tools (including account transactions)
-  if (name === 'resource_tool_lookup_transaction_by_id' ||
-      name === 'resource_tool_lookup_account_transactions' ||
-      name.startsWith('resource_tool_search_for_transaction')) {
-    return handleTransactionTools(name, args);
+  if (name === 'resource_indexer_lookup_transaction_by_id' ||
+      name === 'resource_indexer_lookup_account_transactions' ||
+      name.startsWith('resource_indexer_search_for_transaction')) {
+    return handleTransactionTools(toolArgs);
   }
   
   // Account tools (excluding account transactions)
-  if (name.startsWith('resource_tool_lookup_account_') && 
-      name !== 'resource_tool_lookup_account_transactions') {
-    return handleAccountTools(name, args);
+  if ((name.startsWith('resource_indexer_lookup_account_') && 
+      name !== 'resource_indexer_lookup_account_transactions') ||
+      name === 'resource_indexer_search_for_accounts') {
+    return handleAccountTools(toolArgs);
   }
   
   // Application tools
-  if (name.startsWith('resource_tool_lookup_application') || 
-      name.startsWith('resource_tool_search_for_application')) {
-    return handleApplicationTools(name, args);
+  if (name.startsWith('resource_indexer_lookup_application') || 
+      name.startsWith('resource_indexer_search_for_application')) {
+    return handleApplicationTools(toolArgs);
   }
   
   // Asset tools
-  if (name.startsWith('resource_tool_lookup_asset') || 
-      name.startsWith('resource_tool_search_for_asset')) {
-    return handleAssetTools(name, args);
+  if (name.startsWith('resource_indexer_lookup_asset') || 
+      name.startsWith('resource_indexer_search_for_asset')) {
+    return handleAssetTools(toolArgs);
   }
 
   throw new McpError(

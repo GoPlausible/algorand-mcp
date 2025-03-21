@@ -4,7 +4,7 @@ import type { Asset } from 'algosdk/dist/types/client/v2/algod/models/types';
 
 export const assetTools = [
   {
-    name: 'resource_tool_get_asset_by_id',
+    name: 'resource_algod_get_asset_by_id',
     description: 'Get current asset information from algod',
     inputSchema: {
       type: 'object',
@@ -39,15 +39,10 @@ export async function getAssetByID(assetId: number): Promise<Asset> {
 
 export async function handleAssetTools(name: string, args: any): Promise<any> {
   switch (name) {
-    case 'resource_tool_get_asset_by_id': {
+    case 'resource_algod_get_asset_by_id': {
       const { assetId } = args;
       const info = await getAssetByID(assetId);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
     default:
       throw new McpError(

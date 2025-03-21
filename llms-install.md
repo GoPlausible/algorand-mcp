@@ -1,6 +1,6 @@
 # Algorand MCP Server Installation Guide
 
-This guide is specifically designed for AI agents like Cline to install and configure the Algorand MCP server for use with LLM applications like Claude Desktop, Cursor, Roo Code, and Cline.
+This guide is specifically designed for AI agents like Cursor and Claude Desktop to install and configure the Algorand MCP server for use with LLM applications like Claude Desktop, Cursor and Roo Code.
 
 ## Overview
 
@@ -21,12 +21,7 @@ Add the Algorand MCP server configuration to your MCP settings file based on you
 
 #### Configuration File Locations
 
-- Cline (VS Code Extension): `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
-- Roo Code (VS Code Extension): `~/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/cline_mcp_settings.json`
-- Claude Desktop: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Cursor: `[project root]/.cursor/mcp.json`
-
-Add this configuration to your chosen client's settings file:
+Add configuration to your chosen client's MCP settings file:
 
 ```json
 {
@@ -41,7 +36,10 @@ Add this configuration to your chosen client's settings file:
         "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
         "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
         "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
-        "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud"
+        "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
+        "NFD_API_URL":"https://api.nf.domains",
+        "VESTIGE_API_URL":"https://free-api.vestige.fi",
+        "ITEMS_PER_PAGE":"10"
       }
     }
   }
@@ -54,7 +52,7 @@ Replace `/path/to/algorand-mcp` with the actual path where the server is install
 
 To verify the installation is working:
 
-1. Restart your LLM application (Cline, Claude Desktop, etc.)
+1. Restart your LLM application (Cursor, Claude Desktop, etc.)
 2. Test the connection by running a simple command like:
    ```
    Please create a new Algorand account using the Algorand MCP server.

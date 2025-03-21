@@ -88,36 +88,6 @@ Please not that if you receive "Server Closed" or "Connection Closed" Then you n
 ![Screenshot 2025-03-15 at 15 51 13](https://github.com/user-attachments/assets/c5b013a9-33c4-4a5f-bd7a-00502334e747)
 
 
-#### Important note for Cursor Users
-Cursor does not yet support the `Resources` Capability of MCP protocol! They are working on it.
-
-#### MCP Server Feature support matrix
-
-| Client                               | [Resources] | [Prompts] | [Tools] | [Sampling] | Roots | Notes                                                              |
-| ------------------------------------ | ----------- | --------- | ------- | ---------- | ----- | ------------------------------------------------------------------ |
-| [Claude Desktop App][Claude]         | ✅           | ✅         | ✅       | ❌          | ❌     | Full support for all MCP features                                  |
-| [5ire][5ire]                         | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools.                                                    |
-| [BeeAI Framework][BeeAI Framework]   | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools in agentic workflows.                               |
-| [Cline][Cline]                       | ✅           | ❌         | ✅       | ❌          | ❌     | Supports tools and resources.                                      |
-| [Continue][Continue]                 | ✅           | ✅         | ✅       | ❌          | ❌     | Full support for all MCP features                                  |
-| [Cursor][Cursor]                     | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools.                                                    |
-| [Emacs Mcp][Mcp.el]                  | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools in Emacs.                                           |
-| [Firebase Genkit][Genkit]            | ⚠️          | ✅         | ✅       | ❌          | ❌     | Supports resource list and lookup through tools.                   |
-| [GenAIScript][GenAIScript]           | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools.                                                    |
-| [Goose][Goose]                       | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools.                                                    |
-| [LibreChat][LibreChat]               | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools for Agents                                          |
-| [mcp-agent][mcp-agent]               | ❌           | ❌         | ✅       | ⚠️         | ❌     | Supports tools, server connection management, and agent workflows. |
-| [oterm][oterm]                       | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools.                                                    |
-| [Roo Code][Roo Code]                 | ✅           | ❌         | ✅       | ❌          | ❌     | Supports tools and resources.                                      |
-| [Sourcegraph Cody][Cody]             | ✅           | ❌         | ❌       | ❌          | ❌     | Supports resources through OpenCTX                                 |
-| [Superinterface][Superinterface]     | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools                                                     |
-| [TheiaAI/TheiaIDE][TheiaAI/TheiaIDE] | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools for Agents in Theia AI and the AI-powered Theia IDE |
-| [Windsurf Editor][Windsurf]          | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools with AI Flow for collaborative development.         |
-| [Zed][Zed]                           | ❌           | ✅         | ❌       | ❌          | ❌     | Prompts appear as slash commands                                   |
-| [SpinAI][SpinAI]                     | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools for Typescript AI Agents                            |
-| [OpenSumi][OpenSumi]                 | ❌           | ❌         | ✅       | ❌          | ❌     | Supports tools in OpenSumi                                         |
-| [Daydreams Agents][Daydreams]        | ✅           | ✅         | ✅       | ❌          | ❌     | Support for drop in Servers to Daydreams agents                    |
-
 ## Project Architecture
 
 The project follows a modular architecture with two main packages:
@@ -152,7 +122,9 @@ algorand-mcp/
 │       ├── src/
 │       │   ├── resources/         # MCP Resources
 │       │   │   ├── algod/        # Real-time blockchain state
-│       │   │   └── indexer/      # Historical blockchain data
+│       │   │   ├── indexer/      # Historical blockchain data
+│       │   │   ├── nfd/         # NFDomains name service
+│       │   │   └── vestige/     # DeFi analytics and tracking
 │       │   ├── tools/            # MCP Tools
 │       │   │   ├── accountManager.ts     # Account operations
 │       │   │   ├── algodManager.ts       # Node interactions
@@ -172,13 +144,6 @@ algorand-mcp/
 
 ## Core Functionalities
 
-### Client Features
-- Local wallet with secure storage
-- External wallet support (Pera, Defly, Daffi)
-- Transaction signing
-- Session management
-- Universal ES module support
-
 ### Server Features
 - Account management
 - Asset operations
@@ -186,44 +151,132 @@ algorand-mcp/
 - Transaction creation and submission
 - Blockchain state queries
 - Comprehensive utility functions
+- Standardized response format
+- Built-in pagination support
+- NFDomains integration
+- Vestige DeFi analytics
+
+### Client Features (Work in Progress)
+- Local wallet with secure storage
+- External wallet support (Pera, Defly, Daffi)
+- Transaction signing
+- Session management
+- Universal ES module support
+
+## Response Format
+
+All responses follow a standardized format:
+
+```typescript
+{
+  "data": {
+    // Response data here
+  },
+  "metadata": {  // Only for paginated responses
+    "totalItems": number,
+    "itemsPerPage": number,
+    "currentPage": number,
+    "totalPages": number,
+    "hasNextPage": boolean,
+    "nextPageToken": string,
+    "arrayField": string  // Name of paginated array field
+  }
+}
+```
+
+Errors are returned in a standardized format:
+```typescript
+{
+  "error": {
+    "code": string,
+    "message": string
+  }
+}
+```
 
 ## Available Tools and Resources
 
-The Algorand MCP implementation provides 100+ tools and resources for blockchain interaction. For detailed documentation and usage instructions, please refer to the server package README.
+The Algorand MCP implementation provides 104 tools and resources for blockchain interaction:
+- 40 base tools (account, asset, application, transaction management)
+- 30 resource tools (algod and indexer)
+- 6 NFDomains (NFD) tools for name services
+- 28 Vestige tools for DeFi analytics
 
-### Available Tools (40 + Resource Tools)
+For detailed documentation and usage instructions, please refer to the server package README.
 
-#### Resource Tools
-- resource_tool_get_account_info: Get current account balance, assets, and auth address from algod
-- resource_tool_get_account_application_info: Get account-specific application information from algod
-- resource_tool_get_account_asset_info: Get account-specific asset information from algod
-- resource_tool_get_application_by_id: Get application information
-- resource_tool_get_application_box: Get application box by name
-- resource_tool_get_application_boxes: Get all application boxes
-- resource_tool_get_asset_by_id: Get current asset information from algod
-- resource_tool_get_pending_transaction: Get pending transaction information
-- resource_tool_get_pending_transactions_by_address: Get pending transactions for an address
-- resource_tool_get_pending_transactions: Get all pending transactions
-- resource_tool_get_transaction_params: Get suggested transaction parameters
-- resource_tool_get_node_status: Get current node status
-- resource_tool_get_node_status_after_block: Get node status after a specific round
-- resource_tool_lookup_account_by_id: Get account information from indexer
-- resource_tool_lookup_account_transactions: Get account transaction history
-- resource_tool_lookup_account_assets: Get account assets
-- resource_tool_lookup_account_app_local_states: Get account application local states
-- resource_tool_lookup_account_created_applications: Get applications created by this account
-- resource_tool_lookup_applications: Get application information from indexer
-- resource_tool_lookup_application_logs: Get application log messages
-- resource_tool_lookup_application_box: Get application box by name
-- resource_tool_lookup_application_boxes: Get all application boxes
-- resource_tool_lookup_asset_by_id: Get asset information and configuration
-- resource_tool_lookup_asset_balances: Get accounts holding this asset and their balances
-- resource_tool_lookup_asset_transactions: Get transactions involving this asset
-- resource_tool_lookup_transaction_by_id: Get transaction information by ID
-- resource_tool_search_accounts: Search for accounts with various criteria
-- resource_tool_search_for_applications: Search for applications with various criteria
-- resource_tool_search_for_assets: Search for assets with various criteria
-- resource_tool_search_for_transactions: Search for transactions with various criteria
+### Available Tools (104 Total: 40 Base + 30 Resource + 6 NFD + 28 Vestige)
+
+#### Algod Resource Tools
+- resource_algod_get_account_info: Get current account balance, assets, and auth address from algod
+- resource_algod_get_account_application_info: Get account-specific application information from algod
+- resource_algod_get_account_asset_info: Get account-specific asset information from algod
+- resource_algod_get_application_by_id: Get application information
+- resource_algod_get_application_box: Get application box by name
+- resource_algod_get_application_boxes: Get all application boxes
+- resource_algod_get_asset_by_id: Get current asset information from algod
+- resource_algod_get_pending_transaction: Get pending transaction information
+- resource_algod_get_pending_transactions_by_address: Get pending transactions for an address
+- resource_algod_get_pending_transactions: Get all pending transactions
+- resource_algod_get_transaction_params: Get suggested transaction parameters
+- resource_algod_get_node_status: Get current node status
+- resource_algod_get_node_status_after_block: Get node status after a specific round
+
+#### Indexer Resource Tools
+- resource_indexer_lookup_account_by_id: Get account information from indexer
+- resource_indexer_lookup_account_transactions: Get account transaction history
+- resource_indexer_lookup_account_assets: Get account assets
+- resource_indexer_lookup_account_app_local_states: Get account application local states
+- resource_indexer_lookup_account_created_applications: Get applications created by this account
+- resource_indexer_lookup_applications: Get application information from indexer
+- resource_indexer_lookup_application_logs: Get application log messages
+- resource_indexer_lookup_application_box: Get application box by name
+- resource_indexer_lookup_application_boxes: Get all application boxes
+- resource_indexer_lookup_asset_by_id: Get asset information and configuration
+- resource_indexer_lookup_asset_balances: Get accounts holding this asset and their balances
+- resource_indexer_lookup_asset_transactions: Get transactions involving this asset
+- resource_indexer_lookup_transaction_by_id: Get transaction information by ID
+- resource_indexer_search_accounts: Search for accounts with various criteria
+- resource_indexer_search_for_applications: Search for applications with various criteria
+- resource_indexer_search_for_assets: Search for assets with various criteria
+- resource_indexer_search_for_transactions: Search for transactions with various criteria
+
+#### NFDomains (NFD) Resource Tools
+- resource_nfd_get_nfd: Get a specific NFD by name or application ID
+- resource_nfd_get_nfds_for_addresses: Get NFDs for specific addresses
+- resource_nfd_get_nfd_activity: Get activity/changes for NFDs
+- resource_nfd_get_nfd_analytics: Get analytics data for NFDs
+- resource_nfd_browse_nfds: Browse NFDs with various filters
+- resource_nfd_search_nfds: Search NFDs with various filters
+
+#### Vestige Resource Tools
+- resource_vestige_view_providers: Get all supported providers
+- resource_vestige_view_providers_tvl_simple_90d: Get provider TVL for the last 90 days
+- resource_vestige_view_providers_tvl_simple_30d: Get provider TVL for the last 30 days
+- resource_vestige_view_providers_tvl_simple_7d: Get provider TVL for the last 7 days
+- resource_vestige_view_providers_tvl_simple_1d: Get provider TVL for the last day
+- resource_vestige_view_assets: Get all tracked assets
+- resource_vestige_view_assets_list: Get all tracked assets in a list format
+- resource_vestige_view_assets_by_name: Get assets that fit search query
+- resource_vestige_view_asset: Get asset info
+- resource_vestige_view_asset_price: Get estimated asset price
+- resource_vestige_view_asset_views: Get asset views
+- resource_vestige_view_asset_holders: Get asset holders
+- resource_vestige_view_asset_contributors: Get asset liquidity contributors
+- resource_vestige_view_pool_volumes: Get pool volumes and APY across providers
+- resource_vestige_view_pools: Get tracked pools or all pools by asset id
+- resource_vestige_view_pool: Get pool info
+- resource_vestige_view_pool_volume: Get pool volume and APY for a specific pool
+- resource_vestige_view_pool_price: Get last price of a pool
+- resource_vestige_view_pool_contributors: Get pool contributors
+- resource_vestige_view_currency_prices: Get all latest currency prices
+- resource_vestige_view_currency_price_history: Get currency prices by timestamp range
+- resource_vestige_view_currency_price: Get currency price by timestamp
+- resource_vestige_view_currency_average_price: Get average price for currency
+- resource_vestige_view_currency_prices_simple_30d: Get currency prices for last 30 days
+- resource_vestige_view_currency_prices_simple_7d: Get currency prices for last week
+- resource_vestige_view_currency_prices_simple_1d: Get currency prices for last day
+- resource_vestige_view_vault: Get vault by id
+- resource_vestige_view_recent_vaults: Get last 100 vaults
 
 #### Account Management Tools
 - create_account

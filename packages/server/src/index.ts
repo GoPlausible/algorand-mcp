@@ -171,7 +171,7 @@ class AlgorandMcpServer {
       }
 
       // Handle resource tools
-      if (name.startsWith('resource_tool_')) {
+      if (name.startsWith('resource_')) {
         return handleResourceTools(name, args);
       }
 

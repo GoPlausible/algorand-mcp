@@ -9,7 +9,7 @@ import algosdk from 'algosdk';
 
 export const accountTools = [
   {
-    name: 'resource_tool_get_account_info',
+    name: 'resource_algod_get_account_info',
     description: 'Get current account balance, assets, and auth address from algod',
     inputSchema: {
       type: 'object',
@@ -23,7 +23,7 @@ export const accountTools = [
     }
   },
   {
-    name: 'resource_tool_get_account_application_info',
+    name: 'resource_algod_get_account_application_info',
     description: 'Get account-specific application information from algod',
     inputSchema: {
       type: 'object',
@@ -41,7 +41,7 @@ export const accountTools = [
     }
   },
   {
-    name: 'resource_tool_get_account_asset_info',
+    name: 'resource_algod_get_account_asset_info',
     description: 'Get account-specific asset information from algod',
     inputSchema: {
       type: 'object',
@@ -135,35 +135,20 @@ export async function getAccountAssetInfo(address: string, assetId: number): Pro
 
 export async function handleAccountTools(name: string, args: any): Promise<any> {
   switch (name) {
-    case 'resource_tool_get_account_info': {
+    case 'resource_algod_get_account_info': {
       const { address } = args;
       const info = await getAccountInfo(address);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
-    case 'resource_tool_get_account_application_info': {
+    case 'resource_algod_get_account_application_info': {
       const { address, appId } = args;
       const info = await getAccountApplicationInfo(address, appId);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
-    case 'resource_tool_get_account_asset_info': {
+    case 'resource_algod_get_account_asset_info': {
       const { address, assetId } = args;
       const info = await getAccountAssetInfo(address, assetId);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
     default:
       throw new McpError(

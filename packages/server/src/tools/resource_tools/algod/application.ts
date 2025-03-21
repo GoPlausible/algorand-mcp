@@ -9,7 +9,7 @@ import algosdk from 'algosdk';
 
 export const applicationTools = [
   {
-    name: 'resource_tool_get_application_by_id',
+    name: 'resource_algod_get_application_by_id',
     description: 'Get application information',
     inputSchema: {
       type: 'object',
@@ -23,7 +23,7 @@ export const applicationTools = [
     }
   },
   {
-    name: 'resource_tool_get_application_box',
+    name: 'resource_algod_get_application_box',
     description: 'Get application box by name',
     inputSchema: {
       type: 'object',
@@ -41,7 +41,7 @@ export const applicationTools = [
     }
   },
   {
-    name: 'resource_tool_get_application_boxes',
+    name: 'resource_algod_get_application_boxes',
     description: 'Get all application boxes',
     inputSchema: {
       type: 'object',
@@ -60,10 +60,10 @@ export const applicationTools = [
   }
 ];
 
-export async function getApplicationByID(appId: number): Promise<Application> {
+export async function getApplicationByID(appId: number): Promise<any> {
   try {
     console.log(`Fetching application info for ID ${appId}`);
-    const response = await algodClient.getApplicationByID(appId).do() as Application;
+    const response = await algodClient.getApplicationByID(appId).do() as any;
     console.log('Application response:', JSON.stringify(response, null, 2));
     return response;
   } catch (error) {
@@ -174,35 +174,20 @@ export async function getApplicationBoxes(appId: number, maxBoxes?: number): Pro
 
 export async function handleApplicationTools(name: string, args: any): Promise<any> {
   switch (name) {
-    case 'resource_tool_get_application_by_id': {
+    case 'resource_algod_get_application_by_id': {
       const { appId } = args;
       const info = await getApplicationByID(appId);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
-    case 'resource_tool_get_application_box': {
+    case 'resource_algod_get_application_box': {
       const { appId, boxName } = args;
       const box = await getApplicationBoxByName(appId, boxName);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(box, null, 2)
-        }]
-      };
+      return box;
     }
-    case 'resource_tool_get_application_boxes': {
+    case 'resource_algod_get_application_boxes': {
       const { appId, maxBoxes } = args;
       const boxes = await getApplicationBoxes(appId, maxBoxes);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(boxes, null, 2)
-        }]
-      };
+      return boxes;
     }
     default:
       throw new McpError(

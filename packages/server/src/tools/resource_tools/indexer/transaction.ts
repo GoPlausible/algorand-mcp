@@ -1,5 +1,6 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { indexerClient } from '../../../algorand-client.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import type { 
   TransactionResponse,
   TransactionsResponse 
@@ -7,7 +8,7 @@ import type {
 
 export const transactionTools = [
   {
-    name: 'resource_tool_lookup_transaction_by_id',
+    name: 'resource_indexer_lookup_transaction_by_id',
     description: 'Get transaction information by ID',
     inputSchema: {
       type: 'object',
@@ -21,7 +22,7 @@ export const transactionTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_account_transactions',
+    name: 'resource_indexer_lookup_account_transactions',
     description: 'Get account transaction history',
     inputSchema: {
       type: 'object',
@@ -63,7 +64,7 @@ export const transactionTools = [
     }
   },
   {
-    name: 'resource_tool_search_for_transactions',
+    name: 'resource_indexer_search_for_transactions',
     description: 'Search for transactions with various criteria',
     inputSchema: {
       type: 'object',
@@ -133,7 +134,11 @@ export async function lookupTransactionByID(txId: string): Promise<TransactionRe
   try {
     console.log(`Looking up transaction with ID ${txId}`);
     const response = await indexerClient.lookupTransactionByID(txId).do() as TransactionResponse;
-    console.log('Transaction response:', JSON.stringify(response, null, 2));
+    // Log only metadata instead of full response
+    console.log('Transaction response metadata:', {
+      currentRound: response.currentRound,
+      transaction: response.transaction ? 'present' : 'not found'
+    });
     return response;
   } catch (error) {
     console.error('Transaction lookup error:', error);
@@ -183,7 +188,12 @@ export async function lookupAccountTransactions(address: string, params?: {
     }
 
     const response = await search.do() as TransactionsResponse;
-    console.log('Account transactions response:', JSON.stringify(response, null, 2));
+    // Log only metadata instead of full response
+    console.log('Account transactions response metadata:', {
+      currentRound: response.currentRound,
+      nextToken: response.nextToken,
+      transactionCount: response.transactions?.length || 0
+    });
     return response;
   } catch (error) {
     console.error('Account transactions lookup error:', error);
@@ -261,7 +271,12 @@ export async function searchForTransactions(params?: {
     }
 
     const response = await search.do() as TransactionsResponse;
-    console.log('Search transactions response:', JSON.stringify(response, null, 2));
+    // Log only metadata instead of full response
+    console.log('Search transactions response metadata:', {
+      currentRound: response.currentRound,
+      nextToken: response.nextToken,
+      transactionCount: response.transactions?.length || 0
+    });
     return response;
   } catch (error) {
     console.error('Search transactions error:', error);
@@ -275,36 +290,23 @@ export async function searchForTransactions(params?: {
   }
 }
 
-export async function handleTransactionTools(name: string, args: any): Promise<any> {
+export const handleTransactionTools = ResponseProcessor.wrapResourceHandler(async function handleTransactionTools(args: any): Promise<any> {
+  const name = args.name;
+  
   switch (name) {
-    case 'resource_tool_lookup_transaction_by_id': {
+    case 'resource_indexer_lookup_transaction_by_id': {
       const { txId } = args;
       const info = await lookupTransactionByID(txId);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.transaction;
     }
-    case 'resource_tool_lookup_account_transactions': {
+    case 'resource_indexer_lookup_account_transactions': {
       const { address, ...params } = args;
       const info = await lookupAccountTransactions(address, params);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.transactions;
     }
-    case 'resource_tool_search_for_transactions': {
+    case 'resource_indexer_search_for_transactions': {
       const info = await searchForTransactions(args);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.transactions;
     }
     default:
       throw new McpError(
@@ -312,4 +314,4 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
         `Unknown tool: ${name}`
       );
   }
-}
+});

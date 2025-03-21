@@ -1,9 +1,11 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
+import { env } from '../../../env.js';
 
 export const poolTools: Tool[] = [
   // Pool Volumes
   {
-    name: 'resource_tool_view_pool_volumes',
+    name: 'resource_vestige_view_pool_volumes',
     description: 'Get pool volumes and APY across providers',
     inputSchema: {
       type: 'object',
@@ -18,7 +20,7 @@ export const poolTools: Tool[] = [
 
   // Pool Listings
   {
-    name: 'resource_tool_view_pools',
+    name: 'resource_vestige_view_pools',
     description: 'Get tracked pools or all pools by asset id',
     inputSchema: {
       type: 'object',
@@ -38,7 +40,7 @@ export const poolTools: Tool[] = [
 
   // Individual Pool Info
   {
-    name: 'resource_tool_view_pool',
+    name: 'resource_vestige_view_pool',
     description: 'Get pool info',
     inputSchema: {
       type: 'object',
@@ -54,7 +56,7 @@ export const poolTools: Tool[] = [
 
   // Pool Volume Data
   {
-    name: 'resource_tool_view_pool_volume',
+    name: 'resource_vestige_view_pool_volume',
     description: 'Get pool volume and APY for a specific pool',
     inputSchema: {
       type: 'object',
@@ -74,7 +76,7 @@ export const poolTools: Tool[] = [
 
   // Pool Price Data
   {
-    name: 'resource_tool_view_pool_price',
+    name: 'resource_vestige_view_pool_price',
     description: 'Get last price of a pool',
     inputSchema: {
       type: 'object',
@@ -90,7 +92,7 @@ export const poolTools: Tool[] = [
 
   // Pool Contributors
   {
-    name: 'resource_tool_view_pool_contributors',
+    name: 'resource_vestige_view_pool_contributors',
     description: 'Get pool contributors',
     inputSchema: {
       type: 'object',
@@ -110,27 +112,30 @@ export const poolTools: Tool[] = [
   }
 ];
 
-export async function handlePoolTools(name: string, args: any): Promise<any> {
-  const baseUrl = 'https://free-api.vestige.fi';
+
+
+export const handlePoolTools = ResponseProcessor.wrapResourceHandler(async function handlePoolTools(args: any): Promise<any> {
+  const name = args.name;
+  const baseUrl = env.vestige_api_url;
   let endpoint = '';
 
   switch (name) {
-    case 'resource_tool_view_pool_volumes':
+    case 'resource_vestige_view_pool_volumes':
       endpoint = '/pools/volumes';
       break;
-    case 'resource_tool_view_pools':
+    case 'resource_vestige_view_pools':
       endpoint = `/pools/${args.provider}`;
       break;
-    case 'resource_tool_view_pool':
+    case 'resource_vestige_view_pool':
       endpoint = `/pool/${args.pool_id}`;
       break;
-    case 'resource_tool_view_pool_volume':
+    case 'resource_vestige_view_pool_volume':
       endpoint = `/pool/${args.pool_id}/volume`;
       break;
-    case 'resource_tool_view_pool_price':
+    case 'resource_vestige_view_pool_price':
       endpoint = `/pool/${args.pool_id}/price`;
       break;
-    case 'resource_tool_view_pool_contributors':
+    case 'resource_vestige_view_pool_contributors':
       endpoint = `/pool/${args.pool_id}/contributors`;
       break;
     default:
@@ -158,13 +163,8 @@ export async function handlePoolTools(name: string, args: any): Promise<any> {
       );
     }
     const data = await response.json();
-
-    return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(data, null, 2)
-      }]
-    };
+    return data;
+    
   } catch (error) {
     if (error instanceof McpError) {
       throw error;
@@ -174,4 +174,4 @@ export async function handlePoolTools(name: string, args: any): Promise<any> {
       `Failed to fetch pool data: ${error instanceof Error ? error.message : String(error)}`
     );
   }
-}
+});

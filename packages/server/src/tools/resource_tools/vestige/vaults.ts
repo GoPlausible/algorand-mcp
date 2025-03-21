@@ -1,9 +1,11 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
+import { env } from '../../../env.js';
 
 export const vaultTools: Tool[] = [
   // Individual Vault Info
   {
-    name: 'resource_tool_view_vault',
+    name: 'resource_vestige_view_vault',
     description: 'Get vault by id',
     inputSchema: {
       type: 'object',
@@ -19,7 +21,7 @@ export const vaultTools: Tool[] = [
 
   // Recent Vaults
   {
-    name: 'resource_tool_view_recent_vaults',
+    name: 'resource_vestige_view_recent_vaults',
     description: 'Get last 100 vaults',
     inputSchema: {
       type: 'object',
@@ -38,15 +40,18 @@ export const vaultTools: Tool[] = [
   }
 ];
 
-export async function handleVaultTools(name: string, args: any): Promise<any> {
-  const baseUrl = 'https://free-api.vestige.fi';
+
+
+export const handleVaultTools = ResponseProcessor.wrapResourceHandler(async function handleVaultTools(args: any): Promise<any> {
+  const name = args.name;
+  const baseUrl = env.vestige_api_url;
   let endpoint = '';
 
   switch (name) {
-    case 'resource_tool_view_vault':
+    case 'resource_vestige_view_vault':
       endpoint = `/vault/${args.vault_id}`;
       break;
-    case 'resource_tool_view_recent_vaults':
+    case 'resource_vestige_view_recent_vaults':
       endpoint = '/vaults';
       break;
     default:
@@ -75,12 +80,13 @@ export async function handleVaultTools(name: string, args: any): Promise<any> {
     }
     const data = await response.json();
 
-    return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(data, null, 2)
-      }]
-    };
+    // Return array directly for recent vaults endpoint
+    if (name === 'resource_vestige_view_recent_vaults') {
+      return data.vaults;
+    }
+
+    // Return other responses as is
+    return data;
   } catch (error) {
     if (error instanceof McpError) {
       throw error;
@@ -90,4 +96,4 @@ export async function handleVaultTools(name: string, args: any): Promise<any> {
       `Failed to fetch vault data: ${error instanceof Error ? error.message : String(error)}`
     );
   }
-}
+});

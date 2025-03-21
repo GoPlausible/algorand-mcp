@@ -1,17 +1,25 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
+import { env } from '../../../env.js';
 
 export const assetTools: Tool[] = [
   // Asset List and Search
   {
-    name: 'resource_tool_view_assets',
+    name: 'resource_vestige_view_assets',
     description: 'Get all tracked assets',
     inputSchema: {
       type: 'object',
-      properties: {}
+      properties: {
+        page: {
+          type: 'integer',
+          description: 'Page number for paginated results',
+          default: 0
+        }
+      }
     }
   },
   {
-    name: 'resource_tool_view_assets_list',
+    name: 'resource_vestige_view_assets_list',
     description: 'Get all tracked assets in a list format',
     inputSchema: {
       type: 'object',
@@ -28,7 +36,7 @@ export const assetTools: Tool[] = [
     }
   },
   {
-    name: 'resource_tool_view_assets_by_name',
+    name: 'resource_vestige_view_assets_by_name',
     description: 'Get assets that fit search query',
     inputSchema: {
       type: 'object',
@@ -54,7 +62,7 @@ export const assetTools: Tool[] = [
 
   // Asset Details
   {
-    name: 'resource_tool_view_asset',
+    name: 'resource_vestige_view_asset',
     description: 'Get asset info',
     inputSchema: {
       type: 'object',
@@ -68,7 +76,7 @@ export const assetTools: Tool[] = [
     }
   },
   {
-    name: 'resource_tool_view_asset_price',
+    name: 'resource_vestige_view_asset_price',
     description: 'Get estimated asset price',
     inputSchema: {
       type: 'object',
@@ -92,7 +100,7 @@ export const assetTools: Tool[] = [
 
   // Asset Views
   {
-    name: 'resource_tool_view_asset_views',
+    name: 'resource_vestige_view_asset_views',
     description: 'Get asset views',
     inputSchema: {
       type: 'object',
@@ -102,7 +110,7 @@ export const assetTools: Tool[] = [
 
   // Asset Holders and Contributors
   {
-    name: 'resource_tool_view_asset_holders',
+    name: 'resource_vestige_view_asset_holders',
     description: 'Get asset holders',
     inputSchema: {
       type: 'object',
@@ -121,7 +129,7 @@ export const assetTools: Tool[] = [
     }
   },
   {
-    name: 'resource_tool_view_asset_contributors',
+    name: 'resource_vestige_view_asset_contributors',
     description: 'Get asset liquidity contributors from top 5 biggest pools',
     inputSchema: {
       type: 'object',
@@ -141,33 +149,36 @@ export const assetTools: Tool[] = [
   }
 ];
 
-export async function handleAssetTools(name: string, args: any): Promise<any> {
-  const baseUrl = 'https://free-api.vestige.fi';
+
+
+export const handleAssetTools = ResponseProcessor.wrapResourceHandler(async function handleAssetTools(args: any): Promise<any> {
+  const name = args.name;
+  const baseUrl = env.vestige_api_url;
   let endpoint = '';
 
   switch (name) {
-    case 'resource_tool_view_assets':
+    case 'resource_vestige_view_assets':
       endpoint = '/assets';
       break;
-    case 'resource_tool_view_assets_list':
+    case 'resource_vestige_view_assets_list':
       endpoint = '/assets/list';
       break;
-    case 'resource_tool_view_assets_by_name':
+    case 'resource_vestige_view_assets_by_name':
       endpoint = '/assets/search';
       break;
-    case 'resource_tool_view_asset':
+    case 'resource_vestige_view_asset':
       endpoint = `/asset/${args.asset_id}`;
       break;
-    case 'resource_tool_view_asset_price':
+    case 'resource_vestige_view_asset_price':
       endpoint = `/asset/${args.asset_id}/price`;
       break;
-    case 'resource_tool_view_asset_views':
+    case 'resource_vestige_view_asset_views':
       endpoint = '/assets/views';
       break;
-    case 'resource_tool_view_asset_holders':
+    case 'resource_vestige_view_asset_holders':
       endpoint = `/asset/${args.asset_id}/holders`;
       break;
-    case 'resource_tool_view_asset_contributors':
+    case 'resource_vestige_view_asset_contributors':
       endpoint = `/asset/${args.asset_id}/contributors`;
       break;
     default:
@@ -194,14 +205,18 @@ export async function handleAssetTools(name: string, args: any): Promise<any> {
         `Vestige API error: ${response.status} ${response.statusText}`
       );
     }
-    const data = await response.json();
+    let data = await response.json();
+    
+    // For view_assets endpoint, ensure we have the page parameter
+    if (name === 'resource_vestige_view_assets' && typeof args.page === 'number') {
+      // The response processor will handle pagination, but we need to pass the page
+      data = {
+        ...data,
+        _page: args.page // Internal field for response processor
+      };
+    }
 
-    return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(data, null, 2)
-      }]
-    };
+    return data;
   } catch (error) {
     if (error instanceof McpError) {
       throw error;
@@ -211,4 +226,4 @@ export async function handleAssetTools(name: string, args: any): Promise<any> {
       `Failed to fetch asset data: ${error instanceof Error ? error.message : String(error)}`
     );
   }
-}
+});

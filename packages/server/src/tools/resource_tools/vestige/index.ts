@@ -17,30 +17,32 @@ export const vestigeTools: Tool[] = [
 // Handle all Vestige tools
 export async function handleVestigeTools(name: string, args: any): Promise<any> {
   try {
+    const combinedArgs = { name, ...args };
+
     // Provider tools
-    if (name.startsWith('resource_tool_view_providers')) {
-      return handleProviderTools(name, args);
+    if (name.startsWith('resource_vestige_view_providers')) {
+      return handleProviderTools(combinedArgs);
     }
 
     // Asset tools
-    if (name.startsWith('resource_tool_view_asset')) {
-      return handleAssetTools(name, args);
+    if (name.startsWith('resource_vestige_view_asset')) {
+      return handleAssetTools(combinedArgs);
     }
 
     // Pool tools
-    if (name.startsWith('resource_tool_view_pool')) {
-      return handlePoolTools(name, args);
+    if (name.startsWith('resource_vestige_view_pool')) {
+      return handlePoolTools(combinedArgs);
     }
 
     // Currency tools
-    if (name.startsWith('resource_tool_view_currency')) {
-      return handleCurrencyTools(name, args);
+    if (name.startsWith('resource_vestige_view_currency')) {
+      return handleCurrencyTools(combinedArgs);
     }
 
     // Vault tools
-    if (name.startsWith('resource_tool_view_vault') || 
-        name.startsWith('resource_tool_view_recent_vaults')) {
-      return handleVaultTools(name, args);
+    if (name.startsWith('resource_vestige_view_vault') || 
+        name.startsWith('resource_vestige_view_recent_vaults')) {
+      return handleVaultTools(combinedArgs);
     }
 
     throw new McpError(

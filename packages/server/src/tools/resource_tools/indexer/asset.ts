@@ -1,5 +1,6 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { indexerClient } from '../../../algorand-client.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import type { 
   AssetResponse,
   AssetsResponse,
@@ -9,7 +10,7 @@ import type {
 
 export const assetTools = [
   {
-    name: 'resource_tool_lookup_asset_by_id',
+    name: 'resource_indexer_lookup_asset_by_id',
     description: 'Get asset information and configuration',
     inputSchema: {
       type: 'object',
@@ -23,7 +24,7 @@ export const assetTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_asset_balances',
+    name: 'resource_indexer_lookup_asset_balances',
     description: 'Get accounts holding this asset and their balances',
     inputSchema: {
       type: 'object',
@@ -57,7 +58,7 @@ export const assetTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_asset_transactions',
+    name: 'resource_indexer_lookup_asset_transactions',
     description: 'Get transactions involving this asset',
     inputSchema: {
       type: 'object',
@@ -111,7 +112,7 @@ export const assetTools = [
     }
   },
   {
-    name: 'resource_tool_search_for_assets',
+    name: 'resource_indexer_search_for_assets',
     description: 'Search for assets with various criteria',
     inputSchema: {
       type: 'object',
@@ -307,46 +308,28 @@ export async function searchForAssets(params?: {
   }
 }
 
-export async function handleAssetTools(name: string, args: any): Promise<any> {
+export const handleAssetTools = ResponseProcessor.wrapResourceHandler(async function handleAssetTools(args: any): Promise<any> {
+  const name = args.name;
+  
   switch (name) {
-    case 'resource_tool_lookup_asset_by_id': {
+    case 'resource_indexer_lookup_asset_by_id': {
       const { assetId } = args;
       const info = await lookupAssetByID(assetId);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.asset;
     }
-    case 'resource_tool_lookup_asset_balances': {
+    case 'resource_indexer_lookup_asset_balances': {
       const { assetId, ...params } = args;
       const balances = await lookupAssetBalances(assetId, params);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(balances, null, 2)
-        }]
-      };
+      return balances.balances;
     }
-    case 'resource_tool_lookup_asset_transactions': {
+    case 'resource_indexer_lookup_asset_transactions': {
       const { assetId, ...params } = args;
       const transactions = await lookupAssetTransactions(assetId, params);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(transactions, null, 2)
-        }]
-      };
+      return transactions.transactions;
     }
-    case 'resource_tool_search_for_assets': {
+    case 'resource_indexer_search_for_assets': {
       const assets = await searchForAssets(args);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(assets, null, 2)
-        }]
-      };
+      return assets.assets;
     }
     default:
       throw new McpError(
@@ -354,4 +337,4 @@ export async function handleAssetTools(name: string, args: any): Promise<any> {
         `Unknown tool: ${name}`
       );
   }
-}
+});

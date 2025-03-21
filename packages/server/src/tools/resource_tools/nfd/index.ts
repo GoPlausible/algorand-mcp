@@ -1,10 +1,9 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../../../algorand-client.js';
-import type { Algodv2 } from 'algosdk';
+import { env } from '../../../env.js';
 
 export const nfdTools = [
   {
-    name: 'resource_tool_get_nfd',
+    name: 'resource_nfd_get_nfd',
     description: 'Get a specific NFD by name or by its application ID',
     inputSchema: {
       type: 'object',
@@ -31,7 +30,7 @@ export const nfdTools = [
     }
   },
   {
-    name: 'resource_tool_get_nfds_for_addresses',
+    name: 'resource_nfd_get_nfds_for_addresses',
     description: 'Get NFDs for specific addresses',
     inputSchema: {
       type: 'object',
@@ -57,7 +56,7 @@ export const nfdTools = [
     }
   },
   {
-    name: 'resource_tool_get_nfd_activity',
+    name: 'resource_nfd_get_nfd_activity',
     description: 'Get activity/changes for NFDs',
     inputSchema: {
       type: 'object',
@@ -93,7 +92,7 @@ export const nfdTools = [
     }
   },
   {
-    name: 'resource_tool_get_nfd_analytics',
+    name: 'resource_nfd_get_nfd_analytics',
     description: 'Get analytics data for NFDs',
     inputSchema: {
       type: 'object',
@@ -161,7 +160,7 @@ export const nfdTools = [
     }
   },
   {
-    name: 'resource_tool_browse_nfds',
+    name: 'resource_nfd_browse_nfds',
     description: 'Browse NFDs with various filters',
     inputSchema: {
       type: 'object',
@@ -225,7 +224,7 @@ export const nfdTools = [
     }
   },
   {
-    name: 'resource_tool_search_nfds',
+    name: 'resource_nfd_search_nfds',
     description: 'Search NFDs with various filters',
     inputSchema: {
       type: 'object',
@@ -326,8 +325,9 @@ interface NFDRecord {
   unverifiedCaAlgo?: string[];
 }
 
+
+
 async function getNFD(
-  client: Algodv2,
   params: { nameOrID: string; view?: 'tiny' | 'brief' | 'full'; poll?: boolean; nocache?: boolean }
 ): Promise<NFDRecord> {
   try {
@@ -336,7 +336,7 @@ async function getNFD(
     if (params.poll) searchParams.append('poll', params.poll.toString());
     if (params.nocache) searchParams.append('nocache', params.nocache.toString());
     
-    const response = await fetch(`https://api.nf.domains/nfd/${params.nameOrID}?${searchParams}`);
+    const response = await fetch(`${env.nfd_api_url}/nfd/${params.nameOrID}?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -353,7 +353,6 @@ async function getNFD(
 }
 
 async function getNFDsForAddressesV2(
-  client: Algodv2,
   params: {
     address: string[];
     limit?: number;
@@ -366,7 +365,7 @@ async function getNFDsForAddressesV2(
     if (params.limit) searchParams.append('limit', params.limit.toString());
     if (params.view) searchParams.append('view', params.view);
     
-    const response = await fetch(`https://api.nf.domains/nfd/v2/address?${searchParams}`);
+    const response = await fetch(`${env.nfd_api_url}/nfd/v2/address?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -383,7 +382,6 @@ async function getNFDsForAddressesV2(
 }
 
 async function searchNFDsV2(
-  client: Algodv2,
   params: {
     name?: string;
     category?: ('curated' | 'premium' | 'common')[];
@@ -419,7 +417,7 @@ async function searchNFDsV2(
       }
     });
     
-    const response = await fetch(`https://api.nf.domains/nfd/v2/search?${searchParams}`);
+    const response = await fetch(`${env.nfd_api_url}/nfd/v2/search?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -436,7 +434,6 @@ async function searchNFDsV2(
 }
 
 async function browseNFDs(
-  client: Algodv2,
   params: {
     name?: string;
     category?: ('curated' | 'premium' | 'common')[];
@@ -472,7 +469,7 @@ async function browseNFDs(
       }
     });
     
-    const response = await fetch(`https://api.nf.domains/nfd/browse?${searchParams}`);
+    const response = await fetch(`${env.nfd_api_url}/nfd/browse?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -489,7 +486,6 @@ async function browseNFDs(
 }
 
 async function getNFDActivity(
-  client: Algodv2,
   params: {
     name: string[];
     type?: 'changes';
@@ -511,7 +507,7 @@ async function getNFDActivity(
     if (params.limit) searchParams.append('limit', params.limit.toString());
     if (params.sort) searchParams.append('sort', params.sort);
     
-    const response = await fetch(`https://api.nf.domains/nfd/activity?${searchParams}`);
+    const response = await fetch(`${env.nfd_api_url}/nfd/activity?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -528,7 +524,6 @@ async function getNFDActivity(
 }
 
 async function getNFDAnalytics(
-  client: Algodv2,
   params: {
     name?: string;
     buyer?: string;
@@ -585,7 +580,7 @@ async function getNFDAnalytics(
       }
     });
     
-    const response = await fetch(`https://api.nf.domains/nfd/analytics?${searchParams}`);
+    const response = await fetch(`${env.nfd_api_url}/nfd/analytics?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -603,38 +598,39 @@ async function getNFDAnalytics(
 
 export async function handleNFDTools(name: string, args: any): Promise<any> {
   try {
-    let info;
+    let result;
     switch (name) {
-      case 'resource_tool_get_nfd':
-        info = await getNFD(algodClient, args);
+      case 'resource_nfd_get_nfd': {
+        result = await getNFD(args);
         break;
-      case 'resource_tool_get_nfds_for_addresses':
-        info = await getNFDsForAddressesV2(algodClient, args);
+      }
+      case 'resource_nfd_get_nfds_for_addresses': {
+        result = await getNFDsForAddressesV2(args);
         break;
-      case 'resource_tool_get_nfd_activity':
-        info = await getNFDActivity(algodClient, args);
+      }
+      case 'resource_nfd_get_nfd_activity': {
+        result = await getNFDActivity(args);
         break;
-      case 'resource_tool_get_nfd_analytics':
-        info = await getNFDAnalytics(algodClient, args);
+      }
+      case 'resource_nfd_get_nfd_analytics': {
+        result = await getNFDAnalytics(args);
         break;
-      case 'resource_tool_browse_nfds':
-        info = await browseNFDs(algodClient, args);
+      }
+      case 'resource_nfd_browse_nfds': {
+        result = await browseNFDs(args);
         break;
-      case 'resource_tool_search_nfds':
-        info = await searchNFDsV2(algodClient, args);
+      }
+      case 'resource_nfd_search_nfds': {
+        result = await searchNFDsV2(args);
         break;
+      }
       default:
         throw new McpError(
           ErrorCode.MethodNotFound,
           `Unknown tool: ${name}`
         );
     }
-    return {
-      content: [{
-        type: 'text',
-        text: JSON.stringify(info, null, 2)
-      }]
-    };
+    return result
   } catch (error) {
     if (error instanceof McpError) {
       throw error;

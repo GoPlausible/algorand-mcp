@@ -1,5 +1,6 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { indexerClient } from '../../../algorand-client.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import type {
   AccountResponse,
   AccountsResponse,
@@ -11,7 +12,7 @@ import type {
 
 export const accountTools = [
   {
-    name: 'resource_tool_lookup_account_by_id',
+    name: 'resource_indexer_lookup_account_by_id',
     description: 'Get account information from indexer',
     inputSchema: {
       type: 'object',
@@ -25,7 +26,7 @@ export const accountTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_account_assets',
+    name: 'resource_indexer_lookup_account_assets',
     description: 'Get account assets',
     inputSchema: {
       type: 'object',
@@ -51,7 +52,7 @@ export const accountTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_account_app_local_states',
+    name: 'resource_indexer_lookup_account_app_local_states',
     description: 'Get account application local states',
     inputSchema: {
       type: 'object',
@@ -65,7 +66,7 @@ export const accountTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_account_created_applications',
+    name: 'resource_indexer_lookup_account_created_applications',
     description: 'Get applications created by this account',
     inputSchema: {
       type: 'object',
@@ -79,7 +80,7 @@ export const accountTools = [
     }
   },
   {
-    name: 'resource_tool_search_accounts',
+    name: 'resource_indexer_search_for_accounts',
     description: 'Search for accounts with various criteria',
     inputSchema: {
       type: 'object',
@@ -247,56 +248,33 @@ export async function searchAccounts(params?: {
   }
 }
 
-export async function handleAccountTools(name: string, args: any): Promise<any> {
+export const handleAccountTools = ResponseProcessor.wrapResourceHandler(async function handleAccountTools(args: any): Promise<any> {
+  const name = args.name;
+  
   switch (name) {
-    case 'resource_tool_lookup_account_by_id': {
+    case 'resource_indexer_lookup_account_by_id': {
       const { address } = args;
       const info = await lookupAccountByID(address);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
-    case 'resource_tool_lookup_account_app_local_states': {
+    case 'resource_indexer_lookup_account_app_local_states': {
       const { address } = args;
       const info = await lookupAccountAppLocalStates(address);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info;
     }
-    case 'resource_tool_lookup_account_created_applications': {
+    case 'resource_indexer_lookup_account_created_applications': {
       const { address } = args;
       const info = await lookupAccountCreatedApplications(address);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.applications;
     }
-    case 'resource_tool_search_accounts': {
+    case 'resource_indexer_search_for_accounts': {
       const info = await searchAccounts(args);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.accounts;
     }
-    case 'resource_tool_lookup_account_assets': {
+    case 'resource_indexer_lookup_account_assets': {
       const { address, ...params } = args;
       const info = await lookupAccountAssets(address, params);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.assets;
     }
     default:
       throw new McpError(
@@ -304,4 +282,4 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
         `Unknown tool: ${name}`
       );
   }
-}
+});

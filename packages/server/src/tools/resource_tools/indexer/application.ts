@@ -1,5 +1,6 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { indexerClient } from '../../../algorand-client.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import type { 
   ApplicationResponse,
   ApplicationsResponse,
@@ -10,7 +11,7 @@ import algosdk from 'algosdk';
 
 export const applicationTools = [
   {
-    name: 'resource_tool_lookup_applications',
+    name: 'resource_indexer_lookup_applications',
     description: 'Get application information from indexer',
     inputSchema: {
       type: 'object',
@@ -24,7 +25,7 @@ export const applicationTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_application_logs',
+    name: 'resource_indexer_lookup_application_logs',
     description: 'Get application log messages',
     inputSchema: {
       type: 'object',
@@ -62,7 +63,7 @@ export const applicationTools = [
     }
   },
   {
-    name: 'resource_tool_search_for_applications',
+    name: 'resource_indexer_search_for_applications',
     description: 'Search for applications with various criteria',
     inputSchema: {
       type: 'object',
@@ -83,7 +84,7 @@ export const applicationTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_application_box',
+    name: 'resource_indexer_lookup_application_box',
     description: 'Get application box by name',
     inputSchema: {
       type: 'object',
@@ -101,7 +102,7 @@ export const applicationTools = [
     }
   },
   {
-    name: 'resource_tool_lookup_application_boxes',
+    name: 'resource_indexer_lookup_application_boxes',
     description: 'Get all application boxes',
     inputSchema: {
       type: 'object',
@@ -312,56 +313,33 @@ export async function getApplicationBoxes(appId: number, maxBoxes?: number): Pro
   }
 }
 
-export async function handleApplicationTools(name: string, args: any): Promise<any> {
+export const handleApplicationTools = ResponseProcessor.wrapResourceHandler(async function handleApplicationTools(args: any): Promise<any> {
+  const name = args.name;
+  
   switch (name) {
-    case 'resource_tool_lookup_applications': {
+    case 'resource_indexer_lookup_applications': {
       const { appId } = args;
       const info = await lookupApplications(appId);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.application;
     }
-    case 'resource_tool_lookup_application_logs': {
+    case 'resource_indexer_lookup_application_logs': {
       const { appId, ...params } = args;
       const logs = await lookupApplicationLogs(appId, params);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(logs, null, 2)
-        }]
-      };
+      return logs;
     }
-    case 'resource_tool_search_for_applications': {
+    case 'resource_indexer_search_for_applications': {
       const info = await searchForApplications(args);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(info, null, 2)
-        }]
-      };
+      return info.applications;
     }
-    case 'resource_tool_lookup_application_box': {
+    case 'resource_indexer_lookup_application_box': {
       const { appId, boxName } = args;
       const box = await getApplicationBoxByName(appId, boxName);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(box, null, 2)
-        }]
-      };
+      return box;
     }
-    case 'resource_tool_lookup_application_boxes': {
+    case 'resource_indexer_lookup_application_boxes': {
       const { appId, maxBoxes } = args;
       const boxes = await getApplicationBoxes(appId, maxBoxes);
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(boxes, null, 2)
-        }]
-      };
+      return boxes.boxes;
     }
     default:
       throw new McpError(
@@ -369,4 +347,4 @@ export async function handleApplicationTools(name: string, args: any): Promise<a
         `Unknown tool: ${name}`
       );
   }
-}
+});
