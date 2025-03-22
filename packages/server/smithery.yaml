@@ -18,8 +18,8 @@ startCommand:
         type: string
         description: Algorand API token (optional)
       ITEMS_PER_PAGE:
-        type: integer
-        default: 10
+        type: string
+        default: "10"
         description: Number of items per page for paginated responses
       ALGORAND_ALGOD:
         type: string
@@ -64,7 +64,7 @@ startCommand:
     ALGORAND_ALGOD_PORT: ""
     ALGORAND_INDEXER_PORT: ""
     ALGORAND_TOKEN: ""
-    ITEMS_PER_PAGE: 10
+    ITEMS_PER_PAGE: "10"
     NFD_API_URL: https://api.nf.domains
     NFD_API_KEY: ""
     VESTIGE_API_URL: https://free-api.vestige.fi
@@ -84,7 +84,7 @@ startCommand:
         ALGORAND_ALGOD_PORT: config.ALGORAND_ALGOD_PORT,
         ALGORAND_INDEXER_PORT: config.ALGORAND_INDEXER_PORT,
         ALGORAND_TOKEN: config.ALGORAND_TOKEN,
-        ITEMS_PER_PAGE: config.ITEMS_PER_PAGE?.toString(),
+        ITEMS_PER_PAGE: config.ITEMS_PER_PAGE,
         NFD_API_URL: config.NFD_API_URL,
         NFD_API_KEY: config.NFD_API_KEY,
         VESTIGE_API_URL: config.VESTIGE_API_URL,
