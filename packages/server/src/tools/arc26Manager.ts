@@ -104,8 +104,9 @@ export class Arc26Manager {
       uri += '?' + queryParams.join('&');
     }
 
-    // Generate QR code as base64 data URL
-    const qrCode = await QRCode.toDataURL(uri, {
+    // Generate QR code as SVG
+    const qrCode = await QRCode.toString(uri, {
+      type: 'svg',
       errorCorrectionLevel: 'H',
       margin: 1,
       width: 300
@@ -129,20 +130,16 @@ export class Arc26Manager {
     };
     if (name === 'generate_algorand_uri') {
       const { uri, qrCode } = await this.generateUriAndQr(toolArgs);
-      // Split the data URL to get just the base64 data
-      const base64Data = qrCode.split(',')[1];
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify({ uri, qrCode }, null, 2)
+            text: JSON.stringify({ uri }, null, 2)
           },
           {
-            type: "image",
-            format: "base64",
-            mimeType: "image/png",
-            alt: "QR code for Algorand URI",
-            data: base64Data
+            type: "text",
+            text: qrCode,
+            mimeType: "image/svg+xml"
           }
         ]
       };
