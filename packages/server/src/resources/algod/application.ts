@@ -38,7 +38,7 @@ export const applicationResourceSchemas: { [key: string]: ResourceSchema } = {
     properties: {
       name: {
         type: 'string',
-        description: 'Box name in format encoding:value. For ints use int:1234, for raw bytes use b64:A==, for strings use str:hello, for addresses use addr:XYZ...'
+        description: 'Box name Buffer'
       },
       value: {
         type: 'array',
@@ -103,10 +103,35 @@ export async function getApplicationByID(appId: number): Promise<Application> {
   }
 }
 
-export async function getApplicationBoxByName(appId: number, boxName: Uint8Array): Promise<Box> {
+export async function getApplicationBoxByName(appId: number, boxName: string): Promise<Box> {
   try {
     console.log(`Fetching box for application ${appId} with name:`, boxName);
-    const response = await algodClient.getApplicationBoxByName(appId, boxName).do() as Box;
+    
+    let boxNameBytes: Buffer;
+
+    // Check if string is a valid number
+    if (!isNaN(Number(boxName))) {
+      boxNameBytes = Buffer.from(boxName);
+    }
+    // Check if string is a valid Algorand address
+    else if (algosdk.isValidAddress(boxName)) {
+      boxNameBytes = Buffer.from(boxName);
+    }
+    // Try to decode as base64, if it fails then treat as regular string
+    else {
+      try {
+        // Test if the string is valid base64
+        Buffer.from(boxName, 'base64').toString('base64');
+        // If we get here, it's valid base64
+        boxNameBytes = Buffer.from(boxName, 'base64');
+      } catch {
+        // If base64 decoding fails, treat as regular string
+        boxNameBytes = Buffer.from(boxName);
+      }
+    }
+
+    console.log('Box name bytes:', boxNameBytes);
+    const response = await algodClient.getApplicationBoxByName(appId, boxNameBytes).do() as Box;
     console.log('Box response:', JSON.stringify(response, null, 2));
     return response;
   } catch (error) {
@@ -168,63 +193,8 @@ export async function handleApplicationResources(uri: string): Promise<ResourceC
     if (match) {
       const [, appId, encodedBoxName] = match;
       try {
-        // Decode the URI-encoded box name
-        const boxNameWithEncoding = decodeURIComponent(encodedBoxName);
-        // Parse box name format encoding:value
-        const [encoding, value] = boxNameWithEncoding.split(':');
-        if (!encoding || !value) {
-          throw new McpError(
-            ErrorCode.InvalidRequest,
-            'Box name must be in format encoding:value'
-          );
-        }
-
-        let boxName: Uint8Array;
-        switch (encoding) {
-          case 'str':
-            boxName = new TextEncoder().encode(value);
-            break;
-          case 'int':
-            let intValue = parseInt(value, 10);
-            if (isNaN(intValue)) {
-              throw new McpError(
-                ErrorCode.InvalidRequest,
-                'Invalid integer value for box name'
-              );
-            }
-            boxName = new Uint8Array(8);
-            for (let i = 0; i < 8; i++) {
-              boxName[7 - i] = intValue & 0xff;
-              intValue = intValue >> 8;
-            }
-            break;
-          case 'b64':
-            try {
-              boxName = new Uint8Array(Buffer.from(value, 'base64'));
-            } catch (error) {
-              throw new McpError(
-                ErrorCode.InvalidRequest,
-                'Invalid base64 value for box name'
-              );
-            }
-            break;
-          case 'addr':
-            if (!algosdk.isValidAddress(value)) {
-              throw new McpError(
-                ErrorCode.InvalidRequest,
-                'Invalid address value for box name'
-              );
-            }
-            boxName = new Uint8Array(algosdk.decodeAddress(value).publicKey);
-            break;
-          default:
-            throw new McpError(
-              ErrorCode.InvalidRequest,
-              'Invalid encoding. Must be one of: str, int, b64, addr'
-            );
-        }
-
-        console.log(`Box name decoded from ${encoding}:${value} to:`, boxName);
+        // Just decode the URI component - SDK will handle the box name format
+        const boxName = decodeURIComponent(encodedBoxName);
         const box = await getApplicationBoxByName(parseInt(appId, 10), boxName);
         return [{
           uri,
