@@ -81,7 +81,8 @@ export async function getApplicationByID(appId: number): Promise<any> {
 export async function getApplicationBoxByName(appId: number, boxNameWithEncoding: string): Promise<Box> {
   try {
     // Parse box name format encoding:value
-    const [encoding, value] = boxNameWithEncoding.split(':');
+    const encodedName = encodeURIComponent(boxNameWithEncoding);
+    const [encoding, value] = encodedName.split('%3A'); // Split on encoded colon
     if (!encoding || !value) {
       throw new McpError(
         ErrorCode.InvalidRequest,
@@ -150,7 +151,7 @@ export async function getApplicationBoxByName(appId: number, boxNameWithEncoding
   }
 }
 
-export async function getApplicationBoxes(appId: number, maxBoxes?: number): Promise<BoxesResponse> {
+export async function getApplicationBoxes(appId: number, maxBoxes?: number): Promise<any> {
   try {
     console.log(`Fetching boxes for application ${appId}`);
     let search = algodClient.getApplicationBoxes(appId);
@@ -159,7 +160,10 @@ export async function getApplicationBoxes(appId: number, maxBoxes?: number): Pro
     }
     const response = await search.do() as BoxesResponse;
     console.log('Boxes response:', JSON.stringify(response, null, 2));
-    return response;
+    // Ensure the response has the correct structure with boxes array
+    return {
+      boxes: response.boxes || []
+    };
   } catch (error) {
     console.error('Boxes fetch error:', error);
     if (error instanceof McpError) {
