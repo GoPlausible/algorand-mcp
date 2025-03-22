@@ -8,6 +8,19 @@ startCommand:
     # JSON Schema defining the configuration options for the MCP.
     type: object
     properties:
+      ALGORAND_ALGOD_PORT:
+        type: string
+        description: Algod node port (optional)
+      ALGORAND_INDEXER_PORT:
+        type: string
+        description: Indexer port (optional)
+      ALGORAND_TOKEN:
+        type: string
+        description: Algorand API token (optional)
+      ITEMS_PER_PAGE:
+        type: integer
+        default: 10
+        description: Number of items per page for paginated responses
       ALGORAND_ALGOD:
         type: string
         default: https://testnet-api.algonode.cloud
@@ -28,12 +41,34 @@ startCommand:
         type: string
         default: https://testnet-idx.algonode.cloud/v2
         description: Indexer API endpoint URL
+      NFD_API_URL:
+        type: string
+        default: https://api.nf.domains
+        description: NFDomains API URL
+      NFD_API_KEY:
+        type: string
+        description: NFDomains API key (optional)
+      VESTIGE_API_URL:
+        type: string
+        default: https://free-api.vestige.fi
+        description: Vestige API URL
+      VESTIGE_API_KEY:
+        type: string
+        description: Vestige API key (optional)
   exampleConfig:
     ALGORAND_ALGOD: https://testnet-api.algonode.cloud
     ALGORAND_INDEXER: https://testnet-idx.algonode.cloud
     ALGORAND_NETWORK: testnet
     ALGORAND_ALGOD_API: https://testnet-api.algonode.cloud/v2
     ALGORAND_INDEXER_API: https://testnet-idx.algonode.cloud/v2
+    ALGORAND_ALGOD_PORT: ""
+    ALGORAND_INDEXER_PORT: ""
+    ALGORAND_TOKEN: ""
+    ITEMS_PER_PAGE: 10
+    NFD_API_URL: https://api.nf.domains
+    NFD_API_KEY: ""
+    VESTIGE_API_URL: https://free-api.vestige.fi
+    VESTIGE_API_KEY: ""
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
@@ -45,6 +80,14 @@ startCommand:
         ALGORAND_ALGOD_API: config.ALGORAND_ALGOD_API,
         ALGORAND_ALGOD: config.ALGORAND_ALGOD,
         ALGORAND_INDEXER_API: config.ALGORAND_INDEXER_API,
-        ALGORAND_INDEXER: config.ALGORAND_INDEXER
+        ALGORAND_INDEXER: config.ALGORAND_INDEXER,
+        ALGORAND_ALGOD_PORT: config.ALGORAND_ALGOD_PORT,
+        ALGORAND_INDEXER_PORT: config.ALGORAND_INDEXER_PORT,
+        ALGORAND_TOKEN: config.ALGORAND_TOKEN,
+        NFD_API_URL: config.NFD_API_URL,
+        NFD_API_KEY: config.NFD_API_KEY,
+        VESTIGE_API_URL: config.VESTIGE_API_URL,
+        VESTIGE_API_KEY: config.VESTIGE_API_KEY,
+        ITEMS_PER_PAGE: config.ITEMS_PER_PAGE?.toString()
       }
     })
