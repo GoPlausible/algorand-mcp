@@ -128,12 +128,21 @@ export class Arc26Manager {
       xnote: args.xnote as string | undefined
     };
     if (name === 'generate_algorand_uri') {
-      const result = await this.generateUriAndQr(toolArgs);
+      const { uri, qrCode } = await this.generateUriAndQr(toolArgs);
+      // Split the data URL to get just the base64 data
+      const base64Data = qrCode.split(',')[1];
       return {
         content: [
           {
-            type: 'text',
-            text: JSON.stringify(result, null, 2)
+            type: "text",
+            text: JSON.stringify({ uri, qrCode }, null, 2)
+          },
+          {
+            type: "image",
+            format: "base64",
+            mimeType: "image/png",
+            alt: "QR code for Algorand URI",
+            data: base64Data
           }
         ]
       };
