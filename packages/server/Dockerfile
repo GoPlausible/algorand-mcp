@@ -2,13 +2,19 @@
 FROM node:lts-alpine
 WORKDIR /app
 
-# Copy entire monorepo since this is a monorepo server
+# Copy package files first
+COPY package*.json ./
+COPY packages/server/package*.json ./packages/server/
+COPY tsconfig.json ./
+
+# Install dependencies at root level first
+RUN npm install
+
+# Copy source files
 COPY . .
 
 # Build the server package
-RUN cd packages/server \
-    && npm install --ignore-scripts \
-    && npm run build
+RUN cd packages/server && npm install && npm run build
 
 EXPOSE 3000
 
