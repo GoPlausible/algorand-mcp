@@ -7,7 +7,7 @@ export interface PaginationMetadata {
   currentPage: number;
   totalPages: number;
   hasNextPage: boolean;
-  nextPageToken?: string;
+  pageToken?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -27,31 +27,50 @@ export interface ProcessedResponse {
 
 export class ResponseProcessor {
   private static generateNextPageToken(page: number): string {
-    return Buffer.from(`page_${page}`).toString('base64');
+    const token = Buffer.from(`page_${page}`).toString('base64');
+    console.log('[Pagination] Generated token:', { page, token });
+    return token;
   }
 
   private static decodePageToken(token: string): number {
+    console.log('[Pagination] Decoding token:', token);
     try {
       const decoded = Buffer.from(token, 'base64').toString();
+      console.log('[Pagination] Decoded token string:', decoded);
       const page = parseInt(decoded.replace('page_', ''));
+      console.log('[Pagination] Parsed page number:', page);
       return isNaN(page) ? 1 : page;
-    } catch {
+    } catch (error) {
+      console.log('[Pagination] Error decoding token:', error);
       return 1;
     }
   }
 
   private static shouldPaginateArray(array: any[]): boolean {
-    return array.length > env.items_per_page;
+    const should = array.length > env.items_per_page;
+    console.log('[Pagination] Should paginate array?', { 
+      arrayLength: array.length, 
+      itemsPerPage: env.items_per_page,
+      shouldPaginate: should 
+    });
+    return should;
   }
 
   private static shouldPaginateObject(obj: any): boolean {
-    return Object.keys(obj).length > env.items_per_page;
+    const should = Object.keys(obj).length > env.items_per_page;
+    console.log('[Pagination] Should paginate object?', {
+      objectKeys: Object.keys(obj).length,
+      itemsPerPage: env.items_per_page,
+      shouldPaginate: should
+    });
+    return should;
   }
 
   private static paginateObject(
     obj: { [key: string]: any },
     pageToken?: string
   ): { items: { [key: string]: any }; metadata: PaginationMetadata } {
+    console.log('[Pagination] Starting object pagination', { pageToken });
     const entries = Object.entries(obj);
     const totalItems = entries.length;
     const totalPages = Math.ceil(totalItems / env.items_per_page);
@@ -59,12 +78,21 @@ export class ResponseProcessor {
       ? this.decodePageToken(pageToken)
       : 1;
     
+    console.log('[Pagination] Object pagination state:', { totalItems, totalPages, currentPage });
+    
     const startIndex = (currentPage - 1) * env.items_per_page;
     const endIndex = startIndex + env.items_per_page;
     const hasNextPage = endIndex < totalItems;
 
     const paginatedEntries = entries.slice(startIndex, endIndex);
     const paginatedObject = Object.fromEntries(paginatedEntries);
+
+    console.log('[Pagination] Object pagination result:', {
+      startIndex,
+      endIndex,
+      hasNextPage,
+      paginatedEntriesLength: paginatedEntries.length
+    });
 
     return {
       items: paginatedObject,
@@ -75,7 +103,7 @@ export class ResponseProcessor {
         totalPages,
         hasNextPage,
         ...(hasNextPage && {
-          nextPageToken: this.generateNextPageToken(currentPage + 1),
+          pageToken: this.generateNextPageToken(currentPage + 1),
         }),
       }
     };
@@ -85,18 +113,32 @@ export class ResponseProcessor {
     array: T[],
     pageToken?: string
   ): { items: T[]; metadata: PaginationMetadata } {
+    console.log('[Pagination] Starting array pagination', { 
+      arrayLength: array.length,
+      pageToken 
+    });
     const totalItems = array.length;
     const totalPages = Math.ceil(totalItems / env.items_per_page);
     const currentPage = pageToken
       ? this.decodePageToken(pageToken)
       : 1;
     
+    console.log('[Pagination] Array pagination state:', { totalItems, totalPages, currentPage });
+    
     const startIndex = (currentPage - 1) * env.items_per_page;
     const endIndex = startIndex + env.items_per_page;
     const hasNextPage = endIndex < totalItems;
 
+    const paginatedItems = array.slice(startIndex, endIndex);
+    console.log('[Pagination] Array pagination result:', {
+      startIndex,
+      endIndex,
+      hasNextPage,
+      itemsCount: paginatedItems.length
+    });
+
     return {
-      items: array.slice(startIndex, endIndex),
+      items: paginatedItems,
       metadata: {
         totalItems,
         itemsPerPage: env.items_per_page,
@@ -104,7 +146,7 @@ export class ResponseProcessor {
         totalPages,
         hasNextPage,
         ...(hasNextPage && {
-          nextPageToken: this.generateNextPageToken(currentPage + 1),
+          pageToken: this.generateNextPageToken(currentPage + 1),
         }),
       }
     };
@@ -119,6 +161,10 @@ export class ResponseProcessor {
   }
 
   static processResponse(response: any, pageToken?: string): any {
+    console.log('[ResponseProcessor] Processing response', { 
+      type: Array.isArray(response) ? 'array' : typeof response,
+      pageToken
+    });
     // Handle array responses
     if (Array.isArray(response)) {
       const arrayResponse = response as any[];
@@ -127,6 +173,10 @@ export class ResponseProcessor {
         data: items,
         metadata
       };
+      console.log('[ResponseProcessor] Array response result:', {
+        itemsCount: items.length,
+        metadata
+      });
       return {
         content: [{
           type: 'text',
@@ -137,6 +187,7 @@ export class ResponseProcessor {
   
     // Handle object responses with array values
     if (typeof response === 'object' && response !== null) {
+      console.log('[ResponseProcessor] Processing object response');
       // Create a deep copy to avoid modifying the original object
       const processed = JSON.parse(JSON.stringify(response));
       let paginatedField: string | undefined;
@@ -144,6 +195,7 @@ export class ResponseProcessor {
       
       // Process each property of the object
       for (const key in processed) {
+        console.log('[ResponseProcessor] Processing field:', key);
         if (Array.isArray(processed[key])) {
           if (this.shouldPaginateArray(processed[key])) {
             const result = this.paginateArray(processed[key], pageToken);
@@ -192,6 +244,10 @@ export class ResponseProcessor {
             arrayField: paginatedField
           }
         };
+        console.log('[ResponseProcessor] Object response result with pagination:', {
+          paginatedField,
+          metadata: paginationMetadata
+        });
         return {
           content: [{
             type: 'text',
@@ -204,6 +260,7 @@ export class ResponseProcessor {
       const wrappedResponse = {
         data: processed
       };
+      console.log('[ResponseProcessor] Object response result without pagination');
       return {
         content: [{
           type: 'text',
@@ -216,6 +273,7 @@ export class ResponseProcessor {
     const wrappedResponse = {
       data: response
     };
+    console.log('[ResponseProcessor] Simple value response');
     return {
       content: [{
         type: 'text',

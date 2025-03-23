@@ -178,7 +178,7 @@ All responses follow a standardized format:
     "currentPage": number,
     "totalPages": number,
     "hasNextPage": boolean,
-    "nextPageToken": string,
+    "pageToken": string,
     "arrayField": string  // Name of paginated array field
   }
 }

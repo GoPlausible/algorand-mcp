@@ -42,7 +42,7 @@ export async function handleResourceTools(name: string, args: any): Promise<any>
     }
 
     // Process and format the response
-    return ResponseProcessor.processResponse(response, args?.nextPageToken);
+    return ResponseProcessor.processResponse(response, args?.pageToken);
 
   } catch (error) {
     if (error instanceof McpError) {
