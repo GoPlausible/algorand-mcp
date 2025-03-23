@@ -38,7 +38,7 @@ export const swapTools: Tool[] = [
           description: 'Optional executor filter'
         },
         next: {
-          type: 'integer',
+          type: 'string',
           description: 'Optional next token for pagination'
         },
         denominating_asset_id: {

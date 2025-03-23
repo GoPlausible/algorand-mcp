@@ -24,7 +24,6 @@ export const vestigeTools: Tool[] = [
 export async function handleVestigeTools(name: string, args: any): Promise<any> {
   try {
     const combinedArgs = { name, ...args };
-
     // Network tools
     if (name.startsWith('resource_vestige_view_network')) {
       return handleNetworkTools(combinedArgs);
@@ -35,10 +34,7 @@ export async function handleVestigeTools(name: string, args: any): Promise<any> 
       return handleProtocolTools(combinedArgs);
     }
 
-    // Asset tools
-    if (name.startsWith('resource_vestige_view_asset')) {
-      return handleAssetTools(combinedArgs);
-    }
+    
 
     // Pool tools
     if (name.startsWith('resource_vestige_view_pool')) {
@@ -54,16 +50,19 @@ export async function handleVestigeTools(name: string, args: any): Promise<any> 
     if (name.startsWith('resource_vestige_view_balance')) {
       return handleBalanceTools(combinedArgs);
     }
-
+    
     // Note tools
-    if (name.startsWith('resource_vestige_view_') && 
-        (name.includes('_notes') || name.includes('_note_'))) {
+    if (name.includes("_notes")) {
       return handleNoteTools(combinedArgs);
+    }
+    // Asset tools
+    if (name.startsWith('resource_vestige_view_asset')) {
+      return handleAssetTools(combinedArgs);
     }
 
     // Swap tools
-    if (name.startsWith('resource_vestige_') && 
-        (name.includes('_swap') || name.includes('_swaps'))) {
+    if (name.startsWith('resource_vestige_') &&
+      (name.includes('_swap') || name.includes('_swaps'))) {
       return handleSwapTools(combinedArgs);
     }
 
