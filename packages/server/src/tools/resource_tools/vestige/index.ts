@@ -62,7 +62,7 @@ export async function handleVestigeTools(name: string, args: any): Promise<any> 
 
     // Swap tools
     if (name.startsWith('resource_vestige_') &&
-      (name.includes('_swap') || name.includes('_swaps'))) {
+      (name.includes('_swap') || name.includes('_swaps') || name.includes('get_aggregator_stats'))) {
       return handleSwapTools(combinedArgs);
     }
 
