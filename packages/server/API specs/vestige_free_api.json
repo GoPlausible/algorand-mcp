@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "Vestige API (FREE)",
-        "description": "To be used with **https://free-api.vestige.fi**",
+        "description": "To be used with **https://api.vestigelabs.org**",
         "version": "3.0.1"
     },
     "paths": {

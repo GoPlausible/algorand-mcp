@@ -38,7 +38,7 @@ Add configuration to your chosen client's MCP settings file:
         "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
         "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
         "NFD_API_URL":"https://api.nf.domains",
-        "VESTIGE_API_URL":"https://free-api.vestige.fi",
+        "VESTIGE_API_URL":"https://api.vestigelabs.org",
         "ITEMS_PER_PAGE":"10"
       }
     }

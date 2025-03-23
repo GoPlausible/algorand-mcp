@@ -2,10 +2,10 @@ import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import { env } from '../../../env.js';
 
-export const poolTools: Tool[] = [
+export const noteTools: Tool[] = [
   {
-    name: 'resource_vestige_view_pools',
-    description: 'Get pools',
+    name: 'resource_vestige_view_notes',
+    description: 'Get notes by network id and optionally asset id',
     inputSchema: {
       type: 'object',
       properties: {
@@ -13,21 +13,9 @@ export const poolTools: Tool[] = [
           type: 'integer',
           description: 'Network ID'
         },
-        protocol_id: {
+        asset_id: {
           type: 'integer',
-          description: 'Optional protocol ID filter'
-        },
-        other_protocol_id: {
-          type: 'integer',
-          description: 'Optional other protocol ID filter'
-        },
-        asset_1_id: {
-          type: 'integer',
-          description: 'Optional asset 1 ID filter'
-        },
-        asset_2_id: {
-          type: 'integer',
-          description: 'Optional asset 2 ID filter'
+          description: 'Optional asset ID filter'
         },
         limit: {
           type: 'integer',
@@ -55,19 +43,59 @@ export const poolTools: Tool[] = [
       },
       required: ['network_id']
     }
+  },
+  {
+    name: 'resource_vestige_view_first_asset_notes',
+    description: 'Get first note for assets',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
+        },
+        asset_ids: {
+          type: 'string',
+          description: 'Comma-separated list of asset IDs'
+        }
+      },
+      required: ['network_id', 'asset_ids']
+    }
+  },
+  {
+    name: 'resource_vestige_view_asset_notes_count',
+    description: 'Get notes count for assets',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
+        },
+        asset_ids: {
+          type: 'string',
+          description: 'Comma-separated list of asset IDs'
+        }
+      },
+      required: ['network_id', 'asset_ids']
+    }
   }
 ];
 
-
-
-export const handlePoolTools = ResponseProcessor.wrapResourceHandler(async function handlePoolTools(args: any): Promise<any> {
+export const handleNoteTools = ResponseProcessor.wrapResourceHandler(async function handleNoteTools(args: any): Promise<any> {
   const name = args.name;
   const baseUrl = env.vestige_api_url;
   let endpoint = '';
 
   switch (name) {
-    case 'resource_vestige_view_pools':
-      endpoint = '/pools';
+    case 'resource_vestige_view_notes':
+      endpoint = '/notes';
+      break;
+    case 'resource_vestige_view_first_asset_notes':
+      endpoint = '/notes/first';
+      break;
+    case 'resource_vestige_view_asset_notes_count':
+      endpoint = '/notes/count';
       break;
     default:
       throw new McpError(
@@ -95,14 +123,13 @@ export const handlePoolTools = ResponseProcessor.wrapResourceHandler(async funct
     }
     const data = await response.json();
     return data;
-    
   } catch (error) {
     if (error instanceof McpError) {
       throw error;
     }
     throw new McpError(
       ErrorCode.InternalError,
-      `Failed to fetch pool data: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to fetch note data: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 });

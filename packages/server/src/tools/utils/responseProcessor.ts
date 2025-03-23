@@ -44,6 +44,43 @@ export class ResponseProcessor {
     return array.length > env.items_per_page;
   }
 
+  private static shouldPaginateObject(obj: any): boolean {
+    return Object.keys(obj).length > env.items_per_page;
+  }
+
+  private static paginateObject(
+    obj: { [key: string]: any },
+    pageToken?: string
+  ): { items: { [key: string]: any }; metadata: PaginationMetadata } {
+    const entries = Object.entries(obj);
+    const totalItems = entries.length;
+    const totalPages = Math.ceil(totalItems / env.items_per_page);
+    const currentPage = pageToken
+      ? this.decodePageToken(pageToken)
+      : 1;
+    
+    const startIndex = (currentPage - 1) * env.items_per_page;
+    const endIndex = startIndex + env.items_per_page;
+    const hasNextPage = endIndex < totalItems;
+
+    const paginatedEntries = entries.slice(startIndex, endIndex);
+    const paginatedObject = Object.fromEntries(paginatedEntries);
+
+    return {
+      items: paginatedObject,
+      metadata: {
+        totalItems,
+        itemsPerPage: env.items_per_page,
+        currentPage,
+        totalPages,
+        hasNextPage,
+        ...(hasNextPage && {
+          nextPageToken: this.generateNextPageToken(currentPage + 1),
+        }),
+      }
+    };
+  }
+
   private static paginateArray<T>(
     array: T[],
     pageToken?: string
@@ -85,22 +122,10 @@ export class ResponseProcessor {
     // Handle array responses
     if (Array.isArray(response)) {
       const arrayResponse = response as any[];
-      if (this.shouldPaginateArray(arrayResponse)) {
-        const { items, metadata } = this.paginateArray(arrayResponse, pageToken);
-        const wrappedResponse = {
-          data: items,
-          metadata: metadata
-        };
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(wrappedResponse, null, 2)
-          }]
-        };
-      }
-      // Return array wrapped in data property
+      const { items, metadata } = this.paginateArray(arrayResponse, pageToken);
       const wrappedResponse = {
-        data: response
+        data: items,
+        metadata
       };
       return {
         content: [{
@@ -129,6 +154,15 @@ export class ResponseProcessor {
             }
           }
         } else if (typeof processed[key] === 'object' && processed[key] !== null) {
+          // Check if the object needs pagination
+          if (this.shouldPaginateObject(processed[key])) {
+            const result = this.paginateObject(processed[key], pageToken);
+            processed[key] = result.items;
+            if (result.metadata) {
+              paginatedField = key;
+              paginationMetadata = result.metadata;
+            }
+          }
           // Recursively process nested objects
           const nestedResult = this.processResponse(processed[key], pageToken);
           

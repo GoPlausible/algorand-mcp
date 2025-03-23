@@ -50,7 +50,7 @@ startCommand:
         description: NFDomains API key (optional)
       VESTIGE_API_URL:
         type: string
-        default: https://free-api.vestige.fi
+        default: https://api.vestigelabs.org
         description: Vestige API URL
       VESTIGE_API_KEY:
         type: string
@@ -67,7 +67,7 @@ startCommand:
     ITEMS_PER_PAGE: "10"
     NFD_API_URL: https://api.nf.domains
     NFD_API_KEY: ""
-    VESTIGE_API_URL: https://free-api.vestige.fi
+    VESTIGE_API_URL: https://api.vestigelabs.org
     VESTIGE_API_KEY: ""
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.

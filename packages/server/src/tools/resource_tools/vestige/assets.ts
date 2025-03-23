@@ -6,145 +6,291 @@ export const assetTools: Tool[] = [
   // Asset List and Search
   {
     name: 'resource_vestige_view_assets',
-    description: 'Get all tracked assets',
+    description: 'Get data about assets',
     inputSchema: {
       type: 'object',
       properties: {
-        page: {
+        network_id: {
           type: 'integer',
-          description: 'Page number for paginated results',
-          default: 0
+          description: 'Network ID'
+        },
+        asset_ids: {
+          type: 'string',
+          description: 'Comma-separated list of asset IDs'
         }
-      }
+      },
+      required: ['network_id', 'asset_ids']
     }
   },
   {
     name: 'resource_vestige_view_assets_list',
-    description: 'Get all tracked assets in a list format',
+    description: 'Get asset list',
     inputSchema: {
       type: 'object',
       properties: {
-        provider: {
-          type: 'string',
-          description: 'Optional provider filter'
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
         },
-        currency: {
+        asset_ids: {
           type: 'string',
-          description: 'Optional currency parameter'
+          description: 'Optional comma-separated list of asset IDs'
+        },
+        denominating_asset_id: {
+          type: 'integer',
+          description: 'Optional denominating asset ID',
+          default: 0
+        },
+        include_labels: {
+          type: 'string',
+          description: 'Optional comma-separated list of labels to include'
+        },
+        exclude_labels: {
+          type: 'string',
+          description: 'Optional comma-separated list of labels to exclude'
+        },
+        limit: {
+          type: 'integer',
+          description: 'Maximum number of results',
+          default: 50,
+          maximum: 250,
+          minimum: 1
+        },
+        offset: {
+          type: 'integer',
+          description: 'Number of results to skip',
+          default: 0,
+          minimum: 0
+        },
+        order_by: {
+          type: 'string',
+          description: 'Field to order by'
+        },
+        order_dir: {
+          type: 'string',
+          description: 'Order direction (asc/desc)',
+          default: 'desc',
+          pattern: '^(asc|desc)$'
+        },
+        tvl__lt: {
+          type: 'number',
+          description: 'Filter by TVL less than'
+        },
+        tvl__gt: {
+          type: 'number',
+          description: 'Filter by TVL greater than'
+        },
+        market_cap__lt: {
+          type: 'number',
+          description: 'Filter by market cap less than'
+        },
+        market_cap__gt: {
+          type: 'number',
+          description: 'Filter by market cap greater than'
+        },
+        fully_diluted_market_cap__lt: {
+          type: 'number',
+          description: 'Filter by fully diluted market cap less than'
+        },
+        fully_diluted_market_cap__gt: {
+          type: 'number',
+          description: 'Filter by fully diluted market cap greater than'
+        },
+        volume1d__lt: {
+          type: 'number',
+          description: 'Filter by 24h volume less than'
+        },
+        volume1d__gt: {
+          type: 'number',
+          description: 'Filter by 24h volume greater than'
+        },
+        created_at__lt: {
+          type: 'integer',
+          description: 'Filter by creation time less than'
+        },
+        created_at__gt: {
+          type: 'integer',
+          description: 'Filter by creation time greater than'
         }
-      }
+      },
+      required: ['network_id']
     }
   },
   {
-    name: 'resource_vestige_view_assets_by_name',
-    description: 'Get assets that fit search query',
+    name: 'resource_vestige_view_assets_search',
+    description: 'Search assets by query',
     inputSchema: {
       type: 'object',
       properties: {
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
+        },
         query: {
           type: 'string',
           description: 'Search query'
         },
-        page: {
+        protocol_id: {
           type: 'integer',
-          description: 'Page number (starts from 0)',
+          description: 'Optional protocol ID filter'
+        },
+        denominating_asset_id: {
+          type: 'integer',
+          description: 'Optional denominating asset ID',
           default: 0
         },
-        page_size: {
+        limit: {
           type: 'integer',
-          description: 'Number of results per page',
-          default: 5
+          description: 'Maximum number of results',
+          default: 50,
+          maximum: 250,
+          minimum: 1
+        },
+        offset: {
+          type: 'integer',
+          description: 'Number of results to skip',
+          default: 0,
+          minimum: 0
+        },
+        order_by: {
+          type: 'string',
+          description: 'Field to order by'
+        },
+        order_dir: {
+          type: 'string',
+          description: 'Order direction (asc/desc)',
+          default: 'desc',
+          pattern: '^(asc|desc)$'
         }
       },
-      required: ['query']
+      required: ['network_id', 'query']
     }
   },
 
-  // Asset Details
-  {
-    name: 'resource_vestige_view_asset',
-    description: 'Get asset info',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        asset_id: {
-          type: 'integer',
-          description: 'Asset ID'
-        }
-      },
-      required: ['asset_id']
-    }
-  },
+  // Asset Details and Price
   {
     name: 'resource_vestige_view_asset_price',
-    description: 'Get estimated asset price',
+    description: 'Get asset prices',
     inputSchema: {
       type: 'object',
       properties: {
-        asset_id: {
+        network_id: {
           type: 'integer',
-          description: 'Asset ID'
+          description: 'Network ID'
         },
-        currency: {
+        asset_ids: {
           type: 'string',
-          description: 'Optional currency parameter'
+          description: 'Comma-separated list of asset IDs'
         },
-        provider: {
-          type: 'string',
-          description: 'Optional provider parameter'
+        denominating_asset_id: {
+          type: 'integer',
+          description: 'Optional denominating asset ID',
+          default: 0
         }
       },
-      required: ['asset_id']
+      required: ['network_id', 'asset_ids']
     }
   },
 
-  // Asset Views
+  // Asset History and Candles
   {
-    name: 'resource_vestige_view_asset_views',
-    description: 'Get asset views',
+    name: 'resource_vestige_view_asset_candles',
+    description: 'Get asset candles',
     inputSchema: {
       type: 'object',
-      properties: {}
+      properties: {
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
+        },
+        asset_id: {
+          type: 'integer',
+          description: 'Asset ID'
+        },
+        interval: {
+          type: 'integer',
+          description: 'Candle interval in seconds'
+        },
+        start: {
+          type: 'integer',
+          description: 'Start timestamp'
+        },
+        end: {
+          type: 'integer',
+          description: 'Optional end timestamp'
+        },
+        denominating_asset_id: {
+          type: 'integer',
+          description: 'Optional denominating asset ID',
+          default: 0
+        },
+        volume_in_denominating_asset: {
+          type: 'boolean',
+          description: 'Whether to return volume in denominating asset',
+          default: false
+        }
+      },
+      required: ['network_id', 'asset_id', 'interval', 'start']
+    }
+  },
+  {
+    name: 'resource_vestige_view_asset_history',
+    description: 'Get asset volume, swaps, total lockup, vwap and confidence history',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
+        },
+        asset_id: {
+          type: 'integer',
+          description: 'Asset ID'
+        },
+        interval: {
+          type: 'integer',
+          description: 'History interval in seconds'
+        },
+        start: {
+          type: 'integer',
+          description: 'Start timestamp'
+        },
+        end: {
+          type: 'integer',
+          description: 'Optional end timestamp'
+        },
+        denominating_asset_id: {
+          type: 'integer',
+          description: 'Optional denominating asset ID',
+          default: 0
+        },
+        volume_in_denominating_asset: {
+          type: 'boolean',
+          description: 'Whether to return volume in denominating asset',
+          default: false
+        }
+      },
+      required: ['network_id', 'asset_id', 'interval', 'start']
     }
   },
 
-  // Asset Holders and Contributors
+  // Asset Composition
   {
-    name: 'resource_vestige_view_asset_holders',
-    description: 'Get asset holders',
+    name: 'resource_vestige_view_asset_composition',
+    description: 'Get asset lockups based on protocol and pair',
     inputSchema: {
       type: 'object',
       properties: {
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
+        },
         asset_id: {
           type: 'integer',
           description: 'Asset ID'
-        },
-        limit: {
-          type: 'integer',
-          description: 'Maximum number of holders to return',
-          default: 100
         }
       },
-      required: ['asset_id']
-    }
-  },
-  {
-    name: 'resource_vestige_view_asset_contributors',
-    description: 'Get asset liquidity contributors from top 5 biggest pools',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        asset_id: {
-          type: 'integer',
-          description: 'Asset ID'
-        },
-        limit: {
-          type: 'integer',
-          description: 'Maximum number of contributors to return',
-          default: 100
-        }
-      },
-      required: ['asset_id']
+      required: ['network_id', 'asset_id']
     }
   }
 ];
@@ -163,23 +309,20 @@ export const handleAssetTools = ResponseProcessor.wrapResourceHandler(async func
     case 'resource_vestige_view_assets_list':
       endpoint = '/assets/list';
       break;
-    case 'resource_vestige_view_assets_by_name':
+    case 'resource_vestige_view_assets_search':
       endpoint = '/assets/search';
       break;
-    case 'resource_vestige_view_asset':
-      endpoint = `/asset/${args.asset_id}`;
-      break;
     case 'resource_vestige_view_asset_price':
-      endpoint = `/asset/${args.asset_id}/price`;
+      endpoint = '/assets/price';
       break;
-    case 'resource_vestige_view_asset_views':
-      endpoint = '/assets/views';
+    case 'resource_vestige_view_asset_candles':
+      endpoint = `/assets/${args.asset_id}/candles`;
       break;
-    case 'resource_vestige_view_asset_holders':
-      endpoint = `/asset/${args.asset_id}/holders`;
+    case 'resource_vestige_view_asset_history':
+      endpoint = `/assets/${args.asset_id}/history`;
       break;
-    case 'resource_vestige_view_asset_contributors':
-      endpoint = `/asset/${args.asset_id}/contributors`;
+    case 'resource_vestige_view_asset_composition':
+      endpoint = `/assets/${args.asset_id}/composition`;
       break;
     default:
       throw new McpError(
@@ -205,17 +348,7 @@ export const handleAssetTools = ResponseProcessor.wrapResourceHandler(async func
         `Vestige API error: ${response.status} ${response.statusText}`
       );
     }
-    let data = await response.json();
-    
-    // For view_assets endpoint, ensure we have the page parameter
-    if (name === 'resource_vestige_view_assets' && typeof args.page === 'number') {
-      // The response processor will handle pagination, but we need to pass the page
-      data = {
-        ...data,
-        _page: args.page // Internal field for response processor
-      };
-    }
-
+    const data = await response.json();
     return data;
   } catch (error) {
     if (error instanceof McpError) {

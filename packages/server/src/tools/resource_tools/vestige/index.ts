@@ -1,17 +1,23 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { providerTools, handleProviderTools } from './providers.js';
+import { networkTools, handleNetworkTools } from './networks.js';
+import { protocolTools, handleProtocolTools } from './protocols.js';
 import { assetTools, handleAssetTools } from './assets.js';
 import { poolTools, handlePoolTools } from './pools.js';
-import { currencyTools, handleCurrencyTools } from './currency.js';
 import { vaultTools, handleVaultTools } from './vaults.js';
+import { balanceTools, handleBalanceTools } from './balances.js';
+import { noteTools, handleNoteTools } from './notes.js';
+import { swapTools, handleSwapTools } from './swaps.js';
 
 // Export all Vestige tools
 export const vestigeTools: Tool[] = [
-  ...providerTools,
+  ...networkTools,
+  ...protocolTools,
   ...assetTools,
   ...poolTools,
-  ...currencyTools,
-  ...vaultTools
+  ...vaultTools,
+  ...balanceTools,
+  ...noteTools,
+  ...swapTools
 ];
 
 // Handle all Vestige tools
@@ -19,9 +25,14 @@ export async function handleVestigeTools(name: string, args: any): Promise<any> 
   try {
     const combinedArgs = { name, ...args };
 
-    // Provider tools
-    if (name.startsWith('resource_vestige_view_providers')) {
-      return handleProviderTools(combinedArgs);
+    // Network tools
+    if (name.startsWith('resource_vestige_view_network')) {
+      return handleNetworkTools(combinedArgs);
+    }
+
+    // Protocol tools
+    if (name.startsWith('resource_vestige_view_protocol')) {
+      return handleProtocolTools(combinedArgs);
     }
 
     // Asset tools
@@ -34,15 +45,26 @@ export async function handleVestigeTools(name: string, args: any): Promise<any> 
       return handlePoolTools(combinedArgs);
     }
 
-    // Currency tools
-    if (name.startsWith('resource_vestige_view_currency')) {
-      return handleCurrencyTools(combinedArgs);
+    // Vault tools
+    if (name.startsWith('resource_vestige_view_vault')) {
+      return handleVaultTools(combinedArgs);
     }
 
-    // Vault tools
-    if (name.startsWith('resource_vestige_view_vault') || 
-        name.startsWith('resource_vestige_view_recent_vaults')) {
-      return handleVaultTools(combinedArgs);
+    // Balance tools
+    if (name.startsWith('resource_vestige_view_balance')) {
+      return handleBalanceTools(combinedArgs);
+    }
+
+    // Note tools
+    if (name.startsWith('resource_vestige_view_') && 
+        (name.includes('_notes') || name.includes('_note_'))) {
+      return handleNoteTools(combinedArgs);
+    }
+
+    // Swap tools
+    if (name.startsWith('resource_vestige_') && 
+        (name.includes('_swap') || name.includes('_swaps'))) {
+      return handleSwapTools(combinedArgs);
     }
 
     throw new McpError(

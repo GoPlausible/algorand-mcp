@@ -37,7 +37,7 @@ export const env: EnvConfig = {
   nfd_api_key: process.env.NFD_API_KEY || '',
 
   // Vestige Configuration
-  vestige_api_url: process.env.VESTIGE_API_URL || 'https://free-api.vestige.fi',
+  vestige_api_url: process.env.VESTIGE_API_URL || 'https://api.vestigelabs.org',
   vestige_api_key: process.env.VESTIGE_API_KEY || '',
 
   // Pagination Configuration

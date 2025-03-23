@@ -49,7 +49,7 @@ ALGORAND_ALGOD="https://testnet-api.algonode.cloud"
 ALGORAND_INDEXER_API="https://testnet-idx.algonode.cloud/v2"
 ALGORAND_INDEXER="https://testnet-idx.algonode.cloud"
 NFD_API_URL=https://api.nf.domains
-VESTIGE_API_URL=https://free-api.vestige.fi
+VESTIGE_API_URL=https://api.vestigelabs.org
 ITEMS_PER_PAGE=10
 ```
 
@@ -785,7 +785,7 @@ NFD_API_URL="https://api.nf.domains"
 NFD_API_KEY=""  # Required for authenticated endpoints
 
 # Vestige API Configuration
-VESTIGE_API_URL="https://free-api.vestige.fi"
+VESTIGE_API_URL="https://api.vestigelabs.org"
 VESTIGE_API_KEY=""  # Required for authenticated endpoints
 
 # Pagination Configuration

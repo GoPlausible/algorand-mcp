@@ -2,10 +2,42 @@ import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import { env } from '../../../env.js';
 
-export const poolTools: Tool[] = [
+export const protocolTools: Tool[] = [
   {
-    name: 'resource_vestige_view_pools',
-    description: 'Get pools',
+    name: 'resource_vestige_view_protocols',
+    description: 'Get all protocols',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
+        }
+      },
+      required: ['network_id']
+    }
+  },
+  {
+    name: 'resource_vestige_view_protocol_by_id',
+    description: 'Get protocol by id',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        protocol_id: {
+          type: 'integer',
+          description: 'Protocol ID'
+        },
+        network_id: {
+          type: 'integer',
+          description: 'Network ID'
+        }
+      },
+      required: ['protocol_id', 'network_id']
+    }
+  },
+  {
+    name: 'resource_vestige_view_protocol_volumes',
+    description: 'Get protocol volumes at specific day. Defaults to current day.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -13,44 +45,14 @@ export const poolTools: Tool[] = [
           type: 'integer',
           description: 'Network ID'
         },
-        protocol_id: {
+        timestamp: {
           type: 'integer',
-          description: 'Optional protocol ID filter'
+          description: 'Optional timestamp'
         },
-        other_protocol_id: {
+        denominating_asset_id: {
           type: 'integer',
-          description: 'Optional other protocol ID filter'
-        },
-        asset_1_id: {
-          type: 'integer',
-          description: 'Optional asset 1 ID filter'
-        },
-        asset_2_id: {
-          type: 'integer',
-          description: 'Optional asset 2 ID filter'
-        },
-        limit: {
-          type: 'integer',
-          description: 'Maximum number of results',
-          default: 50,
-          maximum: 250,
-          minimum: 1
-        },
-        offset: {
-          type: 'integer',
-          description: 'Number of results to skip',
-          default: 0,
-          minimum: 0
-        },
-        order_by: {
-          type: 'string',
-          description: 'Field to order by'
-        },
-        order_dir: {
-          type: 'string',
-          description: 'Order direction (asc/desc)',
-          default: 'desc',
-          pattern: '^(asc|desc)$'
+          description: 'Optional denominating asset ID',
+          default: 0
         }
       },
       required: ['network_id']
@@ -58,16 +60,20 @@ export const poolTools: Tool[] = [
   }
 ];
 
-
-
-export const handlePoolTools = ResponseProcessor.wrapResourceHandler(async function handlePoolTools(args: any): Promise<any> {
+export const handleProtocolTools = ResponseProcessor.wrapResourceHandler(async function handleProtocolTools(args: any): Promise<any> {
   const name = args.name;
   const baseUrl = env.vestige_api_url;
   let endpoint = '';
 
   switch (name) {
-    case 'resource_vestige_view_pools':
-      endpoint = '/pools';
+    case 'resource_vestige_view_protocols':
+      endpoint = '/protocols';
+      break;
+    case 'resource_vestige_view_protocol_by_id':
+      endpoint = `/protocols/${args.protocol_id}`;
+      break;
+    case 'resource_vestige_view_protocol_volumes':
+      endpoint = '/protocols/volume';
       break;
     default:
       throw new McpError(
@@ -80,7 +86,7 @@ export const handlePoolTools = ResponseProcessor.wrapResourceHandler(async funct
     // Add query parameters if they exist
     const queryParams = new URLSearchParams();
     for (const [key, value] of Object.entries(args)) {
-      if (value !== undefined) {
+      if (value !== undefined && !['protocol_id', 'name', 'pageToken'].includes(key)) {
         queryParams.append(key, String(value));
       }
     }
@@ -95,14 +101,13 @@ export const handlePoolTools = ResponseProcessor.wrapResourceHandler(async funct
     }
     const data = await response.json();
     return data;
-    
   } catch (error) {
     if (error instanceof McpError) {
       throw error;
     }
     throw new McpError(
       ErrorCode.InternalError,
-      `Failed to fetch pool data: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to fetch protocol data: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 });

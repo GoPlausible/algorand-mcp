@@ -2,10 +2,10 @@ import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import { env } from '../../../env.js';
 
-export const poolTools: Tool[] = [
+export const balanceTools: Tool[] = [
   {
-    name: 'resource_vestige_view_pools',
-    description: 'Get pools',
+    name: 'resource_vestige_view_balances',
+    description: 'Get balances by network id, protocol id and asset id',
     inputSchema: {
       type: 'object',
       properties: {
@@ -15,19 +15,15 @@ export const poolTools: Tool[] = [
         },
         protocol_id: {
           type: 'integer',
-          description: 'Optional protocol ID filter'
+          description: 'Protocol ID'
         },
-        other_protocol_id: {
-          type: 'integer',
-          description: 'Optional other protocol ID filter'
+        address: {
+          type: 'string',
+          description: 'Optional address filter'
         },
-        asset_1_id: {
+        asset_id: {
           type: 'integer',
-          description: 'Optional asset 1 ID filter'
-        },
-        asset_2_id: {
-          type: 'integer',
-          description: 'Optional asset 2 ID filter'
+          description: 'Optional asset ID filter'
         },
         limit: {
           type: 'integer',
@@ -53,21 +49,19 @@ export const poolTools: Tool[] = [
           pattern: '^(asc|desc)$'
         }
       },
-      required: ['network_id']
+      required: ['network_id', 'protocol_id']
     }
   }
 ];
 
-
-
-export const handlePoolTools = ResponseProcessor.wrapResourceHandler(async function handlePoolTools(args: any): Promise<any> {
+export const handleBalanceTools = ResponseProcessor.wrapResourceHandler(async function handleBalanceTools(args: any): Promise<any> {
   const name = args.name;
   const baseUrl = env.vestige_api_url;
   let endpoint = '';
 
   switch (name) {
-    case 'resource_vestige_view_pools':
-      endpoint = '/pools';
+    case 'resource_vestige_view_balances':
+      endpoint = '/balances';
       break;
     default:
       throw new McpError(
@@ -95,14 +89,13 @@ export const handlePoolTools = ResponseProcessor.wrapResourceHandler(async funct
     }
     const data = await response.json();
     return data;
-    
   } catch (error) {
     if (error instanceof McpError) {
       throw error;
     }
     throw new McpError(
       ErrorCode.InternalError,
-      `Failed to fetch pool data: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to fetch balance data: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 });

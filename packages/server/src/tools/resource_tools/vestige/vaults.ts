@@ -3,39 +3,53 @@ import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import { env } from '../../../env.js';
 
 export const vaultTools: Tool[] = [
-  // Individual Vault Info
   {
-    name: 'resource_vestige_view_vault',
-    description: 'Get vault by id',
+    name: 'resource_vestige_view_vaults',
+    description: 'Get all vaults',
     inputSchema: {
       type: 'object',
       properties: {
-        vault_id: {
+        network_id: {
           type: 'integer',
-          description: 'Vault ID'
+          description: 'Network ID'
+        },
+        protocol_id: {
+          type: 'integer',
+          description: 'Protocol ID'
+        },
+        asset_id: {
+          type: 'integer',
+          description: 'Optional asset ID filter'
+        },
+        address: {
+          type: 'string',
+          description: 'Optional address filter'
+        },
+        limit: {
+          type: 'integer',
+          description: 'Maximum number of results',
+          default: 50,
+          maximum: 250,
+          minimum: 1
+        },
+        offset: {
+          type: 'integer',
+          description: 'Number of results to skip',
+          default: 0,
+          minimum: 0
+        },
+        order_by: {
+          type: 'string',
+          description: 'Field to order by'
+        },
+        order_dir: {
+          type: 'string',
+          description: 'Order direction (asc/desc)',
+          default: 'desc',
+          pattern: '^(asc|desc)$'
         }
       },
-      required: ['vault_id']
-    }
-  },
-
-  // Recent Vaults
-  {
-    name: 'resource_vestige_view_recent_vaults',
-    description: 'Get last 100 vaults',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        owner: {
-          type: 'string',
-          description: 'Optional owner address filter'
-        },
-        include_all: {
-          type: 'boolean',
-          description: 'Include additional data',
-          default: false
-        }
-      }
+      required: ['network_id', 'protocol_id']
     }
   }
 ];
@@ -48,10 +62,7 @@ export const handleVaultTools = ResponseProcessor.wrapResourceHandler(async func
   let endpoint = '';
 
   switch (name) {
-    case 'resource_vestige_view_vault':
-      endpoint = `/vault/${args.vault_id}`;
-      break;
-    case 'resource_vestige_view_recent_vaults':
+    case 'resource_vestige_view_vaults':
       endpoint = '/vaults';
       break;
     default:
@@ -65,7 +76,7 @@ export const handleVaultTools = ResponseProcessor.wrapResourceHandler(async func
     // Add query parameters if they exist
     const queryParams = new URLSearchParams();
     for (const [key, value] of Object.entries(args)) {
-      if (value !== undefined && key !== 'vault_id') {
+      if (value !== undefined) {
         queryParams.append(key, String(value));
       }
     }
@@ -79,13 +90,6 @@ export const handleVaultTools = ResponseProcessor.wrapResourceHandler(async func
       );
     }
     const data = await response.json();
-
-    // Return array directly for recent vaults endpoint
-    if (name === 'resource_vestige_view_recent_vaults') {
-      return data.vaults;
-    }
-
-    // Return other responses as is
     return data;
   } catch (error) {
     if (error instanceof McpError) {
