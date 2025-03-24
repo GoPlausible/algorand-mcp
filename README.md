@@ -22,24 +22,6 @@ This repository is a Model Context Protocol (MCP) implementation for Algorand bl
 **📦 Smithery:**
 - **[Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp)** - Algorand MCP server implementation via smithery.
 
-#### Via Smithery (for Claude Desktop)
-
-Simply run this command in terminal:
-
-```bash
-npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client claude --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
-
-```
-
-#### Via Smithery (for Cursor)
-
-Simply run this command in terminal:
-
-```bash
-npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client cursor --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
-
-```
-
 
 ## Features
 - Complete Algorand blockchain interaction capabilities
@@ -62,9 +44,24 @@ npm install algorand-mcp
 ```
 
 ### Via Smithery (For all users)
-Go to [Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp) and select your AI tool and platform. Copy either command or copy depending on if you are using the command or MCP config JSON to connect to MCP Server. Click connect to start!
 
-[Previous installation instructions and screenshots remain the same]
+#### Via Smithery (for Claude Desktop)
+
+Simply run this command in terminal:
+
+```bash
+npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client claude --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
+
+```
+
+#### Via Smithery (for Cursor)
+
+Simply run this command in terminal:
+
+```bash
+npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client cursor --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
+
+```
 
 ## Project Architecture
 
@@ -186,13 +183,44 @@ The Algorand MCP implementation provides 113 tools and resources for blockchain 
 ### Resource Tools
 
 #### Algod Resource Tools
-[Previous Algod tools content]
+- resource_algod_get_account_info: Get current account balance, assets, and auth address
+- resource_algod_get_account_application_info: Get account-specific application information
+- resource_algod_get_account_asset_info: Get account-specific asset information
+- resource_algod_get_application_by_id: Get application information
+- resource_algod_get_application_box: Get application box by name
+- resource_algod_get_application_boxes: Get all application boxes
+- resource_algod_get_asset_by_id: Get current asset information
+- resource_algod_get_pending_transaction: Get pending transaction information
+- resource_algod_get_pending_transactions_by_address: Get pending transactions for an address
+- resource_algod_get_pending_transactions: Get all pending transactions
+- resource_algod_get_transaction_params: Get suggested transaction parameters
+- resource_algod_get_node_status: Get current node status
+- resource_algod_get_node_status_after_block: Get node status after a specific round
 
 #### Indexer Resource Tools
-[Previous Indexer tools content]
+- resource_indexer_lookup_account_by_id: Get account information
+- resource_indexer_lookup_account_assets: Get account assets
+- resource_indexer_lookup_account_app_local_states: Get account application local states
+- resource_indexer_lookup_account_created_applications: Get applications created by account
+- resource_indexer_search_for_accounts: Search for accounts with various criteria
+- resource_indexer_lookup_applications: Get application information
+- resource_indexer_lookup_application_logs: Get application log messages
+- resource_indexer_search_for_applications: Search for applications
+- resource_indexer_lookup_asset_by_id: Get asset information and configuration
+- resource_indexer_lookup_asset_balances: Get accounts holding this asset
+- resource_indexer_lookup_asset_transactions: Get transactions involving this asset
+- resource_indexer_search_for_assets: Search for assets
+- resource_indexer_lookup_transaction_by_id: Get transaction information
+- resource_indexer_lookup_account_transactions: Get account transaction history
+- resource_indexer_search_for_transactions: Search for transactions
 
 #### NFDomains (NFD) Resource Tools
-[Previous NFD tools content]
+- resource_nfd_get_nfd: Get NFD by name or application ID
+- resource_nfd_get_nfds_for_addresses: Get NFDs for specific addresses
+- resource_nfd_get_nfd_activity: Get activity/changes for NFDs
+- resource_nfd_get_nfd_analytics: Get analytics data for NFDs
+- resource_nfd_browse_nfds: Browse NFDs with various filters
+- resource_nfd_search_nfds: Search NFDs with various filters
 
 #### Vestige Resource Tools
 
@@ -241,7 +269,55 @@ The Algorand MCP implementation provides 113 tools and resources for blockchain 
 - resource_tinyman_get_validator_optin_quote: Get quote for opting into validator
 - resource_tinyman_get_validator_optout_quote: Get quote for opting out of validator
 
-[Previous content for Account Management Tools, Application Tools, Asset Tools, Transaction Tools, Key Management Tools, Utility Tools, Available Resources sections]
+### Account Management Tools
+- create_account: Create a new Algorand account
+- rekey_account: Rekey an account to a new address
+- validate_address: Check if an Algorand address is valid
+- encode_address: Encode a public key to an Algorand address
+- decode_address: Decode an Algorand address to a public key
+
+### Application Tools
+- make_app_create_txn: Create an application creation transaction
+- make_app_update_txn: Create an application update transaction
+- make_app_delete_txn: Create an application delete transaction
+- make_app_optin_txn: Create an application opt-in transaction
+- make_app_closeout_txn: Create an application close-out transaction
+- make_app_clear_txn: Create an application clear state transaction
+- make_app_call_txn: Create an application call transaction
+- get_application_address: Get the address for a given application ID
+- compile_teal: Compile TEAL source code
+- disassemble_teal: Disassemble TEAL bytecode back to source
+
+### Asset Tools
+- make_asset_create_txn: Create an asset creation transaction
+- make_asset_config_txn: Create an asset configuration transaction
+- make_asset_destroy_txn: Create an asset destroy transaction
+- make_asset_freeze_txn: Create an asset freeze transaction
+- make_asset_transfer_txn: Create an asset transfer transaction
+
+### Transaction Tools
+- send_raw_transaction: Submit signed transactions to the network
+- simulate_raw_transactions: Simulate raw transactions
+- simulate_transactions: Simulate transactions with detailed configuration
+- make_payment_txn: Create a payment transaction
+- assign_group_id: Assign a group ID to a list of transactions
+- sign_transaction: Sign a transaction with a secret key
+
+### Key Management Tools
+- mnemonic_to_mdk: Convert a mnemonic to a master derivation key
+- mdk_to_mnemonic: Convert a master derivation key to a mnemonic
+- secret_key_to_mnemonic: Convert a secret key to a mnemonic
+- mnemonic_to_secret_key: Convert a mnemonic to a secret key
+- seed_from_mnemonic: Generate a seed from a mnemonic
+- mnemonic_from_seed: Generate a mnemonic from a seed
+- sign_bytes: Sign arbitrary bytes with a secret key
+
+### Utility Tools
+- bytes_to_bigint: Convert bytes to a BigInt
+- bigint_to_bytes: Convert a BigInt to bytes
+- encode_uint64: Encode a uint64 to bytes
+- decode_uint64: Decode bytes to a uint64
+- generate_algorand_uri: Generate an Algorand URI and QR code according to ARC-26 specification
 
 ## Dependencies
 
