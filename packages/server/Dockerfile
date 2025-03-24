@@ -1,16 +1,9 @@
 FROM node:lts-alpine
 
-# Set working directory
-WORKDIR /app
-
-# Copy root config files
-COPY tsconfig.json ./
-COPY package*.json ./
-
-# Create server directory and set it up
+# Set working directory for server package
 WORKDIR /app/packages/server
 
-# Copy server package files
+# Copy package files
 COPY packages/server/package*.json ./
 COPY packages/server/tsconfig.json ./
 
