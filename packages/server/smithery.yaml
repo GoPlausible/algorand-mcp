@@ -10,12 +10,15 @@ startCommand:
     properties:
       ALGORAND_ALGOD_PORT:
         type: string
+        default: ""
         description: Algod node port (optional)
       ALGORAND_INDEXER_PORT:
         type: string
+        default: ""
         description: Indexer port (optional)
       ALGORAND_TOKEN:
         type: string
+        default: ""
         description: Algorand API token (optional)
       ITEMS_PER_PAGE:
         type: string
@@ -47,6 +50,7 @@ startCommand:
         description: NFDomains API URL
       NFD_API_KEY:
         type: string
+        default: ""
         description: NFDomains API key (optional)
       VESTIGE_API_URL:
         type: string
@@ -54,6 +58,7 @@ startCommand:
         description: Vestige API URL
       VESTIGE_API_KEY:
         type: string
+        default: ""
         description: Vestige API key (optional)
   exampleConfig:
     ALGORAND_ALGOD: https://testnet-api.algonode.cloud
