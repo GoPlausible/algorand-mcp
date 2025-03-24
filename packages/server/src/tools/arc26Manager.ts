@@ -1,4 +1,4 @@
-import QRCode from 'qrcode';
+import * as QRCode from 'qrcode';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 
 interface Arc26ToolInput {
