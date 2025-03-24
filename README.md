@@ -47,7 +47,7 @@ npm install algorand-mcp
 
 #### Via Smithery (for Claude Desktop)
 
-Simply run this command in terminal:
+Simply run this command in the terminal:
 
 ```bash
 npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client claude --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
@@ -62,6 +62,12 @@ Simply run this command in terminal:
 npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client cursor --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
 
 ```
+**IMPORTANT NOTE**
+When using Smithery UI to copy the command, make sure you set ITEMS_PER_PAGE before clicking connect so that all ENV variables are brought to command, otherwise your command will not contain enviroment variables required for Algorand MCP to run!
+![Screenshot 2025-03-24 at 13 46 49](https://github.com/user-attachments/assets/98473c4a-b242-4000-bcf4-8cf6fd3e37c2)
+
+![Screenshot 2025-03-24 at 13 46 42](https://github.com/user-attachments/assets/1c8f4342-4bd2-4afa-83c8-fae3a0c27afa)
+
 
 ## Project Architecture
 
