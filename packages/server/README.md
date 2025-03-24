@@ -758,7 +758,6 @@ All responses follow a standardized format using ResponseProcessor:
 }
 ```
 
-
 ## Error Handling
 
 The server provides detailed error messages for common issues:
