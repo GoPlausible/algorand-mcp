@@ -88,6 +88,6 @@ startCommand:
         NFD_API_URL: config.NFD_API_URL,
         NFD_API_KEY: config.NFD_API_KEY,
         VESTIGE_API_URL: config.VESTIGE_API_URL,
-        VESTIGE_API_KEY: config.VESTIGE_API_KEY,
+        VESTIGE_API_KEY: config.VESTIGE_API_KEY
       }
     })
