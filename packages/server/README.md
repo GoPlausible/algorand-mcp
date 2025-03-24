@@ -11,11 +11,12 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 - npm v10.2.4 or later
 
 ## Features
-- 104 total tools:
+- 113 total tools:
   - 40 base tools (account, asset, application, transaction management)
   - 30 resource tools (algod and indexer)
   - 6 NFDomains (NFD) tools for name services
   - 28 Vestige tools for DeFi analytics
+  - 9 Tinyman tools for AMM interactions
 - 30 resource endpoints for data access
 - Built-in default configuration for quick setup
 - Comprehensive transaction management
@@ -24,6 +25,31 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 - Real-time and historical data access
 - NFDomains integration for name resolution and management
 - Vestige integration for DeFi analytics and tracking
+- Tinyman AMM integration for decentralized trading
+
+## Project Structure
+
+```
+src/
+├── resources/                # MCP Resources
+│   ├── algod/               # Real-time blockchain state
+│   ├── indexer/            # Historical blockchain data
+│   ├── nfd/               # NFDomains resources
+│   ├── vestige/           # Vestige DeFi resources
+│   └── tinyman/           # Tinyman AMM resources
+├── tools/                  # MCP Tools
+│   ├── accountManager.ts    # Account operations
+│   ├── algodManager.ts      # Node interactions
+│   ├── utilityManager.ts    # Utility functions
+│   ├── resource_tools/      # Resource Tools
+│   │   ├── algod/          # Algod resource tools
+│   │   ├── indexer/        # Indexer resource tools
+│   │   ├── nfd/            # NFDomains tools
+│   │   ├── vestige/        # Vestige DeFi tools
+│   │   └── tinyman/        # Tinyman AMM tools
+│   └── transactionManager/ # Transaction handling
+└── index.ts               # Server entry point
+```
 
 ## Installation
 
@@ -57,48 +83,6 @@ Override defaults by doing either:
 - Setting environment variables
 - Creating a .env file
 - Configuring in Claude Desktop/Cursor settings (see root README)
-
-## Installation
-
-```bash
-npm install @algorand-mcp/server
-```
-
-## Project Structure
-
-```
-src/
-├── resources/                # MCP Resources
-│   ├── algod/               # Real-time blockchain state
-│   │   ├── account.ts       # Account information
-│   │   ├── application.ts   # Application state
-│   │   ├── asset.ts        # Asset details
-│   │   └── transaction.ts   # Pending transactions
-│   ├── indexer/            # Historical blockchain data
-│   │   ├── account.ts       # Account history
-│   │   ├── application.ts   # Application history
-│   │   ├── asset.ts        # Asset history
-│   │   └── transaction.ts   # Transaction history
-│   ├── nfd/               # NFDomains resources
-│   │   └── index.ts        # NFD name service endpoints
-│   └── vestige/           # Vestige DeFi resources
-│       └── index.ts        # DeFi analytics endpoints
-├── tools/                  # MCP Tools
-│   ├── accountManager.ts    # Account operations
-│   ├── algodManager.ts      # Node interactions
-│   ├── utilityManager.ts    # Utility functions
-│   ├── resource_tools/      # Resource Tools
-│   │   ├── algod/          # Algod resource tools
-│   │   ├── indexer/        # Indexer resource tools
-│   │   ├── nfd/            # NFDomains tools
-│   │   └── vestige/        # Vestige DeFi tools
-│   └── transactionManager/ # Transaction handling
-│       ├── accountTransactions.ts
-│       ├── assetTransactions.ts
-│       ├── generalTransaction.ts
-│       └── appTransactions/
-└── index.ts               # Server entry point
-```
 
 ## Available Tools
 
@@ -150,34 +134,77 @@ Resource tools are designed as a redundant sets of resource accessing doing the 
 - resource_nfd_search_nfds: Search NFDs with various filters
 
 #### Vestige Resource Tools
-- resource_vestige_view_providers: Get all supported providers
-- resource_vestige_view_providers_tvl_simple_90d: Get provider TVL for the last 90 days
-- resource_vestige_view_providers_tvl_simple_30d: Get provider TVL for the last 30 days
-- resource_vestige_view_providers_tvl_simple_7d: Get provider TVL for the last 7 days
-- resource_vestige_view_providers_tvl_simple_1d: Get provider TVL for the last day
-- resource_vestige_view_assets: Get all tracked assets
-- resource_vestige_view_assets_list: Get all tracked assets in a list format
-- resource_vestige_view_assets_by_name: Get assets that fit search query
-- resource_vestige_view_asset: Get asset info
-- resource_vestige_view_asset_price: Get estimated asset price
-- resource_vestige_view_asset_views: Get asset views
-- resource_vestige_view_asset_holders: Get asset holders
-- resource_vestige_view_asset_contributors: Get asset liquidity contributors
-- resource_vestige_view_pool_volumes: Get pool volumes and APY across providers
-- resource_vestige_view_pools: Get tracked pools or all pools by asset id
-- resource_vestige_view_pool: Get pool info
-- resource_vestige_view_pool_volume: Get pool volume and APY for a specific pool
-- resource_vestige_view_pool_price: Get last price of a pool
-- resource_vestige_view_pool_contributors: Get pool contributors
+
+1. View Tools:
+- resource_vestige_view_networks: Get all networks
+- resource_vestige_view_network_by_id: Get network by id
+- resource_vestige_view_protocols: Get all protocols
+- resource_vestige_view_protocol_by_id: Get protocol by id
+- resource_vestige_view_protocol_volumes: Get protocol volumes at specific day
+- resource_vestige_view_assets: Get data about assets
+- resource_vestige_view_assets_list: Get asset list
+- resource_vestige_view_assets_search: Search assets by query
+- resource_vestige_view_asset_price: Get asset prices
+- resource_vestige_view_asset_candles: Get asset candles
+- resource_vestige_view_asset_history: Get asset volume, swaps, total lockup, vwap and confidence history
+- resource_vestige_view_asset_composition: Get asset lockups based on protocol and pair
+- resource_vestige_view_pools: Get pools
+- resource_vestige_view_vaults: Get all vaults
+- resource_vestige_view_balances: Get balances by network id, protocol id and asset id
+- resource_vestige_view_notes: Get notes by network id and optionally asset id
+- resource_vestige_view_first_asset_notes: Get first note for assets
+- resource_vestige_view_asset_notes_count: Get notes count for assets
+- resource_vestige_view_swaps: Get swaps
+
+2. Swap Tools:
+- resource_vestige_get_best_v4_swap_data: Get best V4 swap data
+- resource_vestige_get_v4_swap_discount: Get V4 swap discount
+- resource_vestige_get_v4_swap_data_transactions: Get V4 swap data transactions
+- resource_vestige_get_aggregator_stats: Get aggregator stats
+
+3. Currency Tools:
 - resource_vestige_view_currency_prices: Get all latest currency prices
 - resource_vestige_view_currency_price_history: Get currency prices by timestamp range
 - resource_vestige_view_currency_price: Get currency price by timestamp
 - resource_vestige_view_currency_average_price: Get average price for currency
 - resource_vestige_view_currency_prices_simple_30d: Get currency prices for last 30 days
-- resource_vestige_view_currency_prices_simple_7d: Get currency prices for last week
-- resource_vestige_view_currency_prices_simple_1d: Get currency prices for last day
-- resource_vestige_view_vault: Get vault by id
-- resource_vestige_view_recent_vaults: Get last 100 vaults
+
+#### Tinyman Resource Tools
+- resource_tinyman_get_pool: Get Tinyman pool information by asset pair
+  - Parameters: asset1Id, asset2Id, version (v1_1 or v2)
+  - Returns: Pool status, validator app ID, assets, and reserves
+
+- resource_tinyman_get_pool_analytics: Get analytics for a Tinyman pool
+  - Parameters: asset1Id, asset2Id, version
+  - Returns: Pool status, emptiness check, pair ratio, and reserves
+
+- resource_tinyman_get_pool_creation_quote: Get quote for creating a new pool
+  - Parameters: asset1Id, asset2Id, initiatorAddr, version
+  - Returns: Transaction count and estimated fees
+
+- resource_tinyman_get_liquidity_quote: Get quote for adding liquidity
+  - Parameters: asset1Id, asset2Id, asset1Amount, asset2Amount, mode (initial/flexible/singleAsset), version
+  - Returns: Liquidity quote with expected pool tokens
+
+- resource_tinyman_get_remove_liquidity_quote: Get quote for removing liquidity
+  - Parameters: asset1Id, asset2Id, poolTokenAmount, initiatorAddr, slippage, singleAssetMode, version
+  - Returns: Remove liquidity quote with expected asset amounts
+
+- resource_tinyman_get_swap_quote: Get quote for swapping assets
+  - Parameters: assetIn, assetOut, amount, mode (fixedInput/fixedOutput), version
+  - Returns: Swap quote with expected output/input amount
+
+- resource_tinyman_get_asset_optin_quote: Get quote for opting into pool token
+  - Parameters: assetId, initiatorAddr
+  - Returns: Transaction count and estimated fees
+
+- resource_tinyman_get_validator_optin_quote: Get quote for opting into validator
+  - Parameters: initiatorAddr, version
+  - Returns: Transaction count and estimated fees
+
+- resource_tinyman_get_validator_optout_quote: Get quote for opting out of validator
+  - Parameters: initiatorAddr, version
+  - Returns: Transaction count and estimated fees
 
 ### Account Management Tools
 
@@ -709,88 +736,6 @@ Resource tools are designed as a redundant sets of resource accessing doing the 
 47. `algorand://indexer/transactions`
     - Searches transactions
     - Returns: Matching transactions
-
-## Usage Examples
-
-### Server Setup
-
-```typescript
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { AlgorandMcpServer } from '@algorand-mcp/server';
-
-const server = new AlgorandMcpServer();
-await server.run();
-```
-
-### Using Tools
-
-```typescript
-// Create account
-const result = await server.callTool('create_account', {});
-console.log(result.address, result.mnemonic);
-
-// Make payment transaction
-const txn = await server.callTool('make_payment_txn', {
-  from: 'SENDER_ADDRESS',
-  to: 'RECEIVER_ADDRESS',
-  amount: 1000000 // 1 ALGO
-});
-
-// Sign and send
-const signed = await server.callTool('sign_transaction', {
-  transaction: txn,
-  sk: 'SENDER_SECRET_KEY'
-});
-await server.callTool('send_raw_transaction', {
-  signedTxns: [signed]
-});
-```
-
-### Using Resources
-
-```typescript
-// Get account info
-const account = await server.readResource(
-  'algorand://algod/accounts/SOME_ADDRESS'
-);
-
-// Get application state
-const appState = await server.readResource(
-  'algorand://algod/applications/APP_ID'
-);
-
-// Search transactions
-const txns = await server.readResource(
-  'algorand://indexer/transactions'
-);
-```
-
-## Environment Variables
-
-```bash
-# Network Configuration
-ALGORAND_NETWORK="testnet"  # or "mainnet"
-
-# Algod API Configuration
-ALGORAND_ALGOD_API="https://testnet-api.algonode.cloud/v2"
-ALGORAND_ALGOD="https://testnet-api.algonode.cloud"
-
-# Indexer API Configuration
-ALGORAND_INDEXER_API="https://testnet-idx.algonode.cloud/v2"
-ALGORAND_INDEXER="https://testnet-idx.algonode.cloud"
-
-# NFDomains API Configuration
-NFD_API_URL="https://api.nf.domains"
-NFD_API_KEY=""  # Required for authenticated endpoints
-
-# Vestige API Configuration
-VESTIGE_API_URL="https://api.vestigelabs.org"
-VESTIGE_API_KEY=""  # Required for authenticated endpoints
-
-# Pagination Configuration
-ITEMS_PER_PAGE=10  # Default number of items per page for paginated responses
-```
 
 ## Response Format
 

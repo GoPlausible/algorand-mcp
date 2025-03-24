@@ -2,6 +2,7 @@ import { algodTools, handleAlgodTools } from './algod/index.js';
 import { indexerTools, handleIndexerTools } from './indexer/index.js';
 import { nfdTools, handleNFDTools } from './nfd/index.js';
 import { vestigeTools, handleVestigeTools } from './vestige/index.js';
+import { tinymanTools, handleTinymanTools } from './tinyman/index.js';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../utils/responseProcessor.js';
 
@@ -10,7 +11,8 @@ export const resourceTools = [
   ...algodTools,
   ...indexerTools,
   ...nfdTools,
-  ...vestigeTools
+  ...vestigeTools,
+  ...tinymanTools
 ];
 
 // Handle all resource tools
@@ -18,8 +20,12 @@ export async function handleResourceTools(name: string, args: any): Promise<any>
   try {
     let response;
 
+    // Tinyman tools
+    if (name.startsWith('resource_tinyman_')) {
+      response = await handleTinymanTools(name, args);
+    }
     // Vestige tools
-    if (name.startsWith('resource_vestige_')) {
+    else if (name.startsWith('resource_vestige_')) {
       response = await handleVestigeTools(name, args);
     }
     // NFD tools - check first since they're most specific

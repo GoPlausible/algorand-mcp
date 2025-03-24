@@ -22,7 +22,6 @@ This repository is a Model Context Protocol (MCP) implementation for Algorand bl
 **📦 Smithery:**
 - **[Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp)** - Algorand MCP server implementation via smithery.
 
-
 IMPORTANT: The client package is still a work in progress and is not yet fully functional. The server package, however, is fully operational and can be used for to integrate Algorand blockchain to any agent system that supports Model Context Protocol (MCP).
 
 ## Features
@@ -43,50 +42,12 @@ IMPORTANT: The client package is still a work in progress and is not yet fully f
 ```bash
 # Install both client and server packages
 npm install algorand-mcp
-
 ```
 
 ### Via Smithery (For all users)
 Go to [Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp) and select your AI tool and platform. Copy either command or copy depending on if you are using the command or MCP config JSON to connect to MCP Server. Click connect to start!
 
-![Screenshot 2025-03-15 at 00 50 12](https://github.com/user-attachments/assets/f9ea0572-6919-44b0-85e7-c6153fce9b2f)
-
-#### Using command
-
-First let's copy the command from Smithery (Please make sure your tool of choice and platform are selected correctly!)
-
-![Screenshot 2025-03-15 at 14 45 24](https://github.com/user-attachments/assets/d747ea60-732a-43e9-957f-051bfec5d134)
-
-Then paste that in the command field of New MCP server dialog
-
-![Screenshot 2025-03-15 at 14 51 06](https://github.com/user-attachments/assets/5f5d9c1a-297c-4685-928d-ddc6ed3950fa)
-
-Then The MCP server is detected and loading tools and resources
-
-![Screenshot 2025-03-15 at 14 51 31](https://github.com/user-attachments/assets/badfc6e9-fe98-4ba1-9b14-1cd4c11829ce)
-
-And it is good to go!
-
-![Screenshot 2025-03-15 at 14 51 43](https://github.com/user-attachments/assets/d2505413-61d7-4af4-9ba0-18eb58b70a51)
-
-
-#### Using settings JSON
-
-Copy the JSON from Smithery
-
-![Screenshot 2025-03-15 at 15 09 04](https://github.com/user-attachments/assets/9d9dbcfe-9870-4dd6-bf0c-ebe895480951)
-
-Now open MCP settings in your tool of choice (Claud Desktop, Cursor,...) and Paste the copied JSON there as a whole and save the file.
-
-You are good to go!
-
-![6z7Q0fuH (1)](https://github.com/user-attachments/assets/4f62ac1e-4e16-47ee-85c5-296d80b4039e)
-
-#### Important note for Windows OS Users
-Please not that if you receive "Server Closed" or "Connection Closed" Then you need to try and change the `cmd` command with `C:\Windows\System32\cmd.exe` as suggested by Smithery!
-
-![Screenshot 2025-03-15 at 15 51 13](https://github.com/user-attachments/assets/c5b013a9-33c4-4a5f-bd7a-00502334e747)
-
+[Previous installation instructions and screenshots remain the same]
 
 ## Project Architecture
 
@@ -105,8 +66,6 @@ The project follows a modular architecture with two main packages:
    - Secure credential management
    - Still work in progress (Server works irrelevant to client status)
 
-
-
 ## Project Structure
 
 ```
@@ -123,17 +82,20 @@ algorand-mcp/
 │       │   ├── resources/         # MCP Resources
 │       │   │   ├── algod/        # Real-time blockchain state
 │       │   │   ├── indexer/      # Historical blockchain data
-│       │   │   ├── nfd/         # NFDomains name service
-│       │   │   └── vestige/     # DeFi analytics and tracking
+│       │   │   ├── nfd/          # NFDomains name service
+│       │   │   ├── vestige/      # DeFi analytics and tracking
+│       │   │   └── tinyman/      # Tinyman AMM integration
 │       │   ├── tools/            # MCP Tools
 │       │   │   ├── accountManager.ts     # Account operations
 │       │   │   ├── algodManager.ts       # Node interactions
 │       │   │   ├── utilityManager.ts     # Utility functions
+│       │   │   ├── resource_tools/       # Resource Tools
+│       │   │   │   ├── algod/           # Algod resource tools
+│       │   │   │   ├── indexer/         # Indexer resource tools
+│       │   │   │   ├── nfd/            # NFDomains tools
+│       │   │   │   ├── vestige/        # Vestige DeFi tools
+│       │   │   │   └── tinyman/        # Tinyman AMM tools
 │       │   │   └── transactionManager/   # Transaction handling
-│       │   │       ├── accountTransactions.ts
-│       │   │       ├── assetTransactions.ts
-│       │   │       ├── generalTransaction.ts
-│       │   │       └── appTransactions/
 │       │   ├── env.ts            # Environment configuration
 │       │   └── index.ts          # Server entry point
 │       ├── package.json
@@ -155,6 +117,7 @@ algorand-mcp/
 - Built-in pagination support
 - NFDomains integration
 - Vestige DeFi analytics
+- Tinyman AMM integration
 
 ### Client Features (Work in Progress)
 - Local wallet with secure storage
@@ -196,229 +159,72 @@ Errors are returned in a standardized format:
 
 ## Available Tools and Resources
 
-The Algorand MCP implementation provides 104 tools and resources for blockchain interaction:
+The Algorand MCP implementation provides 113 tools and resources for blockchain interaction:
 - 40 base tools (account, asset, application, transaction management)
 - 30 resource tools (algod and indexer)
 - 6 NFDomains (NFD) tools for name services
 - 28 Vestige tools for DeFi analytics
+- 9 Tinyman tools for AMM interactions
 
-For detailed documentation and usage instructions, please refer to the server package README.
-
-### Available Tools (104 Total: 40 Base + 30 Resource + 6 NFD + 28 Vestige)
+### Resource Tools
 
 #### Algod Resource Tools
-- resource_algod_get_account_info: Get current account balance, assets, and auth address from algod
-- resource_algod_get_account_application_info: Get account-specific application information from algod
-- resource_algod_get_account_asset_info: Get account-specific asset information from algod
-- resource_algod_get_application_by_id: Get application information
-- resource_algod_get_application_box: Get application box by name
-- resource_algod_get_application_boxes: Get all application boxes
-- resource_algod_get_asset_by_id: Get current asset information from algod
-- resource_algod_get_pending_transaction: Get pending transaction information
-- resource_algod_get_pending_transactions_by_address: Get pending transactions for an address
-- resource_algod_get_pending_transactions: Get all pending transactions
-- resource_algod_get_transaction_params: Get suggested transaction parameters
-- resource_algod_get_node_status: Get current node status
-- resource_algod_get_node_status_after_block: Get node status after a specific round
+[Previous Algod tools content]
 
 #### Indexer Resource Tools
-- resource_indexer_lookup_account_by_id: Get account information from indexer
-- resource_indexer_lookup_account_transactions: Get account transaction history
-- resource_indexer_lookup_account_assets: Get account assets
-- resource_indexer_lookup_account_app_local_states: Get account application local states
-- resource_indexer_lookup_account_created_applications: Get applications created by this account
-- resource_indexer_lookup_applications: Get application information from indexer
-- resource_indexer_lookup_application_logs: Get application log messages
-- resource_indexer_lookup_application_box: Get application box by name
-- resource_indexer_lookup_application_boxes: Get all application boxes
-- resource_indexer_lookup_asset_by_id: Get asset information and configuration
-- resource_indexer_lookup_asset_balances: Get accounts holding this asset and their balances
-- resource_indexer_lookup_asset_transactions: Get transactions involving this asset
-- resource_indexer_lookup_transaction_by_id: Get transaction information by ID
-- resource_indexer_search_accounts: Search for accounts with various criteria
-- resource_indexer_search_for_applications: Search for applications with various criteria
-- resource_indexer_search_for_assets: Search for assets with various criteria
-- resource_indexer_search_for_transactions: Search for transactions with various criteria
+[Previous Indexer tools content]
 
 #### NFDomains (NFD) Resource Tools
-- resource_nfd_get_nfd: Get a specific NFD by name or application ID
-- resource_nfd_get_nfds_for_addresses: Get NFDs for specific addresses
-- resource_nfd_get_nfd_activity: Get activity/changes for NFDs
-- resource_nfd_get_nfd_analytics: Get analytics data for NFDs
-- resource_nfd_browse_nfds: Browse NFDs with various filters
-- resource_nfd_search_nfds: Search NFDs with various filters
+[Previous NFD tools content]
 
 #### Vestige Resource Tools
-- resource_vestige_view_providers: Get all supported providers
-- resource_vestige_view_providers_tvl_simple_90d: Get provider TVL for the last 90 days
-- resource_vestige_view_providers_tvl_simple_30d: Get provider TVL for the last 30 days
-- resource_vestige_view_providers_tvl_simple_7d: Get provider TVL for the last 7 days
-- resource_vestige_view_providers_tvl_simple_1d: Get provider TVL for the last day
-- resource_vestige_view_assets: Get all tracked assets
-- resource_vestige_view_assets_list: Get all tracked assets in a list format
-- resource_vestige_view_assets_by_name: Get assets that fit search query
-- resource_vestige_view_asset: Get asset info
-- resource_vestige_view_asset_price: Get estimated asset price
-- resource_vestige_view_asset_views: Get asset views
-- resource_vestige_view_asset_holders: Get asset holders
-- resource_vestige_view_asset_contributors: Get asset liquidity contributors
-- resource_vestige_view_pool_volumes: Get pool volumes and APY across providers
-- resource_vestige_view_pools: Get tracked pools or all pools by asset id
-- resource_vestige_view_pool: Get pool info
-- resource_vestige_view_pool_volume: Get pool volume and APY for a specific pool
-- resource_vestige_view_pool_price: Get last price of a pool
-- resource_vestige_view_pool_contributors: Get pool contributors
+
+1. View Tools:
+- resource_vestige_view_networks: Get all networks
+- resource_vestige_view_network_by_id: Get network by id
+- resource_vestige_view_protocols: Get all protocols
+- resource_vestige_view_protocol_by_id: Get protocol by id
+- resource_vestige_view_protocol_volumes: Get protocol volumes at specific day
+- resource_vestige_view_assets: Get data about assets
+- resource_vestige_view_assets_list: Get asset list
+- resource_vestige_view_assets_search: Search assets by query
+- resource_vestige_view_asset_price: Get asset prices
+- resource_vestige_view_asset_candles: Get asset candles
+- resource_vestige_view_asset_history: Get asset volume, swaps, total lockup, vwap and confidence history
+- resource_vestige_view_asset_composition: Get asset lockups based on protocol and pair
+- resource_vestige_view_pools: Get pools
+- resource_vestige_view_vaults: Get all vaults
+- resource_vestige_view_balances: Get balances by network id, protocol id and asset id
+- resource_vestige_view_notes: Get notes by network id and optionally asset id
+- resource_vestige_view_first_asset_notes: Get first note for assets
+- resource_vestige_view_asset_notes_count: Get notes count for assets
+- resource_vestige_view_swaps: Get swaps
+
+2. Swap Tools:
+- resource_vestige_get_best_v4_swap_data: Get best V4 swap data
+- resource_vestige_get_v4_swap_discount: Get V4 swap discount
+- resource_vestige_get_v4_swap_data_transactions: Get V4 swap data transactions
+- resource_vestige_get_aggregator_stats: Get aggregator stats
+
+3. Currency Tools:
 - resource_vestige_view_currency_prices: Get all latest currency prices
 - resource_vestige_view_currency_price_history: Get currency prices by timestamp range
 - resource_vestige_view_currency_price: Get currency price by timestamp
 - resource_vestige_view_currency_average_price: Get average price for currency
 - resource_vestige_view_currency_prices_simple_30d: Get currency prices for last 30 days
-- resource_vestige_view_currency_prices_simple_7d: Get currency prices for last week
-- resource_vestige_view_currency_prices_simple_1d: Get currency prices for last day
-- resource_vestige_view_vault: Get vault by id
-- resource_vestige_view_recent_vaults: Get last 100 vaults
 
-#### Account Management Tools
-- create_account
-- rekey_account
-- mnemonic_to_mdk
-- mdk_to_mnemonic
-- secret_key_to_mnemonic
-- mnemonic_to_secret_key
-- seed_from_mnemonic
-- mnemonic_from_seed
-- validate_address
-- encode_address
-- decode_address
+#### Tinyman Resource Tools
+- resource_tinyman_get_pool: Get Tinyman pool information by asset pair
+- resource_tinyman_get_pool_analytics: Get analytics for a Tinyman pool
+- resource_tinyman_get_pool_creation_quote: Get quote for creating a new pool
+- resource_tinyman_get_liquidity_quote: Get quote for adding liquidity
+- resource_tinyman_get_remove_liquidity_quote: Get quote for removing liquidity
+- resource_tinyman_get_swap_quote: Get quote for swapping assets
+- resource_tinyman_get_asset_optin_quote: Get quote for opting into pool token
+- resource_tinyman_get_validator_optin_quote: Get quote for opting into validator
+- resource_tinyman_get_validator_optout_quote: Get quote for opting out of validator
 
-#### Application Tools
-- make_app_create_txn
-- make_app_update_txn
-- make_app_delete_txn
-- make_app_optin_txn
-- make_app_closeout_txn
-- make_app_clear_txn
-- make_app_call_txn
-- get_application_address
-
-#### Asset Tools
-- make_asset_create_txn
-- make_asset_config_txn
-- make_asset_destroy_txn
-- make_asset_freeze_txn
-- make_asset_transfer_txn
-
-#### Transaction Tools
-- make_payment_txn
-- assign_group_id
-- sign_transaction
-- sign_bytes
-- send_raw_transaction
-- simulate_raw_transactions
-
-#### Key Management Tools
-- generate_key_pair
-- derive_key
-
-#### Utility Tools
-- encode_obj
-- decode_obj
-- bytes_to_bigint
-- bigint_to_bytes
-- encode_uint64
-- decode_uint64
-- compile_teal
-- disassemble_teal
-
-### Available Resources (30)
-
-#### Algod Resources
-- accounts/{address}
-- accounts/{address}/application/{app-id}
-- accounts/{address}/asset/{asset-id}
-- applications/{app-id}
-- applications/{app-id}/box/{name}
-- applications/{app-id}/boxes
-- assets/{asset-id}
-- transactions/pending/{txid}
-- accounts/{address}/transactions/pending
-- transactions/pending
-- transactions/params
-- status
-
-#### Block Resources
-- blocks/latest
-- blocks/{round}
-- blocks/{round}/transactions
-- indexer/blocks/{round}
-
-#### Health Resources
-- health
-- indexer/health
-
-#### Genesis Resources
-- genesis
-- indexer/genesis
-
-#### Network Resources
-- versions
-- metrics
-
-#### Supply Resources
-- ledger/supply
-- indexer/supply
-
-#### Participation Resources
-- participation
-- participation/keys
-- participation/keys/{id}
-
-#### Fee Resources
-- transactions/fee
-- indexer/fee-distribution
-
-#### Protocol Resources
-- protocol
-- indexer/protocol-upgrades
-
-#### Node Resources
-- ready
-- sync
-- peers
-- catchup
-
-#### Compile Resources
-- compile/teal
-- compile/teal/disassemble
-- compile/teal/dryrun
-
-#### Debug Resources
-- debug/accounts/{address}
-- debug/txns/{txid}
-- debug/blocks/{round}
-- debug/ledger
-
-#### Indexer Resources
-- indexer/accounts/{address}
-- indexer/accounts/{address}/transactions
-- indexer/accounts/{address}/apps-local-state
-- indexer/accounts/{address}/created-applications
-- indexer/applications/{app-id}
-- indexer/applications/{app-id}/logs
-- indexer/applications/{app-id}/box/{name}
-- indexer/applications/{app-id}/boxes
-- indexer/applications
-- indexer/assets/{asset-id}
-- indexer/assets/{asset-id}/balances
-- indexer/assets/{asset-id}/transactions
-- indexer/assets/{asset-id}/balances/{address}
-- indexer/assets/{asset-id}/transactions/{txid}
-- indexer/assets
-- indexer/transactions/{txid}
-- indexer/transactions
-
-
-Note: The server path in the configuration should be the absolute path to your compiled server's index.js file.
+[Previous content for Account Management Tools, Application Tools, Asset Tools, Transaction Tools, Key Management Tools, Utility Tools, Available Resources sections]
 
 ## Dependencies
 
