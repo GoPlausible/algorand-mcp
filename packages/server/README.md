@@ -758,6 +758,7 @@ All responses follow a standardized format using ResponseProcessor:
 }
 ```
 
+
 ## Error Handling
 
 The server provides detailed error messages for common issues:
@@ -787,5 +788,4 @@ Errors are returned in a standardized format:
 5. Follow security guidelines
 
 ## License
-
 MIT
