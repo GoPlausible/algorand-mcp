@@ -23,7 +23,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "algosdk": "2.9.0",
+    "algosdk": "^2.9.0",
     "qrcode": "^1.5.4"
   }
 }

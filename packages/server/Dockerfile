@@ -1,27 +1,26 @@
-FROM node:23.6.1-alpine
+FROM node:lts-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy workspace files
-COPY package*.json ./
+# Copy root config files
 COPY tsconfig.json ./
+COPY package*.json ./
 
-# Install root dependencies
-RUN npm install --ignore-scripts
-
-# Copy server files
+# Create server directory and set it up
 WORKDIR /app/packages/server
+
+# Copy server package files
 COPY packages/server/package*.json ./
 COPY packages/server/tsconfig.json ./
 
-# Install server dependencies
+# Install dependencies
 RUN npm install --ignore-scripts
 
 # Copy source code
 COPY packages/server/src ./src
 
-# Build with full TypeScript configuration
+# Build the application
 RUN npm run build
 
 # Expose port
