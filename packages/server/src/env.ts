@@ -17,6 +17,10 @@ interface EnvConfig {
   vestige_api_url: string;
   vestige_api_key: string;
 
+  // Ultrade Configuration
+  ultrade_api_url: string;
+
+
   // Pagination Configuration
   items_per_page: number;
 }
@@ -39,6 +43,10 @@ export const env: EnvConfig = {
   // Vestige Configuration
   vestige_api_url: process.env.VESTIGE_API_URL || 'https://api.vestigelabs.org',
   vestige_api_key: process.env.VESTIGE_API_KEY || '',
+
+  // Ultrade Configuration
+  ultrade_api_url: process.env.ULTRADE_API_URL || 'https://api.testnet.ultrade.org',
+
 
   // Pagination Configuration
   items_per_page: parseInt(process.env.ITEMS_PER_PAGE || '5', 10)

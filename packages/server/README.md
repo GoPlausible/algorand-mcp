@@ -791,13 +791,6 @@ Errors are returned in a standardized format:
 }
 ```
 
-## Best Practices
-
-1. Always validate input parameters
-2. Use simulation before sending transactions
-3. Handle errors appropriately
-4. Monitor resource usage
-5. Follow security guidelines
 
 ## License
 MIT

@@ -3,6 +3,7 @@ import { indexerTools, handleIndexerTools } from './indexer/index.js';
 import { nfdTools, handleNFDTools } from './nfd/index.js';
 import { vestigeTools, handleVestigeTools } from './vestige/index.js';
 import { tinymanTools, handleTinymanTools } from './tinyman/index.js';
+import { ultradeTools, handleUltradeTools } from './ultrade/index.js';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../utils/responseProcessor.js';
 
@@ -12,7 +13,8 @@ export const resourceTools = [
   ...indexerTools,
   ...nfdTools,
   ...vestigeTools,
-  ...tinymanTools
+  ...tinymanTools,
+  ...ultradeTools
 ];
 
 // Handle all resource tools
@@ -27,6 +29,10 @@ export async function handleResourceTools(name: string, args: any): Promise<any>
     // Vestige tools
     else if (name.startsWith('resource_vestige_')) {
       response = await handleVestigeTools(name, args);
+    }
+    // Ultrade tools
+    else if (name.startsWith('resource_ultrade_')) {
+      response = await handleUltradeTools(name, args);
     }
     // NFD tools - check first since they're most specific
     else if (name.startsWith('resource_nfd_')) {
