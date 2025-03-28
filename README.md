@@ -19,6 +19,9 @@ This repository is a Model Context Protocol (MCP) implementation for Algorand bl
 - **[Algorand MCP Server](packages/server/README.md)** - Algorand MCP server full implementation.
 - **[Algorand MCP Client](packages/client/README.md)** - Algorand MCP Client for client side Wallet management and transaction signing, as well as integration by other Agent hosts.
 
+**📦 NPM:**
+- **[Algorand MCP Server NPM package](https://www.npmjs.com/package/algorand-mcp)** - Algorand MCP server implementation via NPM package installation.
+
 **📦 Smithery:**
 - **[Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp)** - Algorand MCP server implementation via smithery.
 
