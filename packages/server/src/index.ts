@@ -146,12 +146,14 @@ class AlgorandMcpServer {
 
       // Handle utility tools
       if (
-        name.startsWith('validate_') ||
-        name.startsWith('encode_') ||
-        name.startsWith('decode_') ||
+        name.startsWith('validate_address') ||
+        name.startsWith('encode_address') ||
+        name.startsWith('decode_address') ||
         name.startsWith('get_application_address') ||
-        name.startsWith('bytes_to_') ||
-        name.startsWith('bigint_to_')
+        name.startsWith('bytes_to_bigint') ||
+        name.startsWith('bigint_to_bytes') ||
+        name.startsWith('encode_uint64') ||
+        name.startsWith('decode_uint64')
       ) {
         return UtilityManager.handleTool(name, args);
       }
