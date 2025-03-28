@@ -67,6 +67,7 @@ npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client cursor --
 ```
 **IMPORTANT NOTE**
 When using Smithery UI to copy the command, make sure you set ITEMS_PER_PAGE before clicking connect so that all ENV variables are brought to command, otherwise your command will not contain enviroment variables required for Algorand MCP to run!
+
 ![Screenshot 2025-03-24 at 13 46 49](https://github.com/user-attachments/assets/98473c4a-b242-4000-bcf4-8cf6fd3e37c2)
 
 ![Screenshot 2025-03-24 at 13 46 42](https://github.com/user-attachments/assets/1c8f4342-4bd2-4afa-83c8-fae3a0c27afa)
