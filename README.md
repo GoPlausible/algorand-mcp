@@ -109,7 +109,8 @@ algorand-mcp/
 │       │   │   ├── indexer/      # Historical blockchain data
 │       │   │   ├── nfd/          # NFDomains name service
 │       │   │   ├── vestige/      # DeFi analytics and tracking
-│       │   │   └── tinyman/      # Tinyman AMM integration
+│       │   │   ├── tinyman/      # Tinyman AMM integration
+│       │   │   └── ultrade/      # Ultrade DEX integration
 │       │   ├── tools/            # MCP Tools
 │       │   │   ├── accountManager.ts     # Account operations
 │       │   │   ├── algodManager.ts       # Node interactions
@@ -119,7 +120,8 @@ algorand-mcp/
 │       │   │   │   ├── indexer/         # Indexer resource tools
 │       │   │   │   ├── nfd/            # NFDomains tools
 │       │   │   │   ├── vestige/        # Vestige DeFi tools
-│       │   │   │   └── tinyman/        # Tinyman AMM tools
+│       │   │   │   ├── tinyman/        # Tinyman AMM tools
+│       │   │   │   └── ultrade/        # Ultrade DEX tools
 │       │   │   └── transactionManager/   # Transaction handling
 │       │   ├── env.ts            # Environment configuration
 │       │   └── index.ts          # Server entry point
