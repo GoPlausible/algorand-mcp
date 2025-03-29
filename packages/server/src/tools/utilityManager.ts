@@ -1,5 +1,6 @@
 import algosdk from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import nacl from 'tweetnacl';
 
 // Tool schemas
 export const utilityToolSchemas = {
@@ -59,6 +60,15 @@ export const utilityToolSchemas = {
       bytes: { type: 'string', description: 'Bytes in hexadecimal format to decode into a uint64' }
     },
     required: ['bytes']
+  },
+  verifyBytes: {
+    type: 'object',
+    properties: {
+      bytes: { type: 'string', description: 'Bytes in hexadecimal format to verify' },
+      signature: { type: 'string', description: 'Base64-encoded signature to verify' },
+      address: { type: 'string', description: 'Algorand account address' }
+    },
+    required: ['bytes', 'signature', 'address']
   }
 };
 
@@ -103,7 +113,48 @@ export class UtilityManager {
       name: 'decode_uint64',
       description: 'Decode bytes to a uint64',
       inputSchema: utilityToolSchemas.decodeUint64,
+    },
+    {
+      name: 'verify_bytes',
+      description: 'Verify a signature against bytes with an Algorand address',
+      inputSchema: utilityToolSchemas.verifyBytes,
+    },
+    {
+      name: 'sign_bytes',
+      description: 'Sign bytes with a secret key',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          bytes: { type: 'string', description: 'Bytes in hexadecimal format to sign' },
+          sk: { type: 'string', description: 'Secret key in hexadecimal format to sign the bytes with' }
+        },
+        required: ['bytes', 'sk']
+      },
+     
+    },
+    {
+      name: 'encode_obj',
+      description: 'Encode an object to msgpack format',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          obj: { type: 'object', description: 'Object to encode' }
+        },
+        required: ['obj']
+      },
+    },
+    {
+      name: 'decode_obj',
+      description: 'Decode msgpack bytes to an object',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          bytes: { type: 'string', description: 'Base64-encoded msgpack bytes to decode' }
+        },
+        required: ['bytes']
+      },
     }
+
   ];
 
   // Tool handlers
@@ -205,6 +256,87 @@ export class UtilityManager {
             text: JSON.stringify({ value: decodedUint64.toString() }, null, 2),
           }],
         };
+      case 'sign_bytes': {
+        if (!args.bytes || typeof args.bytes !== 'string' || !args.sk || typeof args.sk !== 'string') {
+          throw new McpError(ErrorCode.InvalidParams, 'Invalid sign bytes parameters');
+        }
+
+        try {
+          const bytes = Buffer.from(args.bytes, 'hex');
+          const sk = Buffer.from(args.sk, 'hex');
+          const sig = algosdk.signBytes(bytes, sk);
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                signature: Buffer.from(sig).toString('base64')
+              }, null, 2)
+            }]
+          };
+        } catch (error) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `Failed to sign bytes: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      }
+
+      case 'encode_obj': {
+        if (!args.obj || typeof args.obj !== 'object') {
+          throw new McpError(ErrorCode.InvalidParams, 'Invalid encode object parameters');
+        }
+
+        try {
+          const encoded = algosdk.encodeObj(args.obj);
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                encoded: Buffer.from(encoded).toString('base64')
+              }, null, 2)
+            }]
+          };
+        } catch (error) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `Failed to encode object: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      }
+
+      case 'decode_obj': {
+        if (!args.bytes || typeof args.bytes !== 'string') {
+          throw new McpError(ErrorCode.InvalidParams, 'Invalid decode object parameters');
+        }
+
+        try {
+          const bytes = Buffer.from(args.bytes, 'base64');
+          const decoded = algosdk.decodeObj(bytes);
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify(decoded, null, 2)
+            }]
+          };
+        } catch (error) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `Failed to decode object: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      }
+
+      case 'verify_bytes':
+        if (!args.bytes || typeof args.bytes !== 'string' || !args.signature || typeof args.signature !== 'string' || !args.address || typeof args.address !== 'string') {
+          throw new McpError(ErrorCode.InvalidParams, 'Bytes, signature, and public key are required');
+        }
+        const verified = UtilityManager.verifyBytes(new Uint8Array(Buffer.from(args.bytes, 'hex')), new Uint8Array(Buffer.from(args.signature, 'base64')), args.address);
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({ verified }, null, 2),
+          }],
+        };
 
       default:
         console.error(`[MCP Error] Unknown tool requested: ${name}`);
@@ -248,9 +380,9 @@ export class UtilityManager {
    * @param publicKey The public key to encode
    * @returns The encoded address
    */
-  static encodeAddress(publicKey: Uint8Array): string {
+  static encodeAddress(publicKey: Buffer): string {
     try {
-      return algosdk.encodeAddress(publicKey);
+      return algosdk.encodeAddress(new Uint8Array(publicKey));
     } catch (error) {
       console.error('[MCP Error] Failed to encode address:', error);
       throw new McpError(
@@ -360,6 +492,39 @@ export class UtilityManager {
       throw new McpError(
         ErrorCode.InvalidParams,
         `Invalid uint64 bytes: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Verifies a signature against bytes with a public key
+   * @param bytes The bytes that were signed
+   * @param signature The signature to verify
+   * @param address The Algorand address of the signer
+   * @returns True if the signature is valid
+   */
+  static verifyBytes(bytes: Uint8Array, signature: Uint8Array, address: string): boolean {
+    console.log('Verifying bytes:', {
+      bytes: Buffer.from(bytes).toString('hex'),
+      signature: Buffer.from(signature).toString('base64'),
+      address,
+    });
+    try {
+      const mxBytes = new TextEncoder().encode("MX");
+      const fullBytes = new Uint8Array(mxBytes.length + bytes.length);
+      fullBytes.set(mxBytes);
+      fullBytes.set(bytes, mxBytes.length);
+      
+      // Convert back to hex
+        let pk = algosdk.decodeAddress(address).publicKey;
+        let verify_nacl = nacl.sign.detached.verify(fullBytes, signature, pk)
+        //return algosdk.verifyBytes(bytes, signature, address);
+      return verify_nacl
+    } catch (error) {
+      console.error('[MCP Error] Failed to verify bytes:', error);
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Failed to verify: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }

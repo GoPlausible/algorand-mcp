@@ -220,75 +220,7 @@ export class GeneralTransactionManager {
         }
       }
 
-      case 'sign_bytes': {
-        if (!args.bytes || typeof args.bytes !== 'string' || !args.sk || typeof args.sk !== 'string') {
-          throw new McpError(ErrorCode.InvalidParams, 'Invalid sign bytes parameters');
-        }
-
-        try {
-          const bytes = Buffer.from(args.bytes, 'base64');
-          const sk = Buffer.from(args.sk, 'hex');
-          const sig = algosdk.signBytes(bytes, sk);
-          return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify({
-                signature: Buffer.from(sig).toString('base64')
-              }, null, 2)
-            }]
-          };
-        } catch (error) {
-          throw new McpError(
-            ErrorCode.InvalidParams,
-            `Failed to sign bytes: ${error instanceof Error ? error.message : String(error)}`
-          );
-        }
-      }
-
-      case 'encode_obj': {
-        if (!args.obj || typeof args.obj !== 'object') {
-          throw new McpError(ErrorCode.InvalidParams, 'Invalid encode object parameters');
-        }
-
-        try {
-          const encoded = algosdk.encodeObj(args.obj);
-          return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify({
-                encoded: Buffer.from(encoded).toString('base64')
-              }, null, 2)
-            }]
-          };
-        } catch (error) {
-          throw new McpError(
-            ErrorCode.InvalidParams,
-            `Failed to encode object: ${error instanceof Error ? error.message : String(error)}`
-          );
-        }
-      }
-
-      case 'decode_obj': {
-        if (!args.bytes || typeof args.bytes !== 'string') {
-          throw new McpError(ErrorCode.InvalidParams, 'Invalid decode object parameters');
-        }
-
-        try {
-          const bytes = Buffer.from(args.bytes, 'base64');
-          const decoded = algosdk.decodeObj(bytes);
-          return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify(decoded, null, 2)
-            }]
-          };
-        } catch (error) {
-          throw new McpError(
-            ErrorCode.InvalidParams,
-            `Failed to decode object: ${error instanceof Error ? error.message : String(error)}`
-          );
-        }
-      }
+      
 
       default:
         throw new McpError(

@@ -93,8 +93,8 @@ export const walletTools: Tool[] = [
           type: 'object',
           properties: {
             address: { type: 'string', description: 'Login wallet address' },
-            technology: { 
-              type: 'string', 
+            technology: {
+              type: 'string',
               description: 'Technology type',
               enum: ['ALGORAND', 'EVM', 'SOLANA']
             }
@@ -127,7 +127,7 @@ export const walletTools: Tool[] = [
           type: 'object',
           properties: {
             address: { type: 'string' },
-            technology: { 
+            technology: {
               type: 'string',
               enum: ['ALGORAND', 'EVM', 'SOLANA']
             }
@@ -265,8 +265,8 @@ export const walletTools: Tool[] = [
             isNative: { type: 'boolean' },
             fee: { type: 'number' }
           },
-          required: ['loginAddress', 'loginChainId', 'tokenAmount', 'tokenIndex', 
-                    'tokenChainId', 'recipient', 'recipientChainId', 'isNative', 'fee']
+          required: ['loginAddress', 'loginChainId', 'tokenAmount', 'tokenIndex',
+            'tokenChainId', 'recipient', 'recipientChainId', 'isNative', 'fee']
         },
         customMessage: {
           type: 'string',
@@ -287,10 +287,10 @@ interface RequestOptions {
 
 async function makeRequest(endpoint: string, options: RequestOptions = {}): Promise<any> {
   const { method = 'GET', headers = {}, queryParams = {}, body } = options;
-  
+
   try {
     let url = `${env.ultrade_api_url}${endpoint}`;
-    
+
     // Add query parameters for GET requests
     if (method === 'GET' && Object.keys(queryParams).length > 0) {
       const params = new URLSearchParams();
@@ -324,8 +324,15 @@ async function makeRequest(endpoint: string, options: RequestOptions = {}): Prom
         `Ultrade API error: ${response.status} ${response.statusText}`
       );
     }
+    let result: any;
+    const contentType = response.headers.get('Content-Type');
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json();
+    } else {
+      result = await response.text();
+    }
 
-    return await response.json();
+    return result;
   } catch (error) {
     if (error instanceof McpError) {
       throw error;
@@ -338,6 +345,19 @@ async function makeRequest(endpoint: string, options: RequestOptions = {}): Prom
 }
 
 async function getSigninMessage(data: { address: string; technology: string }, customMessage?: string): Promise<any> {
+
+  // const jsonStr = JSON.stringify(data) + "\n";
+
+  // const jsonBytes = new TextEncoder().encode(jsonStr);
+
+  // const mxBytes = new TextEncoder().encode("MX");
+
+  // const fullBytes = new Uint8Array(mxBytes.length + jsonBytes.length);
+  // fullBytes.set(mxBytes);
+  // fullBytes.set(jsonBytes, mxBytes.length);
+
+
+  // const modifiedMessage = Buffer.from(fullBytes).toString('hex');
   return makeRequest('/wallet/signin/message', {
     method: 'POST',
     body: { data, customMessage }
@@ -345,6 +365,21 @@ async function getSigninMessage(data: { address: string; technology: string }, c
 }
 
 async function signin(message: string, signature: string, data: { address: string; technology: string }, referralToken?: string): Promise<any> {
+  // const messageBytes = Buffer.from(message, 'hex');
+  // const mxBytes = new TextEncoder().encode("MX");
+  // const fullBytes = new Uint8Array(mxBytes.length + messageBytes.length);
+  // fullBytes.set(mxBytes);
+  // fullBytes.set(messageBytes, mxBytes.length);
+  
+  // // Convert back to hex
+  // const modifiedMessage = Buffer.from(fullBytes).toString('hex');
+  // console.log("mxBytes", mxBytes);
+  // console.log("messageBytes", messageBytes);
+  // console.log("fullBytes", fullBytes);
+  // console.log("modifiedMessage", modifiedMessage);
+  // console.log("signature", signature);
+  // console.log("data", data);
+
   return makeRequest('/wallet/signin', {
     method: 'PUT',
     headers: {
@@ -475,16 +510,16 @@ export async function handleWalletTools(args: any): Promise<any> {
   switch (args.name) {
     case 'resource_ultrade_wallet_signin_message':
       return await getSigninMessage(args.data, args.customMessage);
-    
+
     case 'resource_ultrade_wallet_signin':
       return await signin(args.message, args.signature, args.data, args.referralToken);
-    
+
     case 'resource_ultrade_wallet_keys':
       return await getWalletKeys({
         walletAddress: args.walletAddress,
         walletToken: args.walletToken
       });
-    
+
     case 'resource_ultrade_wallet_key_message':
       return await getKeyMessage({
         tkAddress: args.tkAddress,
@@ -494,24 +529,24 @@ export async function handleWalletTools(args: any): Promise<any> {
         addKey: args.addKey,
         type: args.type
       });
-    
+
     case 'resource_ultrade_wallet_trades':
       return await getWalletTrades({
         walletAddress: args.walletAddress,
         walletToken: args.walletToken,
         tradingKey: args.tradingKey
       });
-    
+
     case 'resource_ultrade_wallet_transactions':
       return await getWalletTransactions({
         walletAddress: args.walletAddress,
         walletToken: args.walletToken,
         tradingKey: args.tradingKey
       });
-    
+
     case 'resource_ultrade_wallet_withdraw_message':
       return await getWithdrawMessage(args.data, args.customMessage);
-    
+
     case 'resource_ultrade_wallet_add_key':
       return await addTradingKey({
         message: args.message,

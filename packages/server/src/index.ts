@@ -153,7 +153,12 @@ class AlgorandMcpServer {
         name.startsWith('bytes_to_bigint') ||
         name.startsWith('bigint_to_bytes') ||
         name.startsWith('encode_uint64') ||
-        name.startsWith('decode_uint64')
+        name.startsWith('decode_uint64') ||
+        name.startsWith('verify_bytes') ||
+        name.startsWith('sign_bytes') ||
+        name.startsWith('encode_obj') ||
+        name.startsWith('decode_obj') 
+
       ) {
         return UtilityManager.handleTool(name, args);
       }
@@ -172,10 +177,8 @@ class AlgorandMcpServer {
       if (
         name.startsWith('make_') ||
         name === 'assign_group_id' ||
-        name === 'sign_transaction' ||
-        name === 'sign_bytes' ||
-        name === 'encode_obj' ||
-        name === 'decode_obj'
+        name === 'sign_transaction' 
+
       ) {
         return TransactionManager.handleTool(name, args);
       }
