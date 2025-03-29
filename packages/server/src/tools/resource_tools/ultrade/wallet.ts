@@ -1,9 +1,111 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import { env } from '../../../env.js';
+import algosdk from 'algosdk';
 
 export const walletTools: Tool[] = [
+    // Signin
+    {
+      name: 'resource_ultrade_wallet_signin_message',
+      description: 'Generate message from the sign in data',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'object',
+            properties: {
+              address: { type: 'string', description: 'Login wallet address' },
+              technology: {
+                type: 'string',
+                description: 'Technology type',
+                enum: ['ALGORAND', 'EVM', 'SOLANA']
+              }
+            },
+            required: ['address', 'technology']
+          },
+          customMessage: {
+            type: 'string',
+            description: 'Custom signing message'
+          }
+        },
+        required: ['data']
+      }
+    },
+    {
+      name: 'resource_ultrade_wallet_signin',
+      description: 'Sign in to trading account',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            description: 'The signed message in hex format'
+          },
+          signature: {
+            type: 'string',
+            description: 'The signature of the message'
+          },
+          data: {
+            type: 'object',
+            properties: {
+              address: { type: 'string' },
+              technology: {
+                type: 'string',
+                enum: ['ALGORAND', 'EVM', 'SOLANA']
+              }
+            },
+            required: ['address', 'technology']
+          },
+          referralToken: {
+            type: 'string',
+            description: 'Affiliate referral token'
+          }
+        },
+        required: ['message', 'signature', 'data']
+      }
+    },
   // Key Management
+  
+  {
+    name: 'resource_ultrade_wallet_key_message',
+    description: 'Generate message from the trading key data',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        tkAddress: {
+          type: 'string',
+          description: 'Trading key algorand address'
+        },
+        loginAddress: {
+          type: 'string',
+          description: 'Login wallet address'
+        },
+        loginChainId: {
+          type: 'number',
+          description: 'Wormhole chain id',
+          enum: [1, 8, 5, 4, 6, 23, 24, 30, 2, 10002, 10003, 10004, 10005, 10007]
+        },
+        expiredDate: {
+          type: 'number',
+          description: 'UTC timestamp in seconds; If not set then no expiration'
+        },
+        addKey: {
+          type: 'boolean',
+          description: 'Add a trading key if true, otherwise revoke'
+        },
+        type: {
+          type: 'string',
+          description: 'Type of trading key',
+          enum: ['User', 'API']
+        },
+        walletToken: {
+          type: 'string',
+          description: 'Login session token'
+        }
+      },
+      required: ['tkAddress', 'loginAddress', 'loginChainId', 'addKey', 'type', 'expiredDate', 'walletToken']
+    }
+  },
   {
     name: 'resource_ultrade_wallet_add_key',
     description: 'Add a trading key',
@@ -25,9 +127,53 @@ export const walletTools: Tool[] = [
         walletToken: {
           type: 'string',
           description: 'Login session token'
+        },
+        tkAddress: {
+          type: 'string',
+          description: 'Trading key algorand address',
+        },
+        loginAddress: {
+          type: 'string',
+          description: 'Login wallet address',
+        },
+        loginChainId: {
+          type: 'number',
+          description: 'Wormhole chain id',
+          enum: [1, 8, 5, 4, 6, 23, 24, 30, 2, 10002, 10003, 10004, 10005, 10007]
+        },
+        expiredDate: {
+          type: 'number',
+          description: 'UTC timestamp in seconds; If not set then no expiration'
+        },
+        addKey: {
+          type: 'boolean',
+          description: 'Add a trading key if true, otherwise revoke'
+        },
+        type: {
+          type: 'string',
+          description: 'Type of trading key',
+          enum: ['User', 'API']
         }
       },
-      required: ['message', 'signature', 'walletAddress', 'walletToken']
+      required: ['message', 'signature', 'walletAddress', 'walletToken', 'tkAddress', 'loginAddress', 'loginChainId', 'expiredDate', 'addKey', 'type']
+    }
+  },
+  {
+    name: 'resource_ultrade_wallet_keys',
+    description: 'Get trading keys',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        walletAddress: {
+          type: 'string',
+          description: 'Login wallet address'
+        },
+        walletToken: {
+          type: 'string',
+          description: 'Login session token'
+        }
+      },
+      required: ['walletAddress', 'walletToken']
     }
   },
   {
@@ -82,123 +228,6 @@ export const walletTools: Tool[] = [
       required: ['message', 'signature', 'walletAddress', 'walletToken']
     }
   },
-  // Signin
-  {
-    name: 'resource_ultrade_wallet_signin_message',
-    description: 'Generate message from the sign in data',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        data: {
-          type: 'object',
-          properties: {
-            address: { type: 'string', description: 'Login wallet address' },
-            technology: {
-              type: 'string',
-              description: 'Technology type',
-              enum: ['ALGORAND', 'EVM', 'SOLANA']
-            }
-          },
-          required: ['address', 'technology']
-        },
-        customMessage: {
-          type: 'string',
-          description: 'Custom signing message'
-        }
-      },
-      required: ['data']
-    }
-  },
-  {
-    name: 'resource_ultrade_wallet_signin',
-    description: 'Sign in to trading account',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          description: 'The signed message in hex format'
-        },
-        signature: {
-          type: 'string',
-          description: 'The signature of the message'
-        },
-        data: {
-          type: 'object',
-          properties: {
-            address: { type: 'string' },
-            technology: {
-              type: 'string',
-              enum: ['ALGORAND', 'EVM', 'SOLANA']
-            }
-          },
-          required: ['address', 'technology']
-        },
-        referralToken: {
-          type: 'string',
-          description: 'Affiliate referral token'
-        }
-      },
-      required: ['message', 'signature', 'data']
-    }
-  },
-
-  // Trading Keys
-  {
-    name: 'resource_ultrade_wallet_keys',
-    description: 'Get trading keys',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        walletAddress: {
-          type: 'string',
-          description: 'Login wallet address'
-        },
-        walletToken: {
-          type: 'string',
-          description: 'Login session token'
-        }
-      },
-      required: ['walletAddress', 'walletToken']
-    }
-  },
-  {
-    name: 'resource_ultrade_wallet_key_message',
-    description: 'Generate message from the trading key data',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        tkAddress: {
-          type: 'string',
-          description: 'Trading key algorand address'
-        },
-        loginAddress: {
-          type: 'string',
-          description: 'Login wallet address'
-        },
-        loginChainId: {
-          type: 'number',
-          description: 'Wormhole chain id',
-          enum: [1, 8, 5, 4, 6, 23, 24, 30, 2, 10002, 10003, 10004, 10005, 10007]
-        },
-        expiredDate: {
-          type: 'number',
-          description: 'UTC timestamp in seconds; If not set then no expiration'
-        },
-        addKey: {
-          type: 'boolean',
-          description: 'Add a trading key if true, otherwise revoke'
-        },
-        type: {
-          type: 'string',
-          description: 'Type of trading key',
-          enum: ['User', 'API']
-        }
-      },
-      required: ['tkAddress', 'loginAddress', 'loginChainId', 'addKey', 'type']
-    }
-  },
-
   // Trades and Transactions
   {
     name: 'resource_ultrade_wallet_trades',
@@ -321,7 +350,7 @@ async function makeRequest(endpoint: string, options: RequestOptions = {}): Prom
     if (!response.ok) {
       throw new McpError(
         ErrorCode.InternalError,
-        `Ultrade API error: ${response.status} ${response.statusText}`
+        `Ultrade API error: ${response.status} ${response.statusText} ${await response.text()}`
       );
     }
     let result: any;
@@ -346,18 +375,7 @@ async function makeRequest(endpoint: string, options: RequestOptions = {}): Prom
 
 async function getSigninMessage(data: { address: string; technology: string }, customMessage?: string): Promise<any> {
 
-  // const jsonStr = JSON.stringify(data) + "\n";
 
-  // const jsonBytes = new TextEncoder().encode(jsonStr);
-
-  // const mxBytes = new TextEncoder().encode("MX");
-
-  // const fullBytes = new Uint8Array(mxBytes.length + jsonBytes.length);
-  // fullBytes.set(mxBytes);
-  // fullBytes.set(jsonBytes, mxBytes.length);
-
-
-  // const modifiedMessage = Buffer.from(fullBytes).toString('hex');
   return makeRequest('/wallet/signin/message', {
     method: 'POST',
     body: { data, customMessage }
@@ -365,20 +383,6 @@ async function getSigninMessage(data: { address: string; technology: string }, c
 }
 
 async function signin(message: string, signature: string, data: { address: string; technology: string }, referralToken?: string): Promise<any> {
-  // const messageBytes = Buffer.from(message, 'hex');
-  // const mxBytes = new TextEncoder().encode("MX");
-  // const fullBytes = new Uint8Array(mxBytes.length + messageBytes.length);
-  // fullBytes.set(mxBytes);
-  // fullBytes.set(messageBytes, mxBytes.length);
-  
-  // // Convert back to hex
-  // const modifiedMessage = Buffer.from(fullBytes).toString('hex');
-  // console.log("mxBytes", mxBytes);
-  // console.log("messageBytes", messageBytes);
-  // console.log("fullBytes", fullBytes);
-  // console.log("modifiedMessage", modifiedMessage);
-  // console.log("signature", signature);
-  // console.log("data", data);
 
   return makeRequest('/wallet/signin', {
     method: 'PUT',
@@ -405,10 +409,86 @@ async function getKeyMessage(params: {
   expiredDate?: number;
   addKey: boolean;
   type: 'User' | 'API';
+  walletToken: string;
 }): Promise<any> {
+  let body = { 
+    tkAddress: params.tkAddress,
+    loginAddress: Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex'),
+     expiredDate: params.expiredDate,
+     addKey: params.addKey,
+    type: params.type,
+    loginChainId: 23,
+   
+    };
+  console.log('getKeyMessage', body);
+  const headers: Record<string, string> = {
+    'x-wallet-address': params.loginAddress,
+    'x-wallet-token': params.walletToken
+  };
   return makeRequest('/wallet/key/message', {
     method: 'POST',
-    body: params
+    body,
+    headers
+  });
+}
+
+async function addTradingKey(params: {
+  message: string;
+  signature: string;
+  walletAddress: string;
+  walletToken: string;
+  tkAddress: string;
+  loginAddress: string;
+  loginChainId: number;
+  expiredDate?: number;
+  addKey: boolean;
+  type: 'User' | 'API';
+}): Promise<any> {
+  const messageBytes = new Uint8Array(Buffer.from(params.message, 'hex'));
+  const prefixBytes = new TextEncoder().encode('MX');
+  const combinedBytes = new Uint8Array(prefixBytes.length + messageBytes.length);
+  combinedBytes.set(prefixBytes);
+  combinedBytes.set(messageBytes, prefixBytes.length);
+  let message = Buffer.from(combinedBytes).toString('hex');
+  let body = {
+    message: message,
+    signature: params.signature,
+    data: {
+      tkAddress: params.tkAddress , 
+      loginAddress: Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex') ,
+      expiredDate: params.expiredDate,
+      addKey: params.addKey,
+      type: params.type,
+      loginChainId: 23
+    },
+  }
+  console.log( body);
+  return makeRequest('/wallet/key', {
+    method: 'POST',
+    headers: {
+      'x-wallet-address': params.walletAddress,
+      'x-wallet-token': params.walletToken
+    },
+    body: body
+  });
+}
+
+async function revokeTradingKey(params: {
+  message: string;
+  signature: string;
+  walletAddress: string;
+  walletToken: string;
+}): Promise<any> {
+  return makeRequest('/wallet/key', {
+    method: 'DELETE',
+    headers: {
+      'x-wallet-address': params.walletAddress,
+      'x-wallet-token': params.walletToken
+    },
+    body: {
+      message: params.message,
+      signature: params.signature
+    }
   });
 }
 
@@ -449,43 +529,7 @@ async function getWithdrawMessage(data: {
   });
 }
 
-async function addTradingKey(params: {
-  message: string;
-  signature: string;
-  walletAddress: string;
-  walletToken: string;
-}): Promise<any> {
-  return makeRequest('/wallet/key', {
-    method: 'POST',
-    headers: {
-      'x-wallet-address': params.walletAddress,
-      'x-wallet-token': params.walletToken
-    },
-    body: {
-      message: params.message,
-      signature: params.signature
-    }
-  });
-}
 
-async function revokeTradingKey(params: {
-  message: string;
-  signature: string;
-  walletAddress: string;
-  walletToken: string;
-}): Promise<any> {
-  return makeRequest('/wallet/key', {
-    method: 'DELETE',
-    headers: {
-      'x-wallet-address': params.walletAddress,
-      'x-wallet-token': params.walletToken
-    },
-    body: {
-      message: params.message,
-      signature: params.signature
-    }
-  });
-}
 
 async function withdrawToken(params: {
   message: string;
@@ -527,8 +571,14 @@ export async function handleWalletTools(args: any): Promise<any> {
         loginChainId: args.loginChainId,
         expiredDate: args.expiredDate,
         addKey: args.addKey,
-        type: args.type
+        type: args.type,
+        walletToken: args.walletToken
       });
+    case 'resource_ultrade_wallet_withdraw_message':
+      return await getWithdrawMessage(args.data, args.customMessage);
+
+    case 'resource_ultrade_wallet_add_key':
+      return await addTradingKey(args);
 
     case 'resource_ultrade_wallet_trades':
       return await getWalletTrades({
@@ -544,16 +594,7 @@ export async function handleWalletTools(args: any): Promise<any> {
         tradingKey: args.tradingKey
       });
 
-    case 'resource_ultrade_wallet_withdraw_message':
-      return await getWithdrawMessage(args.data, args.customMessage);
 
-    case 'resource_ultrade_wallet_add_key':
-      return await addTradingKey({
-        message: args.message,
-        signature: args.signature,
-        walletAddress: args.walletAddress,
-        walletToken: args.walletToken
-      });
 
     case 'resource_ultrade_wallet_revoke_key':
       return await revokeTradingKey({
