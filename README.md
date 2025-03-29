@@ -145,6 +145,7 @@ algorand-mcp/
 - NFDomains integration
 - Vestige DeFi analytics
 - Tinyman AMM integration
+- Ultrade DEX integration
 
 ### Client Features (Work in Progress)
 - Local wallet with secure storage
