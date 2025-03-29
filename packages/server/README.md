@@ -11,12 +11,13 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 - npm v10.2.4 or later
 
 ## Features
-- 113 total tools:
+- 125 total tools:
   - 40 base tools (account, asset, application, transaction management)
   - 30 resource tools (algod and indexer)
   - 6 NFDomains (NFD) tools for name services
   - 28 Vestige tools for DeFi analytics
   - 9 Tinyman tools for AMM interactions
+  - 12 Ultrade tools for DEX functionality
 - 30 resource endpoints for data access
 - Built-in default configuration for quick setup
 - Comprehensive transaction management
@@ -26,6 +27,7 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 - NFDomains integration for name resolution and management
 - Vestige integration for DeFi analytics and tracking
 - Tinyman AMM integration for decentralized trading
+- Ultrade DEX integration for trading and market operations
 
 ## Project Structure
 
@@ -36,7 +38,8 @@ src/
 │   ├── indexer/            # Historical blockchain data
 │   ├── nfd/               # NFDomains resources
 │   ├── vestige/           # Vestige DeFi resources
-│   └── tinyman/           # Tinyman AMM resources
+│   ├── tinyman/           # Tinyman AMM resources
+│   └── ultrade/           # Ultrade DEX resources
 ├── tools/                  # MCP Tools
 │   ├── accountManager.ts    # Account operations
 │   ├── algodManager.ts      # Node interactions
@@ -46,7 +49,8 @@ src/
 │   │   ├── indexer/        # Indexer resource tools
 │   │   ├── nfd/            # NFDomains tools
 │   │   ├── vestige/        # Vestige DeFi tools
-│   │   └── tinyman/        # Tinyman AMM tools
+│   │   ├── tinyman/        # Tinyman AMM tools
+│   │   └── ultrade/        # Ultrade DEX tools
 │   └── transactionManager/ # Transaction handling
 └── index.ts               # Server entry point
 ```
@@ -217,6 +221,136 @@ Resource tools are designed as a redundant sets of resource accessing doing the 
 - resource_tinyman_get_validator_optout_quote: Get quote for opting out of validator
   - Parameters: initiatorAddr, version
   - Returns: Transaction count and estimated fees
+
+#### Ultrade Resource Tools
+
+1. Wallet Tools:
+- resource_ultrade_wallet_signin_message: Generate message from the sign in data
+  - Parameters: data (address, technology), customMessage (optional)
+  - Returns: Message to be signed
+
+- resource_ultrade_wallet_signin: Sign in to trading account
+  - Parameters: message, signature, data (address, technology), referralToken (optional)
+  - Returns: Session token
+
+- resource_ultrade_wallet_add_key: Add a trading key
+  - Parameters: message, signature, walletAddress, walletToken
+  - Returns: Trading key details
+
+- resource_ultrade_wallet_revoke_key: Revoke a trading key
+  - Parameters: message, signature, walletAddress, walletToken
+  - Returns: Operation status
+
+- resource_ultrade_wallet_keys: Get trading keys
+  - Parameters: walletAddress, walletToken
+  - Returns: List of trading keys
+
+- resource_ultrade_wallet_key_message: Generate message from the trading key data
+  - Parameters: tkAddress, loginAddress, loginChainId, expiredDate (optional), addKey, type
+  - Returns: Message to be signed
+
+- resource_ultrade_wallet_trades: Get filtered wallet trades
+  - Parameters: walletAddress, walletToken (optional), tradingKey (optional)
+  - Returns: List of trades
+
+- resource_ultrade_wallet_transactions: Get filtered wallet transactions
+  - Parameters: walletAddress, walletToken (optional), tradingKey (optional)
+  - Returns: List of transactions
+
+- resource_ultrade_wallet_withdraw: Withdraw token
+  - Parameters: message, signature, walletAddress, walletToken
+  - Returns: Withdrawal status
+
+- resource_ultrade_wallet_withdraw_message: Generate message from the withdrawal data
+  - Parameters: data (withdrawal details), customMessage (optional)
+  - Returns: Message to be signed
+
+2. Market Tools:
+- resource_ultrade_market_symbols: Get market symbols
+  - Returns: List of available trading pairs
+
+- resource_ultrade_market_details: Get market details
+  - Parameters: symbol
+  - Returns: Detailed market information
+
+- resource_ultrade_market_price: Get last market price by pair symbol
+  - Parameters: symbol
+  - Returns: Current market price
+
+- resource_ultrade_market_depth: Get order book depth
+  - Parameters: symbol, depth
+  - Returns: Order book with bids and asks
+
+- resource_ultrade_market_last_trades: Get last trades
+  - Parameters: symbol, limit (optional)
+  - Returns: Recent trade history
+
+- resource_ultrade_market_history: Get market history
+  - Parameters: symbol, interval, startTime, endTime, limit (optional)
+  - Returns: Historical market data
+
+- resource_ultrade_market_assets: Get trading assets
+  - Returns: List of supported assets
+
+- resource_ultrade_market_fee_rates: Get fee rates
+  - Returns: Current trading fee rates
+
+- resource_ultrade_market_chains: Get blockchain chains
+  - Returns: Supported blockchain networks
+
+- resource_ultrade_market_withdrawal_fee: Get withdrawal fee
+  - Parameters: tokenIndex, tokenChainId, recipientChainId
+  - Returns: Withdrawal fee information
+
+- resource_ultrade_market_operation_details: Get operation details
+  - Parameters: operationId
+  - Returns: Operation status and details
+
+- resource_ultrade_market_settings: Get market settings
+  - Parameters: domain
+  - Returns: Market configuration
+
+- resource_ultrade_market_orders: Get orders
+  - Parameters: walletAddress, walletToken, tradingKey (optional), companyId (optional)
+  - Returns: List of orders
+
+- resource_ultrade_market_open_orders: Get open orders
+  - Parameters: walletAddress, walletToken, tradingKey (optional), symbol (optional)
+  - Returns: List of active orders
+
+- resource_ultrade_market_order_by_id: Get order by ID
+  - Parameters: orderId, walletAddress, walletToken, tradingKey (optional)
+  - Returns: Order details
+
+- resource_ultrade_market_order_message: Generate message from the order data
+  - Parameters: data (order details)
+  - Returns: Message to be signed
+
+- resource_ultrade_market_create_order: Create new order
+  - Parameters: message, signature, walletAddress, walletToken
+  - Returns: Order creation status
+
+- resource_ultrade_market_create_orders: Create new orders
+  - Parameters: orders (array of message/signature pairs), walletAddress, walletToken
+  - Returns: Batch order creation status
+
+- resource_ultrade_market_cancel_order: Cancel open order
+  - Parameters: orderId, walletAddress, walletToken
+  - Returns: Order cancellation status
+
+- resource_ultrade_market_cancel_orders: Cancel multiple open orders
+  - Parameters: orderIds, walletAddress, walletToken
+  - Returns: Batch cancellation status
+
+3. System Tools:
+- resource_ultrade_system_time: Get current system time
+  - Returns: Server timestamp
+
+- resource_ultrade_system_maintenance: Get system maintenance status
+  - Returns: Maintenance mode information
+
+- resource_ultrade_system_version: Get system version
+  - Returns: Current API version
 
 ### Account Management Tools
 

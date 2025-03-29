@@ -184,12 +184,13 @@ Errors are returned in a standardized format:
 
 ## Available Tools and Resources
 
-The Algorand MCP implementation provides 113 tools and resources for blockchain interaction:
+The Algorand MCP implementation provides 125 tools and resources for blockchain interaction:
 - 40 base tools (account, asset, application, transaction management)
 - 30 resource tools (algod and indexer)
 - 6 NFDomains (NFD) tools for name services
 - 28 Vestige tools for DeFi analytics
 - 9 Tinyman tools for AMM interactions
+- 12 Ultrade tools for DEX functionality
 
 ### Resource Tools
 
@@ -279,6 +280,46 @@ The Algorand MCP implementation provides 113 tools and resources for blockchain 
 - resource_tinyman_get_asset_optin_quote: Get quote for opting into pool token
 - resource_tinyman_get_validator_optin_quote: Get quote for opting into validator
 - resource_tinyman_get_validator_optout_quote: Get quote for opting out of validator
+
+#### Ultrade Resource Tools
+1. Wallet Tools:
+- resource_ultrade_wallet_signin_message: Generate message from the sign in data
+- resource_ultrade_wallet_signin: Sign in to trading account
+- resource_ultrade_wallet_add_key: Add a trading key
+- resource_ultrade_wallet_revoke_key: Revoke a trading key
+- resource_ultrade_wallet_keys: Get trading keys
+- resource_ultrade_wallet_key_message: Generate message from the trading key data
+- resource_ultrade_wallet_trades: Get filtered wallet trades
+- resource_ultrade_wallet_transactions: Get filtered wallet transactions
+- resource_ultrade_wallet_withdraw: Withdraw token
+- resource_ultrade_wallet_withdraw_message: Generate message from the withdrawal data
+
+2. Market Tools:
+- resource_ultrade_market_symbols: Get market symbols
+- resource_ultrade_market_details: Get market details
+- resource_ultrade_market_price: Get last market price by pair symbol
+- resource_ultrade_market_depth: Get order book depth
+- resource_ultrade_market_last_trades: Get last trades
+- resource_ultrade_market_history: Get market history
+- resource_ultrade_market_assets: Get trading assets
+- resource_ultrade_market_fee_rates: Get fee rates
+- resource_ultrade_market_chains: Get blockchain chains
+- resource_ultrade_market_withdrawal_fee: Get withdrawal fee
+- resource_ultrade_market_operation_details: Get operation details
+- resource_ultrade_market_settings: Get market settings
+- resource_ultrade_market_orders: Get orders
+- resource_ultrade_market_open_orders: Get open orders
+- resource_ultrade_market_order_by_id: Get order by ID
+- resource_ultrade_market_order_message: Generate message from the order data
+- resource_ultrade_market_create_order: Create new order
+- resource_ultrade_market_create_orders: Create new orders
+- resource_ultrade_market_cancel_order: Cancel open order
+- resource_ultrade_market_cancel_orders: Cancel multiple open orders
+
+3. System Tools:
+- resource_ultrade_system_time: Get current system time
+- resource_ultrade_system_maintenance: Get system maintenance status
+- resource_ultrade_system_version: Get system version
 
 ### Account Management Tools
 - create_account: Create a new Algorand account
