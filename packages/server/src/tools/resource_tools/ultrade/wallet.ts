@@ -4,68 +4,68 @@ import { env } from '../../../env.js';
 import algosdk from 'algosdk';
 
 export const walletTools: Tool[] = [
-    // Signin
-    {
-      name: 'resource_ultrade_wallet_signin_message',
-      description: 'Generate message from the sign in data',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          data: {
-            type: 'object',
-            properties: {
-              address: { type: 'string', description: 'Login wallet address' },
-              technology: {
-                type: 'string',
-                description: 'Technology type',
-                enum: ['ALGORAND', 'EVM', 'SOLANA']
-              }
-            },
-            required: ['address', 'technology']
+  // Signin
+  {
+    name: 'resource_ultrade_wallet_signin_message',
+    description: 'Generate message from the sign in data',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            address: { type: 'string', description: 'Login wallet address' },
+            technology: {
+              type: 'string',
+              description: 'Technology type',
+              enum: ['ALGORAND', 'EVM', 'SOLANA']
+            }
           },
-          customMessage: {
-            type: 'string',
-            description: 'Custom signing message'
-          }
+          required: ['address', 'technology']
         },
-        required: ['data']
-      }
-    },
-    {
-      name: 'resource_ultrade_wallet_signin',
-      description: 'Sign in to trading account',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          message: {
-            type: 'string',
-            description: 'The signed message in hex format'
-          },
-          signature: {
-            type: 'string',
-            description: 'The signature of the message'
-          },
-          data: {
-            type: 'object',
-            properties: {
-              address: { type: 'string' },
-              technology: {
-                type: 'string',
-                enum: ['ALGORAND', 'EVM', 'SOLANA']
-              }
-            },
-            required: ['address', 'technology']
-          },
-          referralToken: {
-            type: 'string',
-            description: 'Affiliate referral token'
-          }
+        customMessage: {
+          type: 'string',
+          description: 'Custom signing message'
+        }
+      },
+      required: ['data']
+    }
+  },
+  {
+    name: 'resource_ultrade_wallet_signin',
+    description: 'Sign in to trading account',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          description: 'The signed message in hex format'
         },
-        required: ['message', 'signature', 'data']
-      }
-    },
+        signature: {
+          type: 'string',
+          description: 'The signature of the message'
+        },
+        data: {
+          type: 'object',
+          properties: {
+            address: { type: 'string' },
+            technology: {
+              type: 'string',
+              enum: ['ALGORAND', 'EVM', 'SOLANA']
+            }
+          },
+          required: ['address', 'technology']
+        },
+        referralToken: {
+          type: 'string',
+          description: 'Affiliate referral token'
+        }
+      },
+      required: ['message', 'signature', 'data']
+    }
+  },
   // Key Management
-  
+
   {
     name: 'resource_ultrade_wallet_key_message',
     description: 'Generate message from the trading key data',
@@ -411,15 +411,14 @@ async function getKeyMessage(params: {
   type: 'User' | 'API';
   walletToken: string;
 }): Promise<any> {
-  let body = { 
+  let body = {
     tkAddress: params.tkAddress,
-    loginAddress: Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex'),
-     expiredDate: params.expiredDate,
-     addKey: params.addKey,
-    type: params.type,
-    loginChainId: 23,
-   
-    };
+    loginAddress: params.loginAddress,
+    loginChainId: 8,
+    expiredDate: params.expiredDate,
+    addKey: params.addKey,
+    type: params.type
+  };
   console.log('getKeyMessage', body);
   const headers: Record<string, string> = {
     'x-wallet-address': params.loginAddress,
@@ -444,25 +443,26 @@ async function addTradingKey(params: {
   addKey: boolean;
   type: 'User' | 'API';
 }): Promise<any> {
-  const messageBytes = new Uint8Array(Buffer.from(params.message, 'hex'));
-  const prefixBytes = new TextEncoder().encode('MX');
-  const combinedBytes = new Uint8Array(prefixBytes.length + messageBytes.length);
-  combinedBytes.set(prefixBytes);
-  combinedBytes.set(messageBytes, prefixBytes.length);
-  let message = Buffer.from(combinedBytes).toString('hex');
+  // const messageBytes = new Uint8Array(Buffer.from(params.message, 'hex'));
+  // const prefixBytes = new TextEncoder().encode('MX');
+  // const combinedBytes = new Uint8Array(prefixBytes.length + messageBytes.length);
+  // combinedBytes.set(prefixBytes);
+  // combinedBytes.set(messageBytes, prefixBytes.length);
+  // let message = Buffer.from(combinedBytes).toString('hex');
   let body = {
-    message: message,
+    message: params.message,
     signature: params.signature,
     data: {
-      tkAddress: params.tkAddress , 
-      loginAddress: Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex') ,
+      tkAddress: params.tkAddress,
+      //loginAddress: Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex'),
+      loginAddress: params.loginAddress,
       expiredDate: params.expiredDate,
       addKey: params.addKey,
       type: params.type,
-      loginChainId: 23
+      loginChainId: 8
     },
   }
-  console.log( body);
+  console.log(body);
   return makeRequest('/wallet/key', {
     method: 'POST',
     headers: {
