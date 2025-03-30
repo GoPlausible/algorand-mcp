@@ -3,6 +3,7 @@ import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import { env } from '../../../env.js';
 import algosdk from 'algosdk';
 
+
 export const walletTools: Tool[] = [
   // Signin
   {
@@ -120,10 +121,6 @@ export const walletTools: Tool[] = [
           type: 'string',
           description: 'The signature of the message'
         },
-        walletAddress: {
-          type: 'string',
-          description: 'Login wallet address'
-        },
         walletToken: {
           type: 'string',
           description: 'Login session token'
@@ -155,7 +152,7 @@ export const walletTools: Tool[] = [
           enum: ['User', 'API']
         }
       },
-      required: ['message', 'signature', 'walletAddress', 'walletToken', 'tkAddress', 'loginAddress', 'loginChainId', 'expiredDate', 'addKey', 'type']
+      required: ['message', 'signature', 'walletToken', 'tkAddress', 'loginAddress', 'loginChainId', 'expiredDate', 'addKey', 'type']
     }
   },
   {
@@ -420,15 +417,55 @@ async function getKeyMessage(params: {
     type: params.type
   };
   console.log('getKeyMessage', body);
-  const headers: Record<string, string> = {
-    'x-wallet-address': params.loginAddress,
-    'x-wallet-token': params.walletToken
-  };
-  return makeRequest('/wallet/key/message', {
-    method: 'POST',
-    body,
-    headers
-  });
+  // const headers: Record<string, string> = {
+  //   'x-wallet-address': params.loginAddress,
+  //   'x-wallet-token': params.walletToken
+  // };
+  // return makeRequest('/wallet/key/message', {
+  //   method: 'POST',
+  //   body,
+  //   headers
+  // });
+  function concatHexStrings(arrays: string[]): string {
+    return arrays.join('');
+  }
+
+  const expiredDate = params.expiredDate || Math.floor(new Date().getTime() / 1000) + 3600; // Assume this is the 8-byte number
+  const uint8Array = new Uint8Array(8);
+
+  for (let i = 0; i < 8; i++) {
+    uint8Array[7 - i] = (expiredDate >> (i * 8)) & 0xFF; // Extract each byte
+  }
+  // Convert chain ID to format 0000000000008000
+  const uint8ArrayNum = new Uint8Array(8);
+  uint8ArrayNum[6] = 0x80; // Set the high bit in the second-to-last byte
+  // Convert addresses to public key bytes
+  const addr1 = algosdk.decodeAddress(params.loginAddress).publicKey;
+  const addr2 = algosdk.decodeAddress(params.loginAddress).publicKey;
+  
+  // Concatenate all bytes
+  const allBytes = Buffer.concat([
+    Buffer.from(addr1),
+    Buffer.from(addr2),
+    uint8ArrayNum,
+    uint8Array
+  ]);
+  
+  // Convert to base64
+  let tkBytes64 = allBytes.toString('base64');
+
+  const formattedDate = new Date(expiredDate * 1000).toLocaleString('en-US', {
+    timeZone: 'UTC',
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }).replace(',', '');
+console.log('formattedDate', formattedDate);
+console.log('formatted number', Buffer.from(uint8ArrayNum).toString('hex'));
+  return Buffer.from(`Add User key: ${params.tkAddress}\nExpires On: ${formattedDate}\n${tkBytes64}`).toString('hex');
 }
 
 async function addTradingKey(params: {
@@ -443,12 +480,7 @@ async function addTradingKey(params: {
   addKey: boolean;
   type: 'User' | 'API';
 }): Promise<any> {
-  // const messageBytes = new Uint8Array(Buffer.from(params.message, 'hex'));
-  // const prefixBytes = new TextEncoder().encode('MX');
-  // const combinedBytes = new Uint8Array(prefixBytes.length + messageBytes.length);
-  // combinedBytes.set(prefixBytes);
-  // combinedBytes.set(messageBytes, prefixBytes.length);
-  // let message = Buffer.from(combinedBytes).toString('hex');
+
   let body = {
     message: params.message,
     signature: params.signature,
@@ -463,6 +495,7 @@ async function addTradingKey(params: {
     },
   }
   console.log(body);
+  console.log('x-wallet-token: ', params.walletToken);
   return makeRequest('/wallet/key', {
     method: 'POST',
     headers: {
