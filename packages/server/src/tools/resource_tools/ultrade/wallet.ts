@@ -411,7 +411,7 @@ async function getKeyMessage(params: {
   let body = {
     tkAddress: params.tkAddress,
     loginAddress: params.loginAddress,
-    loginChainId: 8,
+    loginChainId:params.loginChainId || 8,
     expiredDate: params.expiredDate,
     addKey: params.addKey,
     type: params.type
@@ -440,22 +440,19 @@ async function addTradingKey(params: {
   addKey: boolean;
   type: 'User' | 'API';
 }): Promise<any> {
-
+console.log('public key: ', Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex'),)
   let body = {
     message: params.message,
     signature: params.signature,
     data: {
       tkAddress: params.tkAddress,
-      //loginAddress: Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex'),
       loginAddress: params.loginAddress,
       expiredDate: params.expiredDate,
       addKey: params.addKey,
       type: params.type,
-      loginChainId: 8
+      loginChainId: params.loginChainId || 8
     },
   }
-  console.log(body);
-  console.log('x-wallet-token: ', params.walletToken);
   return makeRequest('/wallet/key', {
     method: 'POST',
     headers: {
