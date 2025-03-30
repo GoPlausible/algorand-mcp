@@ -88,7 +88,7 @@ export const walletTools: Tool[] = [
         },
         expiredDate: {
           type: 'number',
-          description: 'UTC timestamp in seconds; If not set then no expiration'
+          description: 'UTC timestamp in miliseconds; If not set then no expiration'
         },
         addKey: {
           type: 'boolean',
@@ -140,7 +140,7 @@ export const walletTools: Tool[] = [
         },
         expiredDate: {
           type: 'number',
-          description: 'UTC timestamp in seconds; If not set then no expiration'
+          description: 'UTC timestamp in miliseconds; If not set then no expiration'
         },
         addKey: {
           type: 'boolean',
@@ -417,61 +417,21 @@ async function getKeyMessage(params: {
     type: params.type
   };
   console.log('getKeyMessage', body);
-  // const headers: Record<string, string> = {
-  //   'x-wallet-address': params.loginAddress,
-  //   'x-wallet-token': params.walletToken
-  // };
-  // return makeRequest('/wallet/key/message', {
-  //   method: 'POST',
-  //   body,
-  //   headers
-  // });
-  function concatHexStrings(arrays: string[]): string {
-    return arrays.join('');
-  }
+  const headers: Record<string, string> = {
+    'x-wallet-address': params.loginAddress,
+    'x-wallet-token': params.walletToken
+  };
+  return makeRequest('/wallet/key/message', {
+    method: 'POST',
+    body,
+    headers
+  });
 
-  const expiredDate = params.expiredDate || Math.floor(new Date().getTime() / 1000) + 3600; // Assume this is the 8-byte number
-  const uint8Array = new Uint8Array(8);
-
-  for (let i = 0; i < 8; i++) {
-    uint8Array[7 - i] = (expiredDate >> (i * 8)) & 0xFF; // Extract each byte
-  }
-  // Convert chain ID to format 0000000000008000
-  const uint8ArrayNum = new Uint8Array(8);
-  uint8ArrayNum[6] = 0x80; // Set the high bit in the second-to-last byte
-  // Convert addresses to public key bytes
-  const addr1 = algosdk.decodeAddress(params.loginAddress).publicKey;
-  const addr2 = algosdk.decodeAddress(params.loginAddress).publicKey;
-  
-  // Concatenate all bytes
-  const allBytes = Buffer.concat([
-    Buffer.from(addr1),
-    Buffer.from(addr2),
-    uint8ArrayNum,
-    uint8Array
-  ]);
-  
-  // Convert to base64
-  let tkBytes64 = allBytes.toString('base64');
-
-  const formattedDate = new Date(expiredDate * 1000).toLocaleString('en-US', {
-    timeZone: 'UTC',
-    month: 'numeric',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  }).replace(',', '');
-console.log('formattedDate', formattedDate);
-console.log('formatted number', Buffer.from(uint8ArrayNum).toString('hex'));
-  return Buffer.from(`Add User key: ${params.tkAddress}\nExpires On: ${formattedDate}\n${tkBytes64}`).toString('hex');
 }
 
 async function addTradingKey(params: {
   message: string;
   signature: string;
-  walletAddress: string;
   walletToken: string;
   tkAddress: string;
   loginAddress: string;
@@ -499,7 +459,7 @@ async function addTradingKey(params: {
   return makeRequest('/wallet/key', {
     method: 'POST',
     headers: {
-      'x-wallet-address': params.walletAddress,
+      'x-wallet-address': params.tkAddress,
       'x-wallet-token': params.walletToken
     },
     body: body
