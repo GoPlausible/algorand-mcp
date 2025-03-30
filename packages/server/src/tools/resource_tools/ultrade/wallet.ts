@@ -416,7 +416,6 @@ async function getKeyMessage(params: {
     addKey: params.addKey,
     type: params.type
   };
-  console.log('getKeyMessage', body);
   const headers: Record<string, string> = {
     'x-wallet-address': params.loginAddress,
     'x-wallet-token': params.walletToken
