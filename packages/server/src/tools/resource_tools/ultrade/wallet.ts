@@ -416,6 +416,7 @@ async function getKeyMessage(params: {
     addKey: params.addKey,
     type: params.type
   };
+  console.log( body)
   const headers: Record<string, string> = {
     'x-wallet-address': params.loginAddress,
     'x-wallet-token': params.walletToken
@@ -439,7 +440,7 @@ async function addTradingKey(params: {
   addKey: boolean;
   type: 'User' | 'API';
 }): Promise<any> {
-console.log('public key: ', Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex'),)
+console.log('public key: ', Buffer.from(algosdk.decodeAddress(params.loginAddress).publicKey).toString('hex'))
   let body = {
     message: params.message,
     signature: params.signature,
@@ -452,10 +453,11 @@ console.log('public key: ', Buffer.from(algosdk.decodeAddress(params.loginAddres
       loginChainId: params.loginChainId || 8
     },
   }
+  console.log( body)
   return makeRequest('/wallet/key', {
     method: 'POST',
-    headers: {
-      'x-wallet-address': params.tkAddress,
+    headers:  {
+      'x-wallet-address': params.loginAddress,
       'x-wallet-token': params.walletToken
     },
     body: body
