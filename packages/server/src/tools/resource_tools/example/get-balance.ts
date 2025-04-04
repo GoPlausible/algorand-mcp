@@ -1,4 +1,5 @@
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
 import { algodClient } from '../../../algorand-client.js';
 
 /**
@@ -41,13 +42,8 @@ export const getBalanceTool = async (args: { address: string }) => {
     // Get account information using Algorand client
     const accountInfo = await algodClient.accountInformation(args.address).do();
 
-    // Return response directly
-    return {
-      address: args.address,
-      amount: accountInfo.amount,
-      assets: accountInfo.assets || [],
-      status: 'success'
-    };
+    // Return complete response without pagination
+    return accountInfo;
   } catch (error: unknown) {
     // Handle specific Algorand API errors
     if (error instanceof McpError) {
