@@ -397,13 +397,7 @@ describe('Your Provider Feature Tool', () => {
 });
 ```
 
-2. Test coverage requirements:
-   - Input validation
-   - Success cases
-   - Error handling
-   - Edge cases
-   - Integration with other components
-   - Pagination handling
+
 
 ## Documentation Standards
 
