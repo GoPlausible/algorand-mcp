@@ -120,26 +120,24 @@ Override defaults by doing either:
 
 ## Available Tools
 
-### Knowledge Resource Tools
-The knowledge resource tools provide access to Algorand's comprehensive documentation through a structured taxonomy:
+### Knowledge Resources
+Static URIs for accessing Algorand's comprehensive documentation:
 
 - algorand://knowledge/taxonomy - Full documentation taxonomy
-- algorand://knowledge/taxonomy/{category} - Category-specific documentation
-- algorand://knowledge/document/{path} - Individual document content
+- algorand://knowledge/taxonomy/arcs - ARCs documentation
+- algorand://knowledge/taxonomy/sdks - SDKs documentation
+- algorand://knowledge/taxonomy/algokit - AlgoKit documentation
+- algorand://knowledge/taxonomy/algokit-utils - AlgoKit Utils documentation
+- algorand://knowledge/taxonomy/tealscript - TEALScript documentation
+- algorand://knowledge/taxonomy/puya - Puya documentation
+- algorand://knowledge/taxonomy/liquid-auth - Liquid Auth documentation
+- algorand://knowledge/taxonomy/python - Python development resources
+- algorand://knowledge/taxonomy/developers - Developer documentation
+- algorand://knowledge/taxonomy/clis - CLI tools documentation
+- algorand://knowledge/taxonomy/nodes - Node management documentation
+- algorand://knowledge/taxonomy/details - Technical details documentation
 
-Categories include:
-- ARCs (Algorand Request for Comments)
-- SDKs (Software Development Kits)
-- AlgoKit (Development tools and CLI)
-- AlgoKit Utils (Utility libraries)
-- TEALScript (TypeScript-like smart contract language)
-- Puya (Python-based smart contract language)
-- Liquid Auth (Authentication system)
-- Python (Python development resources)
-- Developers (General developer documentation)
-- CLIs (Command Line Interface tools)
-- Nodes (Node management)
-- Details (Technical details and specifications)
+Each resource provides direct access to its respective documentation category in markdown format.
 
 ### Resource Tools
 It is important to note that the resource tools are read-only and do not modify the blockchain state. They provide a way to access real-time and historical data from the Algorand blockchain.

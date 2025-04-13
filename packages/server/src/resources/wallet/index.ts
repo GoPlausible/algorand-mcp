@@ -1,75 +1,115 @@
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient, indexerClient } from '../../algorand-client.js';
-import algosdk from 'algosdk';
 import { env } from '../../env.js';
+import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 
-/**
- * Handle wallet-related resource requests
- * @param uri Resource URI
- * @returns Resource content
- */
-export async function walletResources(uri: string) {
-  try {
-    // Since this handler is only called when wallet is configured,
-    // we can safely convert the mnemonic
-    const activeAccount = algosdk.mnemonicToSecretKey(env.algorand_agent_wallet_active);
+// Resource definitions
+const resourceDefinitions = [
+  {
+    uri: 'algorand://wallet/accounts',
+    name: 'Algorand Accounts',
+    description: 'List of Algorand accounts and their balances',
+    schema: {
+      type: 'object',
+      properties: {
+        accounts: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              address: { type: 'string' },
+              amount: { type: 'number' },
+              assets: { type: 'array' }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    uri: 'algorand://wallet/assets',
+    name: 'Account Assets',
+    description: 'Asset holdings for Algorand accounts',
+    schema: {
+      type: 'object',
+      properties: {
+        assets: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              amount: { type: 'number' },
+              frozen: { type: 'boolean' }
+            }
+          }
+        }
+      }
+    }
+  }
+];
+
+// Resource module implementation
+export const walletResources = {
+  canHandle: (uri: string): boolean => {
+    return uri.startsWith('algorand://wallet/');
+  },
+
+  handle: async (uri: string) => {
+    if (!env.algorand_agent_wallet_active) {
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        'Wallet resources are not available - no active wallet configured'
+      );
+    }
 
     switch (uri) {
-      case 'algorand://wallet/accounts': {
-        const accountInfo = await algodClient.accountInformation(activeAccount.addr).do();
+      case 'algorand://wallet/accounts':
         return {
           contents: [{
             uri,
             mimeType: 'application/json',
             text: JSON.stringify({
-              accounts: [{
-                address: activeAccount.addr,
-                amount: accountInfo.amount,
-                assets: accountInfo.assets || []
-              }]
-            })
+              accounts: [
+                // Mock data - replace with actual wallet implementation
+                {
+                  address: "example-address",
+                  amount: 1000000,
+                  assets: []
+                }
+              ]
+            }, null, 2)
           }]
         };
-      }
 
-      case 'algorand://wallet/assets': {
-        const response = await indexerClient
-          .lookupAccountAssets(activeAccount.addr)
-          .do();
-        
+      case 'algorand://wallet/assets':
         return {
           contents: [{
             uri,
             mimeType: 'application/json',
             text: JSON.stringify({
-              assets: (response.assets || []).map((asset: {
-                'asset-id': number;
-                amount: number;
-                'is-frozen': boolean;
-              }) => ({
-                id: asset['asset-id'],
-                amount: asset.amount,
-                frozen: asset['is-frozen']
-              }))
-            })
+              assets: [
+                // Mock data - replace with actual wallet implementation
+                {
+                  id: 1,
+                  amount: 100,
+                  frozen: false
+                }
+              ]
+            }, null, 2)
           }]
         };
-      }
 
       default:
         throw new McpError(
           ErrorCode.InvalidRequest,
-          `Invalid wallet resource URI: ${uri}`
+          `Unknown wallet resource: ${uri}`
         );
     }
-  } catch (error: unknown) {
-    if (error instanceof McpError) {
-      throw error;
+  },
+
+  getResourceDefinitions: () => {
+    if (!env.algorand_agent_wallet_active) {
+      return [];
     }
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    throw new McpError(
-      ErrorCode.InternalError,
-      `Failed to handle wallet resource: ${message}`
-    );
+    return resourceDefinitions;
   }
-}
+};

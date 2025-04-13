@@ -147,10 +147,20 @@ algorand-mcp/
 - Tinyman AMM integration
 - Ultrade DEX integration
 - Knowledge taxonomy resources:
-  - Full documentation taxonomy access
-  - Category-specific documentation browsing (ARCs, SDKs, tools, etc.)
-  - Individual document retrieval
-  - Markdown-based content format
+  - Full documentation taxonomy (algorand://knowledge/taxonomy)
+  - Category-specific documentation:
+    - ARCs (algorand://knowledge/taxonomy/arcs)
+    - SDKs (algorand://knowledge/taxonomy/sdks)
+    - AlgoKit (algorand://knowledge/taxonomy/algokit)
+    - AlgoKit Utils (algorand://knowledge/taxonomy/algokit-utils)
+    - TEALScript (algorand://knowledge/taxonomy/tealscript)
+    - Puya (algorand://knowledge/taxonomy/puya)
+    - Liquid Auth (algorand://knowledge/taxonomy/liquid-auth)
+    - Python (algorand://knowledge/taxonomy/python)
+    - Developer Docs (algorand://knowledge/taxonomy/developers)
+    - CLI Tools (algorand://knowledge/taxonomy/clis)
+    - Node Management (algorand://knowledge/taxonomy/nodes)
+    - Technical Details (algorand://knowledge/taxonomy/details)
 
 ### Client Features (Work in Progress)
 - Local wallet with secure storage

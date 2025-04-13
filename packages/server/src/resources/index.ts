@@ -2,152 +2,61 @@ import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { walletResources } from './wallet/index.js';
 import { knowledgeResources } from './knowledge/index.js';
 
-import { env } from '../env.js';
+// Resource handler type
+type ResourceHandler = (uri: string) => Promise<{
+  contents: Array<{
+    uri: string;
+    mimeType: string;
+    text: string;
+  }>;
+}>;
 
-// Define wallet resources that will be included if active wallet is configured
-const walletResourceDefinitions = [
-  {
-    uri: 'algorand://wallet/accounts',
-    name: 'Algorand Accounts',
-    description: 'List of Algorand accounts and their balances',
-    schema: {
-      type: 'object',
-      properties: {
-        accounts: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              address: { type: 'string' },
-              amount: { type: 'number' },
-              assets: { type: 'array' }
-            }
-          }
-        }
-      }
-    },
-    handler: walletResources
-  },
-  {
-    uri: 'algorand://wallet/assets',
-    name: 'Account Assets',
-    description: 'Asset holdings for Algorand accounts',
-    schema: {
-      type: 'object',
-      properties: {
-        assets: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'number' },
-              amount: { type: 'number' },
-              frozen: { type: 'boolean' }
-            }
-          }
-        }
-      }
-    },
-    handler: walletResources
-  }
+// Resource module interface
+interface ResourceModule {
+  canHandle: (uri: string) => boolean;
+  handle: ResourceHandler;
+  getResourceDefinitions: () => Array<{
+    uri: string;
+    name: string;
+    description: string;
+    schema?: any;
+  }>;
+}
+
+// Resource modules registry
+const resourceModules: ResourceModule[] = [
+  walletResources,
+  knowledgeResources
 ];
 
 export class ResourceManager {
-  static resources = [
-    // Only include wallet resources if active wallet is configured
-    ...(env.algorand_agent_wallet_active ? walletResourceDefinitions : []),
-    // Knowledge resources
-    {
-      uri: 'algorand://knowledge/taxonomy',
-      name: 'Algorand Knowledge Full Taxonomy',
-      description: 'Markdown-based knowledge taxonomy',
-      schema: {
-        type: 'object',
-        properties: {
-          categories: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' },
-                description: { type: 'string' },
-                content: { type: 'string' }
-              }
-            }
-          }
-        }
-      },
-      handler: knowledgeResources
-    },
-    {
-      uri: 'algorand://knowledge/taxonomy/*',
-      name: 'Algorand Knowledge Category',
-      description: "Category from the Algorand knowledge taxonomy\n OPTIONS: ['arcs', 'sdks', 'algokit', 'algokit-utils', 'tealscript', 'puya', 'liquid-auth', 'python', 'developers', 'clis', 'nodes', 'details']",
-      schema: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          description: { type: 'string' },
-          subcategories: { type: 'object' },
-          documents: { 
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' },
-                description: { type: 'string' },
-                path: { type: 'string' }
-              }
-            }
-          }
-        }
-      },
-      handler: knowledgeResources
-    },
-    {
-      uri: 'algorand://knowledge/document/*',
-      name: 'Algorand Knowledge Document',
-      description: 'Individual document from the Algorand knowledge taxonomy',
-      schema: {
-        type: 'object',
-        properties: {
-          content: { type: 'string' },
-          name: { type: 'string' },
-          description: { type: 'string' }
-        }
-      },
-      handler: knowledgeResources
-    }
-  ];
+  // Get all resource definitions from all modules
+  static get resources() {
+    return resourceModules.flatMap(module => module.getResourceDefinitions());
+  }
 
-  static schemas: Record<string, any> = ResourceManager.resources.reduce((acc, resource) => ({
-    ...acc,
-    [resource.uri]: resource.schema
-  }), {} as Record<string, any>);
+  // Get schemas for all resources
+  static get schemas() {
+    return this.resources.reduce((acc, resource) => ({
+      ...acc,
+      [resource.uri]: resource.schema
+    }), {} as Record<string, any>);
+  }
 
+  // Handle resource request
   static async handleResource(uri: string) {
-    const resource = ResourceManager.resources.find(r => {
-      // Exact match
-      console.log('r.uri', r.uri);
-      console.log('uri', uri);
-      if (r.uri === uri) return true;
-      // Wildcard match (e.g. algorand://knowledge/document/*)
-      if (r.uri.endsWith('*')) {
-        const prefix = r.uri.slice(0, -1);
-        return uri.startsWith(prefix);
-      }
-      return false;
-    });
+    // Find module that can handle this URI
+    const module = resourceModules.find(m => m.canHandle(uri));
 
-    if (!resource) {
+    if (!module) {
       throw new McpError(
         ErrorCode.InvalidRequest,
-        `Resource not found: ${uri}`
+        `No module found to handle resource: ${uri}`
       );
     }
 
     try {
-      return await resource.handler(uri);
+      return await module.handle(uri);
     } catch (error: unknown) {
       if (error instanceof McpError) {
         throw error;
