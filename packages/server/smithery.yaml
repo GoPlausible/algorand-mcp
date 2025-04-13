@@ -60,6 +60,10 @@ startCommand:
         type: string
         default: ""
         description: Vestige API key (optional)
+      ALGORAND_AGENT_WALLET_ACTIVE:
+        type: string
+        default: ""
+        description: Algorand agent active wallet
   exampleConfig:
     ALGORAND_ALGOD: https://testnet-api.algonode.cloud
     ALGORAND_INDEXER: https://testnet-idx.algonode.cloud
@@ -74,6 +78,7 @@ startCommand:
     NFD_API_KEY: ""
     VESTIGE_API_URL: https://api.vestigelabs.org
     VESTIGE_API_KEY: ""
+    ALGORAND_AGENT_WALLET_ACTIVE: ""
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
@@ -93,6 +98,7 @@ startCommand:
         NFD_API_URL: config.NFD_API_URL,
         NFD_API_KEY: config.NFD_API_KEY,
         VESTIGE_API_URL: config.VESTIGE_API_URL,
-        VESTIGE_API_KEY: config.VESTIGE_API_KEY
+        VESTIGE_API_KEY: config.VESTIGE_API_KEY,
+        ALGORAND_AGENT_WALLET_ACTIVE: config.ALGORAND_AGENT_WALLET_ACTIVE,
       }
     })

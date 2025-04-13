@@ -67,8 +67,8 @@ User-invokable endpoints that provide direct access to data and services:
    - algorand://knowledge/document/{path} - Individual document content
 
 2. Wallet Resources:
-   - algorand://wallet/accounts - Account information and balances
-   - algorand://wallet/assets - Asset holdings and details
+   - algorand://wallet/account - Account information and balances
+   - algorand://wallet/assets - Account Asset holdings and details
 
 ### Resource Tools
 Agent-invokable tools that provide the same functionality as Resources but through tool interfaces. These are necessary when agents cannot directly access Resources:
