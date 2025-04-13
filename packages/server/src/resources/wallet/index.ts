@@ -61,7 +61,7 @@ const resourceDefinitions = [
   },
   {
     uri: 'algorand://wallet/account',
-    name: 'Algorand Accounts',
+    name: 'Wallet Account',
     description: 'Algorand account balance and asset holdings',
     schema: {
       type: 'object',
@@ -82,8 +82,8 @@ const resourceDefinitions = [
   },
   {
     uri: 'algorand://wallet/assets',
-    name: 'Account Assets',
-    description: 'Asset holdings for Algorand accounts',
+    name: 'Wallet Account Assets',
+    description: 'Asset holdings for Wallet account',
     schema: {
       type: 'object',
       properties: {
