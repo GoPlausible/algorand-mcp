@@ -59,7 +59,7 @@ export class ResourceManager {
     // Knowledge resources
     {
       uri: 'algorand://knowledge/taxonomy',
-      name: 'Algorand Knowledge Taxonomy',
+      name: 'Algorand Knowledge Full Taxonomy',
       description: 'Markdown-based knowledge taxonomy',
       schema: {
         type: 'object',
@@ -82,7 +82,7 @@ export class ResourceManager {
     {
       uri: 'algorand://knowledge/document/*',
       name: 'Algorand Knowledge Document',
-      description: 'Individual document from the knowledge taxonomy',
+      description: 'Individual document from the Algorand knowledge taxonomy',
       schema: {
         type: 'object',
         properties: {

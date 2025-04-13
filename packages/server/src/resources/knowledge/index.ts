@@ -20,7 +20,9 @@ const puyaJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'puya.jso
 const liquidAuthJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'liquid-auth.json'), 'utf8'));
 const clisJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'clis.json'), 'utf8'));
 const nodesJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'nodes.json'), 'utf8'));
+const pythonJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'python.json'), 'utf8'));
 const detailsJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'details.json'), 'utf8'));
+const developersJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'developers.json'), 'utf8'));
 
 // Create taxonomy data structure
 const taxonomyData: TaxonomyData = {
@@ -73,6 +75,20 @@ const taxonomyData: TaxonomyData = {
       path: liquidAuthJson.path,
       documents: liquidAuthJson.documents,
       subcategories: liquidAuthJson.subcategories
+    },
+    python: {
+      name: pythonJson.name,
+      description: pythonJson.description,
+      path: pythonJson.path,
+      documents: pythonJson.documents,
+      subcategories: pythonJson.subcategories
+    },
+    developers: {
+      name: developersJson.name,
+      description: developersJson.description,
+      path: developersJson.path,
+      documents: developersJson.documents,
+      subcategories: developersJson.subcategories
     },
     clis: {
       name: clisJson.name,
@@ -198,12 +214,59 @@ async function findDocument(docPath: string): Promise<TaxonomyDocument | undefin
  */
 export async function knowledgeResources(uri: string) {
   try {
+    // Handle full taxonomy request
     if (uri === 'algorand://knowledge/taxonomy') {
       return {
         contents: [{
           uri,
           mimeType: 'application/json',
           text: JSON.stringify(taxonomyData)
+        }]
+      };
+    }
+
+    // Handle category-specific taxonomy request
+    const categoryMatch = uri.match(/^algorand:\/\/knowledge\/taxonomy\/([a-z-]+)$/);
+    if (categoryMatch) {
+      const category = categoryMatch[1];
+      
+      // Get category data from taxonomyData
+      const categoryData = taxonomyData.categories[category];
+      if (!categoryData) {
+        throw new McpError(
+          ErrorCode.InvalidRequest,
+          `Category not found: ${category}`
+        );
+      }
+
+      // Return category data
+      return {
+        contents: [{
+          uri,
+          mimeType: 'application/json',
+          text: JSON.stringify({
+            name: categoryData.name,
+            description: categoryData.description,
+            subcategories: categoryData.subcategories || {},
+            documents: categoryData.documents || []
+          })
+        }]
+      };
+    }
+
+    // List available taxonomy categories
+    if (uri === 'algorand://knowledge/taxonomy/categories') {
+      const categories = Object.keys(taxonomyData.categories).map(key => ({
+        name: taxonomyData.categories[key].name,
+        description: taxonomyData.categories[key].description,
+        uri: `algorand://knowledge/taxonomy/${key}`
+      }));
+
+      return {
+        contents: [{
+          uri,
+          mimeType: 'application/json',
+          text: JSON.stringify({ categories })
         }]
       };
     }
