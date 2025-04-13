@@ -7,7 +7,7 @@ This guide will help you understand how to contribute new tools to the Algorand 
 ```
 packages/server/src/
 ├── tools/
-│   ├── resource_tools/          # Resource-specific tool implementations
+│   ├── apiManager/          # Resource-specific tool implementations
 │   │   ├── [provider]/         # Provider-specific directory (e.g., tinyman, ultrade)
 │   │   │   ├── index.ts        # Exports all tools
 │   │   │   └── [feature].ts    # Feature-specific implementations
@@ -22,10 +22,10 @@ packages/server/src/
 
 ### 1. Create Provider Directory
 
-Create a new directory under `packages/server/src/tools/resource_tools/` for your provider:
+Create a new directory under `packages/server/src/tools/apiManager/` for your provider:
 
 ```bash
-mkdir packages/server/src/tools/resource_tools/your-provider
+mkdir packages/server/src/tools/apiManager/your-provider
 ```
 
 ### 2. Implement Tool Handlers
@@ -39,7 +39,7 @@ Create separate files for different features. Each file should:
 Example structure:
 
 ```typescript
-// packages/server/src/tools/resource_tools/your-provider/feature.ts
+// packages/server/src/tools/apiManager/your-provider/feature.ts
 
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 
@@ -90,7 +90,7 @@ export const featureTool = async (args: any) => {
 Create an `index.ts` file to export all tools:
 
 ```typescript
-// packages/server/src/tools/resource_tools/your-provider/index.ts
+// packages/server/src/tools/apiManager/your-provider/index.ts
 
 import { McpError, ErrorCode, Tool } from '@modelcontextprotocol/sdk/types.js';
 import { featureTool, featureToolSchema } from './feature.js';
@@ -98,7 +98,7 @@ import { featureTool, featureToolSchema } from './feature.js';
 // Define tool configurations
 export const providerTools: Tool[] = [
   {
-    name: 'resource_provider_feature',
+    name: 'api_provider_feature',
     description: 'Feature description',
     handler: featureTool,
     inputSchema: featureToolSchema
@@ -108,7 +108,7 @@ export const providerTools: Tool[] = [
 // Handle provider tools
 export async function handleProviderTools(name: string, args: any): Promise<any> {
   switch (name) {
-    case 'resource_provider_feature':
+    case 'api_provider_feature':
       return featureTool(args);
     default:
       throw new McpError(
@@ -314,7 +314,7 @@ Example of server-handled pagination:
 The example tool demonstrates these concepts:
 
 ```typescript
-// packages/server/src/tools/resource_tools/example/get-balance.ts
+// packages/server/src/tools/apiManager/example/get-balance.ts
 
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { algodClient } from '../../../algorand-client.js';
@@ -382,7 +382,7 @@ Key features demonstrated:
 1. Create test files mirroring your tool structure:
 
 ```typescript
-// packages/server/tests/tools/resource_tools/your-provider/feature.test.ts
+// packages/server/tests/tools/apiManager/your-provider/feature.test.ts
 
 describe('Your Provider Feature Tool', () => {
   it('should handle valid input correctly', async () => {
@@ -485,7 +485,7 @@ Example response:
 
 ## Getting Help
 
-- Review existing implementations in `packages/server/src/tools/resource_tools/`
+- Review existing implementations in `packages/server/src/tools/apiManager/`
 - Check test files for examples
 - Consult project maintainers
 - Reference API specifications in `packages/server/API specs/`

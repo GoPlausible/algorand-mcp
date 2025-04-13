@@ -16,7 +16,7 @@ jest.mock('../../../src/algorand-client.js', () => ({
     getApplicationBoxByName: jest.fn(),
     getApplicationBoxes: jest.fn()
   },
-  RESOURCE_URIS: {
+  API_URIS: {
     APPLICATION_INFO: 'algorand://app/{app-id}',
     APPLICATION_BOX: 'algorand://app/{app-id}/box/{name}',
     APPLICATION_BOXES: 'algorand://app/{app-id}/boxes'

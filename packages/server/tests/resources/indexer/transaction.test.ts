@@ -16,7 +16,7 @@ jest.mock('../../../src/algorand-client.js', () => ({
     lookupAccountTransactions: jest.fn(),
     searchForTransactions: jest.fn()
   },
-  RESOURCE_URIS: {
+  API_URIS: {
     TRANSACTION_DETAILS: 'algorand://transaction/{txid}',
     TRANSACTION_SEARCH: 'algorand://transactions/search'
   }

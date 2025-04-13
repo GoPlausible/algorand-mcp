@@ -12,7 +12,7 @@ jest.mock('../../../src/algorand-client.js', () => ({
   algodClient: {
     getAssetByID: jest.fn()
   },
-  RESOURCE_URIS: {
+  API_URIS: {
     ASSET_INFO: 'algorand://asset/{asset-id}/info'
   }
 }));

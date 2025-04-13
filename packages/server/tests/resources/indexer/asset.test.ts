@@ -18,7 +18,7 @@ jest.mock('../../../src/algorand-client.js', () => ({
     lookupAssetTransactions: jest.fn(),
     searchForAssets: jest.fn()
   },
-  RESOURCE_URIS: {
+  API_URIS: {
     ASSET_DETAILS: 'algorand://asset/{asset-id}',
     ASSET_BALANCES: 'algorand://asset/{asset-id}/balances',
     ASSET_TRANSACTIONS: 'algorand://asset/{asset-id}/transactions',

@@ -16,7 +16,7 @@ jest.mock('../../../src/algorand-client.js', () => ({
     lookupApplicationLogs: jest.fn(),
     searchForApplications: jest.fn()
   },
-  RESOURCE_URIS: {
+  API_URIS: {
     APPLICATION_STATE: 'algorand://app/{app-id}/state'
   }
 }));

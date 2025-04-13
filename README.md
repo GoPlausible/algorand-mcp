@@ -28,6 +28,11 @@ This repository is a Model Context Protocol (MCP) implementation for Algorand bl
 
 
 ## Features
+- **Complete Algorand Documentation Integration**
+  - **Full Algorand knowledge taxonomy**
+  - **Comprehensive developer documentation**
+  - **ARCs, SDKs, and tools documentation**
+  - **Direct document access via knowledge tool**
 - Complete Algorand blockchain interaction capabilities
 - Extensive wallet management system
 - Comprehensive transaction handling
@@ -115,9 +120,9 @@ algorand-mcp/
 │       │   │   ├── accountManager.ts     # Account operations
 │       │   │   ├── algodManager.ts       # Node interactions
 │       │   │   ├── utilityManager.ts     # Utility functions
-│       │   │   ├── resource_tools/       # Resource Tools
-│       │   │   │   ├── algod/           # Algod resource tools
-│       │   │   │   ├── indexer/         # Indexer resource tools
+│       │   │   ├── apiManager/       # API Tools
+│       │   │   │   ├── algod/           # Algod API tools
+│       │   │   │   ├── indexer/         # Indexer API tools
 │       │   │   │   ├── nfd/            # NFDomains tools
 │       │   │   │   ├── vestige/        # Vestige DeFi tools
 │       │   │   │   ├── tinyman/        # Tinyman AMM tools
@@ -204,140 +209,140 @@ Errors are returned in a standardized format:
 
 The Algorand MCP implementation provides 125 tools and resources for blockchain interaction:
 - 40 base tools (account, asset, application, transaction management)
-- 30 resource tools (algod and indexer)
+- 30 API tools (algod and indexer)
 - 6 NFDomains (NFD) tools for name services
 - 28 Vestige tools for DeFi analytics
 - 9 Tinyman tools for AMM interactions
 - 12 Ultrade tools for DEX functionality
 
-### Resource Tools
+### API Tools
 
-#### Algod Resource Tools
-- resource_algod_get_account_info: Get current account balance, assets, and auth address
-- resource_algod_get_account_application_info: Get account-specific application information
-- resource_algod_get_account_asset_info: Get account-specific asset information
-- resource_algod_get_application_by_id: Get application information
-- resource_algod_get_application_box: Get application box by name
-- resource_algod_get_application_boxes: Get all application boxes
-- resource_algod_get_asset_by_id: Get current asset information
-- resource_algod_get_pending_transaction: Get pending transaction information
-- resource_algod_get_pending_transactions_by_address: Get pending transactions for an address
-- resource_algod_get_pending_transactions: Get all pending transactions
-- resource_algod_get_transaction_params: Get suggested transaction parameters
-- resource_algod_get_node_status: Get current node status
-- resource_algod_get_node_status_after_block: Get node status after a specific round
+#### Algod API Tools
+- api_algod_get_account_info: Get current account balance, assets, and auth address
+- api_algod_get_account_application_info: Get account-specific application information
+- api_algod_get_account_asset_info: Get account-specific asset information
+- api_algod_get_application_by_id: Get application information
+- api_algod_get_application_box: Get application box by name
+- api_algod_get_application_boxes: Get all application boxes
+- api_algod_get_asset_by_id: Get current asset information
+- api_algod_get_pending_transaction: Get pending transaction information
+- api_algod_get_pending_transactions_by_address: Get pending transactions for an address
+- api_algod_get_pending_transactions: Get all pending transactions
+- api_algod_get_transaction_params: Get suggested transaction parameters
+- api_algod_get_node_status: Get current node status
+- api_algod_get_node_status_after_block: Get node status after a specific round
 
-#### Indexer Resource Tools
-- resource_indexer_lookup_account_by_id: Get account information
-- resource_indexer_lookup_account_assets: Get account assets
-- resource_indexer_lookup_account_app_local_states: Get account application local states
-- resource_indexer_lookup_account_created_applications: Get applications created by account
-- resource_indexer_search_for_accounts: Search for accounts with various criteria
-- resource_indexer_lookup_applications: Get application information
-- resource_indexer_lookup_application_logs: Get application log messages
-- resource_indexer_search_for_applications: Search for applications
-- resource_indexer_lookup_asset_by_id: Get asset information and configuration
-- resource_indexer_lookup_asset_balances: Get accounts holding this asset
-- resource_indexer_lookup_asset_transactions: Get transactions involving this asset
-- resource_indexer_search_for_assets: Search for assets
-- resource_indexer_lookup_transaction_by_id: Get transaction information
-- resource_indexer_lookup_account_transactions: Get account transaction history
-- resource_indexer_search_for_transactions: Search for transactions
+#### Indexer API Tools
+- api_indexer_lookup_account_by_id: Get account information
+- api_indexer_lookup_account_assets: Get account assets
+- api_indexer_lookup_account_app_local_states: Get account application local states
+- api_indexer_lookup_account_created_applications: Get applications created by account
+- api_indexer_search_for_accounts: Search for accounts with various criteria
+- api_indexer_lookup_applications: Get application information
+- api_indexer_lookup_application_logs: Get application log messages
+- api_indexer_search_for_applications: Search for applications
+- api_indexer_lookup_asset_by_id: Get asset information and configuration
+- api_indexer_lookup_asset_balances: Get accounts holding this asset
+- api_indexer_lookup_asset_transactions: Get transactions involving this asset
+- api_indexer_search_for_assets: Search for assets
+- api_indexer_lookup_transaction_by_id: Get transaction information
+- api_indexer_lookup_account_transactions: Get account transaction history
+- api_indexer_search_for_transactions: Search for transactions
 
-#### NFDomains (NFD) Resource Tools
-- resource_nfd_get_nfd: Get NFD by name or application ID
-- resource_nfd_get_nfds_for_addresses: Get NFDs for specific addresses
-- resource_nfd_get_nfd_activity: Get activity/changes for NFDs
-- resource_nfd_get_nfd_analytics: Get analytics data for NFDs
-- resource_nfd_browse_nfds: Browse NFDs with various filters
-- resource_nfd_search_nfds: Search NFDs with various filters
+#### NFDomains (NFD) API Tools
+- api_nfd_get_nfd: Get NFD by name or application ID
+- api_nfd_get_nfds_for_addresses: Get NFDs for specific addresses
+- api_nfd_get_nfd_activity: Get activity/changes for NFDs
+- api_nfd_get_nfd_analytics: Get analytics data for NFDs
+- api_nfd_browse_nfds: Browse NFDs with various filters
+- api_nfd_search_nfds: Search NFDs with various filters
 
-#### Vestige Resource Tools
+#### Vestige API Tools
 
 1. View Tools:
-- resource_vestige_view_networks: Get all networks
-- resource_vestige_view_network_by_id: Get network by id
-- resource_vestige_view_protocols: Get all protocols
-- resource_vestige_view_protocol_by_id: Get protocol by id
-- resource_vestige_view_protocol_volumes: Get protocol volumes at specific day
-- resource_vestige_view_assets: Get data about assets
-- resource_vestige_view_assets_list: Get asset list
-- resource_vestige_view_assets_search: Search assets by query
-- resource_vestige_view_asset_price: Get asset prices
-- resource_vestige_view_asset_candles: Get asset candles
-- resource_vestige_view_asset_history: Get asset volume, swaps, total lockup, vwap and confidence history
-- resource_vestige_view_asset_composition: Get asset lockups based on protocol and pair
-- resource_vestige_view_pools: Get pools
-- resource_vestige_view_vaults: Get all vaults
-- resource_vestige_view_balances: Get balances by network id, protocol id and asset id
-- resource_vestige_view_notes: Get notes by network id and optionally asset id
-- resource_vestige_view_first_asset_notes: Get first note for assets
-- resource_vestige_view_asset_notes_count: Get notes count for assets
-- resource_vestige_view_swaps: Get swaps
+- api_vestige_view_networks: Get all networks
+- api_vestige_view_network_by_id: Get network by id
+- api_vestige_view_protocols: Get all protocols
+- api_vestige_view_protocol_by_id: Get protocol by id
+- api_vestige_view_protocol_volumes: Get protocol volumes at specific day
+- api_vestige_view_assets: Get data about assets
+- api_vestige_view_assets_list: Get asset list
+- api_vestige_view_assets_search: Search assets by query
+- api_vestige_view_asset_price: Get asset prices
+- api_vestige_view_asset_candles: Get asset candles
+- api_vestige_view_asset_history: Get asset volume, swaps, total lockup, vwap and confidence history
+- api_vestige_view_asset_composition: Get asset lockups based on protocol and pair
+- api_vestige_view_pools: Get pools
+- api_vestige_view_vaults: Get all vaults
+- api_vestige_view_balances: Get balances by network id, protocol id and asset id
+- api_vestige_view_notes: Get notes by network id and optionally asset id
+- api_vestige_view_first_asset_notes: Get first note for assets
+- api_vestige_view_asset_notes_count: Get notes count for assets
+- api_vestige_view_swaps: Get swaps
 
 2. Swap Tools:
-- resource_vestige_get_best_v4_swap_data: Get best V4 swap data
-- resource_vestige_get_v4_swap_discount: Get V4 swap discount
-- resource_vestige_get_v4_swap_data_transactions: Get V4 swap data transactions
-- resource_vestige_get_aggregator_stats: Get aggregator stats
+- api_vestige_get_best_v4_swap_data: Get best V4 swap data
+- api_vestige_get_v4_swap_discount: Get V4 swap discount
+- api_vestige_get_v4_swap_data_transactions: Get V4 swap data transactions
+- api_vestige_get_aggregator_stats: Get aggregator stats
 
 3. Currency Tools:
-- resource_vestige_view_currency_prices: Get all latest currency prices
-- resource_vestige_view_currency_price_history: Get currency prices by timestamp range
-- resource_vestige_view_currency_price: Get currency price by timestamp
-- resource_vestige_view_currency_average_price: Get average price for currency
-- resource_vestige_view_currency_prices_simple_30d: Get currency prices for last 30 days
+- api_vestige_view_currency_prices: Get all latest currency prices
+- api_vestige_view_currency_price_history: Get currency prices by timestamp range
+- api_vestige_view_currency_price: Get currency price by timestamp
+- api_vestige_view_currency_average_price: Get average price for currency
+- api_vestige_view_currency_prices_simple_30d: Get currency prices for last 30 days
 
-#### Tinyman Resource Tools
-- resource_tinyman_get_pool: Get Tinyman pool information by asset pair
-- resource_tinyman_get_pool_analytics: Get analytics for a Tinyman pool
-- resource_tinyman_get_pool_creation_quote: Get quote for creating a new pool
-- resource_tinyman_get_liquidity_quote: Get quote for adding liquidity
-- resource_tinyman_get_remove_liquidity_quote: Get quote for removing liquidity
-- resource_tinyman_get_swap_quote: Get quote for swapping assets
-- resource_tinyman_get_asset_optin_quote: Get quote for opting into pool token
-- resource_tinyman_get_validator_optin_quote: Get quote for opting into validator
-- resource_tinyman_get_validator_optout_quote: Get quote for opting out of validator
+#### Tinyman API Tools
+- api_tinyman_get_pool: Get Tinyman pool information by asset pair
+- api_tinyman_get_pool_analytics: Get analytics for a Tinyman pool
+- api_tinyman_get_pool_creation_quote: Get quote for creating a new pool
+- api_tinyman_get_liquidity_quote: Get quote for adding liquidity
+- api_tinyman_get_remove_liquidity_quote: Get quote for removing liquidity
+- api_tinyman_get_swap_quote: Get quote for swapping assets
+- api_tinyman_get_asset_optin_quote: Get quote for opting into pool token
+- api_tinyman_get_validator_optin_quote: Get quote for opting into validator
+- api_tinyman_get_validator_optout_quote: Get quote for opting out of validator
 
-#### Ultrade Resource Tools
+#### Ultrade API Tools
 1. Wallet Tools:
-- resource_ultrade_wallet_signin_message: Generate message from the sign in data
-- resource_ultrade_wallet_signin: Sign in to trading account
-- resource_ultrade_wallet_add_key: Add a trading key
-- resource_ultrade_wallet_revoke_key: Revoke a trading key
-- resource_ultrade_wallet_keys: Get trading keys
-- resource_ultrade_wallet_key_message: Generate message from the trading key data
-- resource_ultrade_wallet_trades: Get filtered wallet trades
-- resource_ultrade_wallet_transactions: Get filtered wallet transactions
-- resource_ultrade_wallet_withdraw: Withdraw token
-- resource_ultrade_wallet_withdraw_message: Generate message from the withdrawal data
+- api_ultrade_wallet_signin_message: Generate message from the sign in data
+- api_ultrade_wallet_signin: Sign in to trading account
+- api_ultrade_wallet_add_key: Add a trading key
+- api_ultrade_wallet_revoke_key: Revoke a trading key
+- api_ultrade_wallet_keys: Get trading keys
+- api_ultrade_wallet_key_message: Generate message from the trading key data
+- api_ultrade_wallet_trades: Get filtered wallet trades
+- api_ultrade_wallet_transactions: Get filtered wallet transactions
+- api_ultrade_wallet_withdraw: Withdraw token
+- api_ultrade_wallet_withdraw_message: Generate message from the withdrawal data
 
 2. Market Tools:
-- resource_ultrade_market_symbols: Get market symbols
-- resource_ultrade_market_details: Get market details
-- resource_ultrade_market_price: Get last market price by pair symbol
-- resource_ultrade_market_depth: Get order book depth
-- resource_ultrade_market_last_trades: Get last trades
-- resource_ultrade_market_history: Get market history
-- resource_ultrade_market_assets: Get trading assets
-- resource_ultrade_market_fee_rates: Get fee rates
-- resource_ultrade_market_chains: Get blockchain chains
-- resource_ultrade_market_withdrawal_fee: Get withdrawal fee
-- resource_ultrade_market_operation_details: Get operation details
-- resource_ultrade_market_settings: Get market settings
-- resource_ultrade_market_orders: Get orders
-- resource_ultrade_market_open_orders: Get open orders
-- resource_ultrade_market_order_by_id: Get order by ID
-- resource_ultrade_market_order_message: Generate message from the order data
-- resource_ultrade_market_create_order: Create new order
-- resource_ultrade_market_create_orders: Create new orders
-- resource_ultrade_market_cancel_order: Cancel open order
-- resource_ultrade_market_cancel_orders: Cancel multiple open orders
+- api_ultrade_market_symbols: Get market symbols
+- api_ultrade_market_details: Get market details
+- api_ultrade_market_price: Get last market price by pair symbol
+- api_ultrade_market_depth: Get order book depth
+- api_ultrade_market_last_trades: Get last trades
+- api_ultrade_market_history: Get market history
+- api_ultrade_market_assets: Get trading assets
+- api_ultrade_market_fee_rates: Get fee rates
+- api_ultrade_market_chains: Get blockchain chains
+- api_ultrade_market_withdrawal_fee: Get withdrawal fee
+- api_ultrade_market_operation_details: Get operation details
+- api_ultrade_market_settings: Get market settings
+- api_ultrade_market_orders: Get orders
+- api_ultrade_market_open_orders: Get open orders
+- api_ultrade_market_order_by_id: Get order by ID
+- api_ultrade_market_order_message: Generate message from the order data
+- api_ultrade_market_create_order: Create new order
+- api_ultrade_market_create_orders: Create new orders
+- api_ultrade_market_cancel_order: Cancel open order
+- api_ultrade_market_cancel_orders: Cancel multiple open orders
 
 3. System Tools:
-- resource_ultrade_system_time: Get current system time
-- resource_ultrade_system_maintenance: Get system maintenance status
-- resource_ultrade_system_version: Get system version
+- api_ultrade_system_time: Get current system time
+- api_ultrade_system_maintenance: Get system maintenance status
+- api_ultrade_system_version: Get system version
 
 ### Account Management Tools
 - create_account: Create a new Algorand account

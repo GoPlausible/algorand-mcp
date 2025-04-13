@@ -16,7 +16,7 @@ jest.mock('../../../src/algorand-client.js', () => ({
     accountApplicationInformation: jest.fn(),
     accountAssetInformation: jest.fn()
   },
-  RESOURCE_URIS: {
+  API_URIS: {
     ACCOUNT_DETAILS: 'algorand://account/{address}',
     APPLICATION_STATE: 'algorand://account/{address}/application/{app-id}',
     ASSET_HOLDINGS: 'algorand://account/{address}/asset/{asset-id}'

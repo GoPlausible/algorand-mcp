@@ -22,7 +22,7 @@ jest.mock('../../../src/algorand-client.js', () => ({
     status: jest.fn(),
     statusAfterBlock: jest.fn()
   },
-  RESOURCE_URIS: {
+  API_URIS: {
     PENDING_TRANSACTION: 'algorand://transaction/{txid}/pending',
     PENDING_TRANSACTIONS_BY_ADDRESS: 'algorand://account/{address}/transactions/pending',
     PENDING_TRANSACTIONS: 'algorand://transactions/pending',

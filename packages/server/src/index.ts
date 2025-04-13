@@ -15,8 +15,8 @@ import {
   TransactionManager,
   AlgodManager,
   transactionTools,
-  resourceTools,
-  handleResourceTools,
+  apiManager,
+  handleApiManager,
   arc26Manager,
   KnowledgeManager
 } from './tools/index.js';
@@ -60,8 +60,8 @@ class AlgorandMcpServer {
                 ...acc,
                 [tool.name]: tool.inputSchema
               }), {}),
-              // Resource Tools
-              ...resourceTools.reduce((acc, tool) => ({
+              // API Tools
+              ...apiManager.reduce((acc, tool) => ({
                 ...acc,
                 [tool.name]: tool.inputSchema
               }), {}),
@@ -127,8 +127,8 @@ class AlgorandMcpServer {
         ...AlgodManager.algodTools,
         // Transaction Tools
         ...transactionTools,
-        // Resource Tools
-        ...resourceTools,
+        // API Tools
+        ...apiManager,
         // ARC-26 Tools
         ...arc26Manager.arc26Tools,
         // Knowledge Tools
@@ -191,9 +191,9 @@ class AlgorandMcpServer {
         return TransactionManager.handleTool(name, args);
       }
 
-      // Handle resource tools
-      if (name.startsWith('resource_')) {
-        return handleResourceTools(name, args);
+      // Handle API tools
+      if (name.startsWith('api_')) {
+        return handleApiManager(name, args);
       }
 
       // Handle ARC-26 tools

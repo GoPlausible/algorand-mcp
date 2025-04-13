@@ -11,7 +11,7 @@ const buildIndexerUri = (path: string) => {
 };
 
 // Resource URI templates using API URLs
-export const RESOURCE_URIS = {
+export const API_URIS = {
   // Algod resources
   ACCOUNT_DETAILS: buildAlgodUri('/accounts/{address}'),
   ASSET_HOLDINGS: buildAlgodUri('/accounts/{address}/assets'),
