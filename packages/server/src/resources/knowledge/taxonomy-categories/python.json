@@ -1,58 +1,68 @@
 {
   "name": "Python Development",
   "description": "Python development resources for Algorand blockchain",
-  "categories": {
+  "path": "python",
+  "subcategories": {
     "examples": {
       "name": "Code Examples",
       "description": "Example implementations in Python",
+      "path": "python/examples",
       "subcategories": {
         "basics": {
           "name": "Basic Examples",
-          "items": [
-            "developer:python:code:example:hello_world.md",
-            "developer:python:code:example:accounts.md",
-            "developer:python:code:example:assets.md",
-            "developer:python:code:example:transactions.md"
+          "path": "python/examples/basics",
+          "documents": [
+            {
+              "name": "hello_world",
+              "description": "Hello World Example",
+              "path": "developer:python:code:example:hello_world.md"
+            },
+            {
+              "name": "accounts",
+              "description": "Account Management",
+              "path": "developer:python:code:example:accounts.md"
+            },
+            {
+              "name": "assets",
+              "description": "Asset Operations",
+              "path": "developer:python:code:example:assets.md"
+            },
+            {
+              "name": "transactions",
+              "description": "Transaction Handling",
+              "path": "developer:python:code:example:transactions.md"
+            }
           ]
         },
         "storage": {
           "name": "Storage Examples",
-          "items": [
-            "developer:python:code:example:box_storage.md",
-            "developer:python:code:example:global_storage.md",
-            "developer:python:code:example:local_storage.md",
-            "developer:python:code:example:scratch_storage.md",
-            "developer:python:code:example:struct_in_box.md"
-          ]
-        },
-        "defi": {
-          "name": "DeFi Examples",
-          "items": [
-            "developer:python:code:example:defi:amm.md",
-            "developer:python:code:example:defi:auction.md",
-            "developer:python:code:example:defi:marketplace.md",
-            "developer:python:code:example:defi:htlc_logicsig.md"
-          ]
-        },
-        "advanced": {
-          "name": "Advanced Examples",
-          "items": [
-            "developer:python:code:example:arc4_types.md",
-            "developer:python:code:example:control_flow.md",
-            "developer:python:code:example:inner_transactions.md",
-            "developer:python:code:example:self_payment.md",
-            "developer:python:code:example:subsidize_app_call.md"
-          ]
-        },
-        "specialized": {
-          "name": "Specialized Examples",
-          "items": [
-            "developer:python:code:example:events:arc28_events.md",
-            "developer:python:code:example:utility:calculator.md",
-            "developer:python:code:example:crypto:merkle_tree.md",
-            "developer:python:code:example:nft:proof_of_attendance.md",
-            "developer:python:code:example:governance:simple_voting.md",
-            "developer:python:code:example:privacy:zk_whitelist.md"
+          "path": "python/examples/storage",
+          "documents": [
+            {
+              "name": "box_storage",
+              "description": "Box Storage Example",
+              "path": "developer:python:code:example:box_storage.md"
+            },
+            {
+              "name": "global_storage",
+              "description": "Global Storage Example",
+              "path": "developer:python:code:example:global_storage.md"
+            },
+            {
+              "name": "local_storage",
+              "description": "Local Storage Example",
+              "path": "developer:python:code:example:local_storage.md"
+            },
+            {
+              "name": "scratch_storage",
+              "description": "Scratch Storage Example",
+              "path": "developer:python:code:example:scratch_storage.md"
+            },
+            {
+              "name": "struct_in_box",
+              "description": "Struct in Box Example",
+              "path": "developer:python:code:example:struct_in_box.md"
+            }
           ]
         }
       }
@@ -60,41 +70,32 @@
     "testing": {
       "name": "Testing Guide",
       "description": "Comprehensive testing documentation for Python",
+      "path": "python/testing",
       "subcategories": {
         "fundamentals": {
           "name": "Testing Fundamentals",
-          "items": [
-            "puya:python:testing:docs:testing-guide:index.md",
-            "puya:python:testing:docs:testing-guide:concepts.md",
-            "puya:python:testing:docs:coverage.md",
-            "puya:python:testing:docs:examples.md"
-          ]
-        },
-        "contract_testing": {
-          "name": "Smart Contract Testing",
-          "items": [
-            "puya:python:testing:docs:testing-guide:contract-testing.md",
-            "puya:python:testing:docs:testing-guide:signature-testing.md",
-            "puya:python:testing:docs:testing-guide:state-management.md"
-          ]
-        },
-        "technical": {
-          "name": "Technical Testing",
-          "items": [
-            "puya:python:testing:docs:testing-guide:avm-types.md",
-            "puya:python:testing:docs:testing-guide:arc4-types.md",
-            "puya:python:testing:docs:testing-guide:opcodes.md",
-            "puya:python:testing:docs:testing-guide:subroutines.md",
-            "puya:python:testing:docs:testing-guide:transactions.md"
-          ]
-        },
-        "reference": {
-          "name": "API Reference",
-          "items": [
-            "puya:python:testing:docs:api.md",
-            "puya:python:testing:docs:algopy.md",
-            "puya:python:testing:docs:faq.md",
-            "puya:python:testing:docs:index.md"
+          "path": "python/testing/fundamentals",
+          "documents": [
+            {
+              "name": "index",
+              "description": "Testing Guide Overview",
+              "path": "puya:python:testing:docs:testing-guide:index.md"
+            },
+            {
+              "name": "concepts",
+              "description": "Testing Concepts",
+              "path": "puya:python:testing:docs:testing-guide:concepts.md"
+            },
+            {
+              "name": "coverage",
+              "description": "Test Coverage",
+              "path": "puya:python:testing:docs:coverage.md"
+            },
+            {
+              "name": "examples",
+              "description": "Testing Examples",
+              "path": "puya:python:testing:docs:examples.md"
+            }
           ]
         }
       }
