@@ -33,18 +33,19 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 
 ```
 src/
-├── resources/                # MCP Resources
-│   ├── algod/               # Real-time blockchain state
-│   ├── indexer/            # Historical blockchain data
-│   ├── nfd/               # NFDomains resources
-│   ├── vestige/           # Vestige DeFi resources
-│   ├── tinyman/           # Tinyman AMM resources
-│   └── ultrade/           # Ultrade DEX resources
-├── tools/                  # MCP Tools
+├── resources/                # MCP Resources (User-invokable endpoints)
+│   ├── knowledge/           # Documentation and taxonomy
+│   │   ├── taxonomy/        # Markdown documentation
+│   │   ├── taxonomy-categories/ # Category JSON definitions
+│   │   └── index.ts         # Knowledge resource handler
+│   ├── wallet/             # Wallet management
+│   │   └── index.ts         # Wallet resource handler
+│   └── index.ts             # Resource registration
+├── tools/                  # MCP Tools (Agent-invokable operations)
 │   ├── accountManager.ts    # Account operations
 │   ├── algodManager.ts      # Node interactions
 │   ├── utilityManager.ts    # Utility functions
-│   ├── resource_tools/      # Resource Tools
+│   ├── resource_tools/      # Resource Tools (Agent-accessible resource data)
 │   │   ├── algod/          # Algod resource tools
 │   │   ├── indexer/        # Indexer resource tools
 │   │   ├── nfd/            # NFDomains tools
@@ -54,6 +55,23 @@ src/
 │   └── transactionManager/ # Transaction handling
 └── index.ts               # Server entry point
 ```
+
+## MCP Components
+
+### Resources
+User-invokable endpoints that provide direct access to data and services:
+
+1. Knowledge Resources:
+   - algorand://knowledge/taxonomy - Full documentation taxonomy
+   - algorand://knowledge/taxonomy/{category} - Category-specific documentation
+   - algorand://knowledge/document/{path} - Individual document content
+
+2. Wallet Resources:
+   - algorand://wallet/accounts - Account information and balances
+   - algorand://wallet/assets - Asset holdings and details
+
+### Resource Tools
+Agent-invokable tools that provide the same functionality as Resources but through tool interfaces. These are necessary when agents cannot directly access Resources:
 
 ## Installation
 
@@ -101,6 +119,27 @@ Override defaults by doing either:
 - Configuring in Claude Desktop/Cursor settings (see root README)
 
 ## Available Tools
+
+### Knowledge Resource Tools
+The knowledge resource tools provide access to Algorand's comprehensive documentation through a structured taxonomy:
+
+- algorand://knowledge/taxonomy - Full documentation taxonomy
+- algorand://knowledge/taxonomy/{category} - Category-specific documentation
+- algorand://knowledge/document/{path} - Individual document content
+
+Categories include:
+- ARCs (Algorand Request for Comments)
+- SDKs (Software Development Kits)
+- AlgoKit (Development tools and CLI)
+- AlgoKit Utils (Utility libraries)
+- TEALScript (TypeScript-like smart contract language)
+- Puya (Python-based smart contract language)
+- Liquid Auth (Authentication system)
+- Python (Python development resources)
+- Developers (General developer documentation)
+- CLIs (Command Line Interface tools)
+- Nodes (Node management)
+- Details (Technical details and specifications)
 
 ### Resource Tools
 It is important to note that the resource tools are read-only and do not modify the blockchain state. They provide a way to access real-time and historical data from the Algorand blockchain.

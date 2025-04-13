@@ -215,23 +215,19 @@ async function findDocument(docPath: string): Promise<TaxonomyDocument | undefin
 export async function knowledgeResources(uri: string) {
   try {
     // Handle full taxonomy request
-    if (uri === 'algorand://knowledge/taxonomy') {
-      return {
-        contents: [{
-          uri,
-          mimeType: 'application/json',
-          text: JSON.stringify(taxonomyData)
-        }]
-      };
-    }
+    
 
     // Handle category-specific taxonomy request
+    console.log('MCP-RESOURCE: Checking URI:', uri);
+    console.log('MCP-RESOURCE: Available categories:', Object.keys(taxonomyData.categories));
     const categoryMatch = uri.match(/^algorand:\/\/knowledge\/taxonomy\/([a-z-]+)$/);
+    console.log('MCP-RESOURCE: Category match result:', categoryMatch);
     if (categoryMatch) {
       const category = categoryMatch[1];
-      
+      console.log('MCP-RESOURCE: Found category:', category);
       // Get category data from taxonomyData
       const categoryData = taxonomyData.categories[category];
+      console.log('MCP-RESOURCE: Category data:', JSON.stringify(categoryData, null, 2));
       if (!categoryData) {
         throw new McpError(
           ErrorCode.InvalidRequest,
@@ -270,7 +266,15 @@ export async function knowledgeResources(uri: string) {
         }]
       };
     }
-
+    if (uri === 'algorand://knowledge/taxonomy') {
+      return {
+        contents: [{
+          uri,
+          mimeType: 'application/json',
+          text: JSON.stringify(taxonomyData)
+        }]
+      };
+    }
     // Handle document requests
     const docMatch = uri.match(/^algorand:\/\/knowledge\/document\/(.+)$/);
     if (docMatch) {

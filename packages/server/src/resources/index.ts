@@ -80,6 +80,31 @@ export class ResourceManager {
       handler: knowledgeResources
     },
     {
+      uri: 'algorand://knowledge/taxonomy/*',
+      name: 'Algorand Knowledge Category',
+      description: "Category from the Algorand knowledge taxonomy\n OPTIONS: ['arcs', 'sdks', 'algokit', 'algokit-utils', 'tealscript', 'puya', 'liquid-auth', 'python', 'developers', 'clis', 'nodes', 'details']",
+      schema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          description: { type: 'string' },
+          subcategories: { type: 'object' },
+          documents: { 
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                description: { type: 'string' },
+                path: { type: 'string' }
+              }
+            }
+          }
+        }
+      },
+      handler: knowledgeResources
+    },
+    {
       uri: 'algorand://knowledge/document/*',
       name: 'Algorand Knowledge Document',
       description: 'Individual document from the Algorand knowledge taxonomy',
@@ -103,6 +128,8 @@ export class ResourceManager {
   static async handleResource(uri: string) {
     const resource = ResourceManager.resources.find(r => {
       // Exact match
+      console.log('r.uri', r.uri);
+      console.log('uri', uri);
       if (r.uri === uri) return true;
       // Wildcard match (e.g. algorand://knowledge/document/*)
       if (r.uri.endsWith('*')) {

@@ -104,14 +104,14 @@ algorand-mcp/
 │   │   └── tsconfig.json
 │   └── server/                    # Server Package
 │       ├── src/
-│       │   ├── resources/         # MCP Resources
-│       │   │   ├── algod/        # Real-time blockchain state
-│       │   │   ├── indexer/      # Historical blockchain data
-│       │   │   ├── nfd/          # NFDomains name service
-│       │   │   ├── vestige/      # DeFi analytics and tracking
-│       │   │   ├── tinyman/      # Tinyman AMM integration
-│       │   │   └── ultrade/      # Ultrade DEX integration
-│       │   ├── tools/            # MCP Tools
+│       │   ├── resources/         # MCP Resources (User-invokable endpoints)
+│       │   │   ├── knowledge/     # Documentation and taxonomy
+│       │   │   │   ├── taxonomy/  # Markdown documentation
+│       │   │   │   └── index.ts   # Knowledge resource handler
+│       │   │   ├── wallet/       # Wallet management
+│       │   │   │   └── index.ts   # Wallet resource handler
+│       │   │   └── index.ts       # Resource registration
+│       │   ├── tools/            # MCP Tools (Agent-invokable operations)
 │       │   │   ├── accountManager.ts     # Account operations
 │       │   │   ├── algodManager.ts       # Node interactions
 │       │   │   ├── utilityManager.ts     # Utility functions
@@ -146,6 +146,11 @@ algorand-mcp/
 - Vestige DeFi analytics
 - Tinyman AMM integration
 - Ultrade DEX integration
+- Knowledge taxonomy resources:
+  - Full documentation taxonomy access
+  - Category-specific documentation browsing (ARCs, SDKs, tools, etc.)
+  - Individual document retrieval
+  - Markdown-based content format
 
 ### Client Features (Work in Progress)
 - Local wallet with secure storage
