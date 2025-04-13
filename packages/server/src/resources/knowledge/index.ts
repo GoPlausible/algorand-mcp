@@ -46,19 +46,6 @@ const categorySchema = {
 // Resource definitions
 const resourceDefinitions = [
   {
-    uri: 'algorand://knowledge/document/*',
-    name: 'Algorand Knowledge Document',
-    description: 'Individual document from the Algorand knowledge taxonomy',
-    schema: {
-      type: 'object',
-      properties: {
-        content: { type: 'string' },
-        name: { type: 'string' },
-        description: { type: 'string' }
-      }
-    }
-  },
-  {
     uri: 'algorand://knowledge/taxonomy',
     name: 'Algorand Knowledge Full Taxonomy',
     description: 'Markdown-based knowledge taxonomy',
@@ -160,27 +147,6 @@ export const knowledgeResources = {
   },
 
   handle: async (uri: string) => {
-    // Document
-    const documentMatch = uri.match(/^algorand:\/\/knowledge\/document\/(.+)$/);
-    if (documentMatch) {
-      const documentPath = documentMatch[1];
-      try {
-        const content = fs.readFileSync(path.join(__dirname, 'taxonomy', documentPath), 'utf-8');
-        return {
-          contents: [{
-            uri,
-            mimeType: 'text/markdown',
-            text: content
-          }]
-        };
-      } catch (error) {
-        throw new McpError(
-          ErrorCode.InvalidRequest,
-          `Document not found: ${documentPath}`
-        );
-      }
-    }
-
     // Category
     const categoryMatch = uri.match(/^algorand:\/\/knowledge\/taxonomy\/([^/]+)$/);
     if (categoryMatch) {

@@ -17,7 +17,8 @@ import {
   transactionTools,
   resourceTools,
   handleResourceTools,
-  arc26Manager
+  arc26Manager,
+  KnowledgeManager
 } from './tools/index.js';
 import { ResourceManager } from './resources/index.js';
 
@@ -66,6 +67,11 @@ class AlgorandMcpServer {
               }), {}),
               // ARC-26 Tools
               ...arc26Manager.arc26Tools.reduce((acc, tool) => ({
+                ...acc,
+                [tool.name]: tool.inputSchema
+              }), {}),
+              // Knowledge Tools
+              ...KnowledgeManager.knowledgeTools.reduce((acc, tool) => ({
                 ...acc,
                 [tool.name]: tool.inputSchema
               }), {})
@@ -125,6 +131,8 @@ class AlgorandMcpServer {
         ...resourceTools,
         // ARC-26 Tools
         ...arc26Manager.arc26Tools,
+        // Knowledge Tools
+        ...KnowledgeManager.knowledgeTools,
       ],
     }));
 
@@ -191,6 +199,11 @@ class AlgorandMcpServer {
       // Handle ARC-26 tools
       if (name === 'generate_algorand_uri') {
         return arc26Manager.handleTool(name, args);
+      }
+
+      // Handle knowledge tools
+      if (name.startsWith('get_knowledge_')) {
+        return KnowledgeManager.handleTool(name, args);
       }
 
       throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
