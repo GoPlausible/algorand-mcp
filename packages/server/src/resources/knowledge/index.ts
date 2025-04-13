@@ -1,0 +1,245 @@
+import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Try both src and dist paths since we don't know which environment we're in
+const SRC_DIR = path.join(__dirname.replace('dist', 'src'));
+const DIST_DIR = __dirname;
+
+// Import JSON files from taxonomy-categories directory
+const categoriesDir = path.join(__dirname, 'taxonomy-categories');
+const arcsJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'arcs.json'), 'utf8'));
+const sdksJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'sdks.json'), 'utf8'));
+const algokitJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'algokit.json'), 'utf8'));
+const algokitUtilsJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'algokit-utils.json'), 'utf8'));
+const tealscriptJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'tealscript.json'), 'utf8'));
+const puyaJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'puya.json'), 'utf8'));
+const liquidAuthJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'liquid-auth.json'), 'utf8'));
+const clisJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'clis.json'), 'utf8'));
+const nodesJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'nodes.json'), 'utf8'));
+const detailsJson = JSON.parse(await fs.readFile(path.join(categoriesDir, 'details.json'), 'utf8'));
+
+// Create taxonomy data structure
+const taxonomyData: TaxonomyData = {
+  categories: {
+    arcs: {
+      name: arcsJson.name,
+      description: arcsJson.description,
+      path: arcsJson.path,
+      documents: arcsJson.documents,
+      subcategories: arcsJson.subcategories
+    },
+    sdks: {
+      name: sdksJson.name,
+      description: sdksJson.description,
+      path: sdksJson.path,
+      documents: sdksJson.documents,
+      subcategories: sdksJson.subcategories
+    },
+    algokit: {
+      name: algokitJson.name,
+      description: algokitJson.description,
+      path: algokitJson.path,
+      documents: algokitJson.documents,
+      subcategories: algokitJson.subcategories
+    },
+    'algokit-utils': {
+      name: algokitUtilsJson.name,
+      description: algokitUtilsJson.description,
+      path: algokitUtilsJson.path,
+      documents: algokitUtilsJson.documents,
+      subcategories: algokitUtilsJson.subcategories
+    },
+    tealscript: {
+      name: tealscriptJson.name,
+      description: tealscriptJson.description,
+      path: tealscriptJson.path,
+      documents: tealscriptJson.documents,
+      subcategories: tealscriptJson.subcategories
+    },
+    puya: {
+      name: puyaJson.name,
+      description: puyaJson.description,
+      path: puyaJson.path,
+      documents: puyaJson.documents,
+      subcategories: puyaJson.subcategories
+    },
+    'liquid-auth': {
+      name: liquidAuthJson.name,
+      description: liquidAuthJson.description,
+      path: liquidAuthJson.path,
+      documents: liquidAuthJson.documents,
+      subcategories: liquidAuthJson.subcategories
+    },
+    clis: {
+      name: clisJson.name,
+      description: clisJson.description,
+      path: clisJson.path,
+      documents: clisJson.documents,
+      subcategories: clisJson.subcategories
+    },
+    nodes: {
+      name: nodesJson.name,
+      description: nodesJson.description,
+      path: nodesJson.path,
+      documents: nodesJson.documents,
+      subcategories: nodesJson.subcategories
+    },
+    details: {
+      name: detailsJson.name,
+      description: detailsJson.description,
+      path: detailsJson.path,
+      documents: detailsJson.documents,
+      subcategories: detailsJson.subcategories
+    }
+  }
+};
+
+
+async function resolvePath(filePath: string): Promise<string> {
+  console.log('DEBUG: Resolving path for:', filePath);
+  console.log('DEBUG: SRC_DIR:', SRC_DIR);
+  console.log('DEBUG: DIST_DIR:', DIST_DIR);
+  
+  // Try src path first
+  try {
+    const srcPath = path.join(SRC_DIR, filePath);
+    console.log('DEBUG: Trying src path:', srcPath);
+    await fs.access(srcPath);
+    console.log('DEBUG: Found file at src path');
+    return srcPath;
+  } catch (error) {
+    console.log('DEBUG: File not found in src path:', error);
+    // If src path doesn't exist, try dist path
+    const distPath = path.join(DIST_DIR, filePath);
+    console.log('DEBUG: Trying dist path:', distPath);
+    try {
+      await fs.access(distPath);
+      console.log('DEBUG: Found file at dist path');
+      return distPath;
+    } catch (error) {
+      console.log('DEBUG: File not found in dist path:', error);
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        `File not found in either src or dist paths`
+      );
+    }
+  }
+}
+
+interface TaxonomyDocument {
+  name: string;
+  description: string;
+  content?: string;
+  path: string;
+}
+
+interface TaxonomyCategory {
+  name: string;
+  description: string;
+  path: string;
+  documents?: TaxonomyDocument[];
+  subcategories?: Record<string, TaxonomyCategory>;
+}
+
+interface TaxonomyData {
+  categories: Record<string, TaxonomyCategory>;
+}
+
+/**
+ * Find a specific document in the taxonomy
+ * @param docPath Path to the document
+ * @returns Document if found, undefined otherwise
+ */
+async function findDocument(docPath: string): Promise<TaxonomyDocument | undefined> {
+  try {
+    console.log('DEBUG: Finding document:', docPath);
+    const fullPath = await resolvePath(path.join('taxonomy', docPath));
+    console.log('DEBUG: Full document path:', fullPath);
+    
+    try {
+      await fs.access(fullPath);
+      console.log('DEBUG: Document exists at:', fullPath);
+    } catch (error) {
+      console.log('DEBUG: Document access error:', error);
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        `Document not found at ${fullPath}`
+      );
+    }
+    
+    const content = await fs.readFile(fullPath, 'utf8');
+    const lines = content.split('\n');
+    const firstLine = lines[0] || '';
+    const description = firstLine.replace(/^#*\s*/, '');
+
+    return {
+      name: path.basename(docPath, '.md'),
+      description,
+      content,
+      path: docPath
+    };
+  } catch (error) {
+    console.error(`Failed to read document ${docPath}:`, error);
+    throw new McpError(
+      ErrorCode.InternalError,
+      `Failed to read document ${docPath}: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+/**
+ * Handle knowledge-related resource requests
+ * @param uri Resource URI
+ * @returns Resource content
+ */
+export async function knowledgeResources(uri: string) {
+  try {
+    if (uri === 'algorand://knowledge/taxonomy') {
+      return {
+        contents: [{
+          uri,
+          mimeType: 'application/json',
+          text: JSON.stringify(taxonomyData)
+        }]
+      };
+    }
+
+    // Handle document requests
+    const docMatch = uri.match(/^algorand:\/\/knowledge\/document\/(.+)$/);
+    if (docMatch) {
+      const docPath = decodeURIComponent(docMatch[1]);
+      const document = await findDocument(docPath);
+      if (!document) {
+        throw new McpError(
+          ErrorCode.InvalidRequest,
+          `Document not found: ${docPath}`
+        );
+      }
+      return {
+        contents: [{
+          uri,
+          mimeType: 'text/markdown',
+          text: document.content || ''
+        }]
+      };
+    }
+
+    throw new McpError(
+      ErrorCode.InvalidRequest,
+      `Invalid knowledge resource URI: ${uri}`
+    );
+  } catch (error: unknown) {
+    if (error instanceof McpError) {
+      throw error;
+    }
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    throw new McpError(
+      ErrorCode.InternalError,
+      `Failed to handle knowledge resource: ${message}`
+    );
+  }
+}

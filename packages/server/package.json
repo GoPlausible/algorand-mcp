@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r src/resources/knowledge/taxonomy src/resources/knowledge/taxonomy-categories dist/resources/knowledge/",
     "clean": "rm -rf dist",
     "test": "jest"
   },

@@ -1,0 +1,33 @@
+TEALScript:tests:test_package:README.md
+TEALScript:README.md
+TEALScript:examples:auction:README.md
+TEALScript:examples:itxns:README.md
+TEALScript:examples:lsig_with_app:README.md
+TEALScript:examples:amm:README.md
+TEALScript:examples:reti:README.md
+TEALScript:examples:big_box:README.md
+TEALScript:FEATURES.md
+TEALScript:README.md
+TEALScript:guides:storage.md
+TEALScript:guides:lifecycle.md
+TEALScript:guides:pyteal.md
+TEALScript:guides:Supported Types:arrays.md
+TEALScript:guides:Supported Types:numbers.md
+TEALScript:guides:math.md
+TEALScript:guides:getting_started.md
+TEALScript:guides:methods.md
+TEALScript:guides:multiple_contracts.md
+TEALScript:guides:features.md
+TEALScript:guides:atomic_txn.md
+TEALScript:guides:inner_transactions.md
+TEALScript:tutorials:Hello World:0005-hello.md
+TEALScript:tutorials:Hello World:0001-intro.md
+TEALScript:tutorials:Hello World:0006-test.md
+TEALScript:tutorials:Hello World:0002-init.md
+TEALScript:tutorials:Hello World:0003-contract.md
+TEALScript:tutorials:Hello World:0004-artifacts.md
+puya:typescript:docs:architecture-decisions:2024-05-21_primitive-bytes-and-strings.md
+puya:typescript:docs:architecture-decisions:2024-05-21_primitive-integer-types.md
+puya:typescript:docs:README.md
+puya:typescript:README.md
+puya:typescript:packages:algo-ts:readme.md

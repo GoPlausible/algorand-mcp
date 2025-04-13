@@ -8,6 +8,7 @@ interface EnvConfig {
   algorand_algod_port: string;
   algorand_indexer_port: string;
   algorand_token: string;
+  algorand_agent_wallet_active: string;
 
   // NFDomains Configuration
   nfd_api_url: string;
@@ -23,6 +24,7 @@ interface EnvConfig {
 
   // Pagination Configuration
   items_per_page: number;
+  
 }
 
 export const env: EnvConfig = {
@@ -35,6 +37,7 @@ export const env: EnvConfig = {
   algorand_algod_port: process.env.ALGORAND_ALGOD_PORT || '',
   algorand_indexer_port: process.env.ALGORAND_INDEXER_PORT || '',
   algorand_token: process.env.ALGORAND_TOKEN || '',
+  algorand_agent_wallet_active: process.env.ALGORAND_AGENT_WALLET_ACTIVE || '',
 
   // NFDomains Configuration
   nfd_api_url: process.env.NFD_API_URL || 'https://api.nf.domains',

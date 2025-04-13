@@ -1,0 +1,15 @@
+developer:docs:run-a-node:participate:renew.md
+developer:docs:run-a-node:participate:index.md
+developer:docs:run-a-node:participate:generate_keys.md
+developer:docs:run-a-node:participate:offline.md
+developer:docs:run-a-node:participate:online.md
+developer:docs:run-a-node:setup:indexer.md
+developer:docs:run-a-node:setup:node-troubleshooting.md
+developer:docs:run-a-node:setup:install.md
+developer:docs:run-a-node:setup:types.md
+developer:docs:run-a-node:operations:catchup.md
+developer:docs:run-a-node:operations:switch_networks.md
+developer:docs:run-a-node:reference:relay.md
+developer:docs:run-a-node:reference:telemetry-config.md
+developer:docs:run-a-node:reference:artifacts.md
+developer:docs:run-a-node:reference:config.md

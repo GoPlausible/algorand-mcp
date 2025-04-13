@@ -1,5 +1,5 @@
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { ResponseProcessor } from '../../utils/responseProcessor.js';
+import { ResponseProcessor } from '../../../utils/responseProcessor.js';
 import { algodClient } from '../../../algorand-client.js';
 
 /**

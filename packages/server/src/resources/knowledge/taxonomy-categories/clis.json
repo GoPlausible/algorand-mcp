@@ -1,0 +1,280 @@
+{
+  "name": "CLI Tools",
+  "description": "Command Line Interface tools for Algorand development",
+  "path": "developer:docs:clis",
+  "subcategories": {
+    "goal": {
+      "name": "Goal",
+      "description": "Main Algorand CLI tool",
+      "path": "developer:docs:clis:goal",
+      "documents": [
+        {"name": "Goal Overview", "path": "developer:docs:clis:goal:goal.md"},
+        {"name": "License", "path": "developer:docs:clis:goal:license.md"},
+        {"name": "Protocols", "path": "developer:docs:clis:goal:protocols.md"},
+        {"name": "Report", "path": "developer:docs:clis:goal:report.md"},
+        {"name": "Version", "path": "developer:docs:clis:goal:version.md"}
+      ],
+      "subcategories": {
+        "account": {
+          "name": "Account Commands",
+          "description": "Account management commands",
+          "path": "developer:docs:clis:goal:account",
+          "documents": [
+            {"name": "Account Overview", "path": "developer:docs:clis:goal:account:account.md"},
+            {"name": "Add Part Key", "path": "developer:docs:clis:goal:account:addpartkey.md"},
+            {"name": "Asset Details", "path": "developer:docs:clis:goal:account:assetdetails.md"},
+            {"name": "Balance", "path": "developer:docs:clis:goal:account:balance.md"},
+            {"name": "Change Online Status", "path": "developer:docs:clis:goal:account:changeonlinestatus.md"},
+            {"name": "Delete", "path": "developer:docs:clis:goal:account:delete.md"},
+            {"name": "Delete Part Key", "path": "developer:docs:clis:goal:account:deletepartkey.md"},
+            {"name": "Dump", "path": "developer:docs:clis:goal:account:dump.md"},
+            {"name": "Export", "path": "developer:docs:clis:goal:account:export.md"},
+            {"name": "Import", "path": "developer:docs:clis:goal:account:import.md"},
+            {"name": "Import Root Key", "path": "developer:docs:clis:goal:account:importrootkey.md"},
+            {"name": "Info", "path": "developer:docs:clis:goal:account:info.md"},
+            {"name": "Install Part Key", "path": "developer:docs:clis:goal:account:installpartkey.md"},
+            {"name": "List", "path": "developer:docs:clis:goal:account:list.md"},
+            {"name": "List Part Keys", "path": "developer:docs:clis:goal:account:listpartkeys.md"},
+            {"name": "Mark Non Participating", "path": "developer:docs:clis:goal:account:marknonparticipating.md"},
+            {"name": "New", "path": "developer:docs:clis:goal:account:new.md"},
+            {"name": "Part Key Info", "path": "developer:docs:clis:goal:account:partkeyinfo.md"},
+            {"name": "Rename", "path": "developer:docs:clis:goal:account:rename.md"},
+            {"name": "Renew All Part Keys", "path": "developer:docs:clis:goal:account:renewallpartkeys.md"},
+            {"name": "Renew Part Key", "path": "developer:docs:clis:goal:account:renewpartkey.md"},
+            {"name": "Rewards", "path": "developer:docs:clis:goal:account:rewards.md"}
+          ],
+          "subcategories": {
+            "multisig": {
+              "name": "Multisig Commands",
+              "description": "Multisignature account commands",
+              "path": "developer:docs:clis:goal:account:multisig",
+              "documents": [
+                {"name": "Multisig Overview", "path": "developer:docs:clis:goal:account:multisig:multisig.md"},
+                {"name": "Delete", "path": "developer:docs:clis:goal:account:multisig:delete.md"},
+                {"name": "Info", "path": "developer:docs:clis:goal:account:multisig:info.md"},
+                {"name": "New", "path": "developer:docs:clis:goal:account:multisig:new.md"}
+              ]
+            }
+          }
+        },
+        "app": {
+          "name": "Application Commands",
+          "description": "Smart contract application commands",
+          "path": "developer:docs:clis:goal:app",
+          "documents": [
+            {"name": "App Overview", "path": "developer:docs:clis:goal:app:app.md"},
+            {"name": "Call", "path": "developer:docs:clis:goal:app:call.md"},
+            {"name": "Clear", "path": "developer:docs:clis:goal:app:clear.md"},
+            {"name": "Close Out", "path": "developer:docs:clis:goal:app:closeout.md"},
+            {"name": "Create", "path": "developer:docs:clis:goal:app:create.md"},
+            {"name": "Delete", "path": "developer:docs:clis:goal:app:delete.md"},
+            {"name": "Info", "path": "developer:docs:clis:goal:app:info.md"},
+            {"name": "Method", "path": "developer:docs:clis:goal:app:method.md"},
+            {"name": "Opt In", "path": "developer:docs:clis:goal:app:optin.md"},
+            {"name": "Read", "path": "developer:docs:clis:goal:app:read.md"},
+            {"name": "Update", "path": "developer:docs:clis:goal:app:update.md"}
+          ],
+          "subcategories": {
+            "box": {
+              "name": "Box Commands",
+              "description": "Application box storage commands",
+              "path": "developer:docs:clis:goal:app:box",
+              "documents": [
+                {"name": "Box Overview", "path": "developer:docs:clis:goal:app:box:box.md"},
+                {"name": "Info", "path": "developer:docs:clis:goal:app:box:info.md"},
+                {"name": "List", "path": "developer:docs:clis:goal:app:box:list.md"}
+              ]
+            },
+            "interact": {
+              "name": "Interaction Commands",
+              "description": "Application interaction commands",
+              "path": "developer:docs:clis:goal:app:interact",
+              "documents": [
+                {"name": "Interact Overview", "path": "developer:docs:clis:goal:app:interact:interact.md"},
+                {"name": "Execute", "path": "developer:docs:clis:goal:app:interact:execute.md"},
+                {"name": "Query", "path": "developer:docs:clis:goal:app:interact:query.md"}
+              ]
+            }
+          }
+        },
+        "asset": {
+          "name": "Asset Commands",
+          "description": "Asset management commands",
+          "path": "developer:docs:clis:goal:asset",
+          "documents": [
+            {"name": "Asset Overview", "path": "developer:docs:clis:goal:asset:asset.md"},
+            {"name": "Config", "path": "developer:docs:clis:goal:asset:config.md"},
+            {"name": "Create", "path": "developer:docs:clis:goal:asset:create.md"},
+            {"name": "Destroy", "path": "developer:docs:clis:goal:asset:destroy.md"},
+            {"name": "Freeze", "path": "developer:docs:clis:goal:asset:freeze.md"},
+            {"name": "Info", "path": "developer:docs:clis:goal:asset:info.md"},
+            {"name": "Opt In", "path": "developer:docs:clis:goal:asset:optin.md"},
+            {"name": "Send", "path": "developer:docs:clis:goal:asset:send.md"}
+          ]
+        },
+        "clerk": {
+          "name": "Clerk Commands",
+          "description": "Transaction commands",
+          "path": "developer:docs:clis:goal:clerk",
+          "documents": [
+            {"name": "Clerk Overview", "path": "developer:docs:clis:goal:clerk:clerk.md"},
+            {"name": "Compile", "path": "developer:docs:clis:goal:clerk:compile.md"},
+            {"name": "Dryrun", "path": "developer:docs:clis:goal:clerk:dryrun.md"},
+            {"name": "Dryrun Remote", "path": "developer:docs:clis:goal:clerk:dryrun-remote.md"},
+            {"name": "Group", "path": "developer:docs:clis:goal:clerk:group.md"},
+            {"name": "Inspect", "path": "developer:docs:clis:goal:clerk:inspect.md"},
+            {"name": "Raw Send", "path": "developer:docs:clis:goal:clerk:rawsend.md"},
+            {"name": "Send", "path": "developer:docs:clis:goal:clerk:send.md"},
+            {"name": "Sign", "path": "developer:docs:clis:goal:clerk:sign.md"},
+            {"name": "Simulate", "path": "developer:docs:clis:goal:clerk:simulate.md"},
+            {"name": "Split", "path": "developer:docs:clis:goal:clerk:split.md"},
+            {"name": "TEAL Sign", "path": "developer:docs:clis:goal:clerk:tealsign.md"}
+          ],
+          "subcategories": {
+            "multisig": {
+              "name": "Multisig Commands",
+              "description": "Multisignature transaction commands",
+              "path": "developer:docs:clis:goal:clerk:multisig",
+              "documents": [
+                {"name": "Multisig Overview", "path": "developer:docs:clis:goal:clerk:multisig:multisig.md"},
+                {"name": "Merge", "path": "developer:docs:clis:goal:clerk:multisig:merge.md"},
+                {"name": "Sign", "path": "developer:docs:clis:goal:clerk:multisig:sign.md"},
+                {"name": "Sign Program", "path": "developer:docs:clis:goal:clerk:multisig:signprogram.md"}
+              ]
+            }
+          }
+        }
+      }
+    },
+    "indexer": {
+      "name": "Indexer",
+      "description": "Algorand blockchain indexer",
+      "path": "developer:docs:clis:indexer",
+      "documents": [
+        {"name": "Indexer Overview", "path": "developer:docs:clis:indexer:indexer.md"},
+        {"name": "API Config", "path": "developer:docs:clis:indexer:api-config.md"},
+        {"name": "Daemon", "path": "developer:docs:clis:indexer:daemon.md"}
+      ],
+      "subcategories": {
+        "util": {
+          "name": "Utility Commands",
+          "description": "Indexer utility commands",
+          "path": "developer:docs:clis:indexer:util",
+          "documents": [
+            {"name": "Util Overview", "path": "developer:docs:clis:indexer:util:util.md"},
+            {"name": "Validator", "path": "developer:docs:clis:indexer:util:validator.md"}
+          ]
+        }
+      }
+    },
+    "algokey": {
+      "name": "Algokey",
+      "description": "Key management tool",
+      "path": "developer:docs:clis:algokey",
+      "documents": [
+        {"name": "Algokey Overview", "path": "developer:docs:clis:algokey:algokey.md"},
+        {"name": "Export", "path": "developer:docs:clis:algokey:export.md"},
+        {"name": "Generate", "path": "developer:docs:clis:algokey:generate.md"},
+        {"name": "Import", "path": "developer:docs:clis:algokey:import.md"},
+        {"name": "Sign", "path": "developer:docs:clis:algokey:sign.md"}
+      ],
+      "subcategories": {
+        "multisig": {
+          "name": "Multisig Commands",
+          "description": "Multisignature key commands",
+          "path": "developer:docs:clis:algokey:multisig",
+          "documents": [
+            {"name": "Multisig Overview", "path": "developer:docs:clis:algokey:multisig:multisig.md"},
+            {"name": "Append Auth Address", "path": "developer:docs:clis:algokey:multisig:append-auth-addr.md"}
+          ]
+        },
+        "part": {
+          "name": "Participation Key Commands",
+          "description": "Participation key management commands",
+          "path": "developer:docs:clis:algokey:part",
+          "documents": [
+            {"name": "Part Overview", "path": "developer:docs:clis:algokey:part:part.md"},
+            {"name": "Generate", "path": "developer:docs:clis:algokey:part:generate.md"},
+            {"name": "Info", "path": "developer:docs:clis:algokey:part:info.md"},
+            {"name": "Key Registration", "path": "developer:docs:clis:algokey:part:keyreg.md"},
+            {"name": "Reparent", "path": "developer:docs:clis:algokey:part:reparent.md"}
+          ]
+        }
+      }
+    },
+    "diagcfg": {
+      "name": "Diagnostic Config",
+      "description": "Diagnostic configuration tool",
+      "path": "developer:docs:clis:diagcfg",
+      "documents": [
+        {"name": "Diagcfg Overview", "path": "developer:docs:clis:diagcfg:diagcfg.md"}
+      ],
+      "subcategories": {
+        "metric": {
+          "name": "Metric Commands",
+          "description": "Metric configuration commands",
+          "path": "developer:docs:clis:diagcfg:metric",
+          "documents": [
+            {"name": "Metric Overview", "path": "developer:docs:clis:diagcfg:metric:metric.md"},
+            {"name": "Disable", "path": "developer:docs:clis:diagcfg:metric:disable.md"},
+            {"name": "Enable", "path": "developer:docs:clis:diagcfg:metric:enable.md"},
+            {"name": "Status", "path": "developer:docs:clis:diagcfg:metric:status.md"}
+          ]
+        },
+        "telemetry": {
+          "name": "Telemetry Commands",
+          "description": "Telemetry configuration commands",
+          "path": "developer:docs:clis:diagcfg:telemetry",
+          "documents": [
+            {"name": "Telemetry Overview", "path": "developer:docs:clis:diagcfg:telemetry:telemetry.md"},
+            {"name": "Disable", "path": "developer:docs:clis:diagcfg:telemetry:disable.md"},
+            {"name": "Enable", "path": "developer:docs:clis:diagcfg:telemetry:enable.md"},
+            {"name": "Endpoint", "path": "developer:docs:clis:diagcfg:telemetry:endpoint.md"},
+            {"name": "Name", "path": "developer:docs:clis:diagcfg:telemetry:name.md"},
+            {"name": "Status", "path": "developer:docs:clis:diagcfg:telemetry:status.md"}
+          ]
+        }
+      }
+    },
+    "tealdbg": {
+      "name": "TEAL Debugger",
+      "description": "TEAL program debugger",
+      "path": "developer:docs:clis:tealdbg",
+      "documents": [
+        {"name": "Tealdbg Overview", "path": "developer:docs:clis:tealdbg:tealdbg.md"},
+        {"name": "Debug", "path": "developer:docs:clis:tealdbg:debug.md"},
+        {"name": "Remote", "path": "developer:docs:clis:tealdbg:remote.md"}
+      ]
+    },
+    "conduit": {
+      "name": "Conduit",
+      "description": "Data pipeline tool",
+      "path": "developer:docs:clis:conduit",
+      "documents": [
+        {"name": "Conduit Overview", "path": "developer:docs:clis:conduit:conduit.md"},
+        {"name": "Init", "path": "developer:docs:clis:conduit:init.md"}
+      ],
+      "subcategories": {
+        "list": {
+          "name": "List Commands",
+          "description": "List available components",
+          "path": "developer:docs:clis:conduit:list",
+          "documents": [
+            {"name": "List Overview", "path": "developer:docs:clis:conduit:list:list.md"},
+            {"name": "Exporters", "path": "developer:docs:clis:conduit:list:exporters.md"},
+            {"name": "Importers", "path": "developer:docs:clis:conduit:list:importers.md"},
+            {"name": "Processors", "path": "developer:docs:clis:conduit:list:processors.md"}
+          ]
+        }
+      }
+    },
+    "kmd": {
+      "name": "Key Management Daemon",
+      "description": "Key management service",
+      "path": "developer:docs:clis:kmd",
+      "documents": [
+        {"name": "KMD Overview", "path": "developer:docs:clis:kmd:kmd.md"}
+      ]
+    }
+  }
+}

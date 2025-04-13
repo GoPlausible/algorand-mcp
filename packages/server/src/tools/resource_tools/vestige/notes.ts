@@ -1,5 +1,5 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { ResponseProcessor } from '../../utils/responseProcessor.js';
+import { ResponseProcessor } from '../../../utils/responseProcessor.js';
 import { env } from '../../../env.js';
 
 export const noteTools: Tool[] = [

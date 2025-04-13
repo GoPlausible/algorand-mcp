@@ -1,6 +1,6 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { indexerClient } from '../../../algorand-client.js';
-import { ResponseProcessor } from '../../utils/responseProcessor.js';
+import { ResponseProcessor } from '../../../utils/responseProcessor.js';
 import type { 
   TransactionResponse,
   TransactionsResponse 

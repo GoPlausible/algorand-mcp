@@ -6,7 +6,7 @@ import { tinymanTools, handleTinymanTools } from './tinyman/index.js';
 import { ultradeTools, handleUltradeTools } from './ultrade/index.js';
 import { exampleTools, handleExampleTools } from './example/index.js';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { ResponseProcessor } from '../utils/responseProcessor.js';
+import { ResponseProcessor } from '../../utils/responseProcessor.js';
 
 // Combine all resource tools
 export const resourceTools = [

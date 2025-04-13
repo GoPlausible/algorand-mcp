@@ -1,0 +1,173 @@
+{
+  "name": "Developer Details",
+  "description": "Detailed technical documentation for Algorand developers",
+  "path": "developer:docs:details",
+  "documents": [
+    {"name": "Overview", "path": "developer:docs:details:index.md"},
+    {"name": "Algorand Consensus", "path": "developer:docs:details:algorand_consensus.md"},
+    {"name": "Atomic Transaction Composer", "path": "developer:docs:details:atc.md"},
+    {"name": "Atomic Transfers", "path": "developer:docs:details:atomic_transfers.md"},
+    {"name": "ASA", "path": "developer:docs:details:asa.md"},
+    {"name": "Conduit", "path": "developer:docs:details:conduit.md"},
+    {"name": "Crust", "path": "developer:docs:details:crust.md"},
+    {"name": "Encoding", "path": "developer:docs:details:encoding.md"},
+    {"name": "Ethereum to Algorand", "path": "developer:docs:details:ethereum_to_algorand.md"},
+    {"name": "Indexer", "path": "developer:docs:details:indexer.md"},
+    {"name": "Parameter Tables", "path": "developer:docs:details:parameter_tables.md"},
+    {"name": "Technical FAQ", "path": "developer:docs:details:technical_faq.md"},
+    {"name": "Useful Resources", "path": "developer:docs:details:useful_resources.md"}
+  ],
+  "subcategories": {
+    "accounts": {
+      "name": "Accounts",
+      "description": "Account management documentation",
+      "path": "developer:docs:details:accounts",
+      "documents": [
+        {"name": "Overview", "path": "developer:docs:details:accounts:index.md"},
+        {"name": "Create", "path": "developer:docs:details:accounts:create.md"},
+        {"name": "Rekey", "path": "developer:docs:details:accounts:rekey.md"}
+      ]
+    },
+    "algorand-networks": {
+      "name": "Networks",
+      "description": "Algorand network documentation",
+      "path": "developer:docs:details:algorand-networks",
+      "documents": [
+        {"name": "Overview", "path": "developer:docs:details:algorand-networks:index.md"},
+        {"name": "BetaNet", "path": "developer:docs:details:algorand-networks:betanet.md"},
+        {"name": "MainNet", "path": "developer:docs:details:algorand-networks:mainnet.md"},
+        {"name": "TestNet", "path": "developer:docs:details:algorand-networks:testnet.md"}
+      ]
+    },
+    "dapps": {
+      "name": "Decentralized Applications",
+      "description": "dApp development documentation",
+      "path": "developer:docs:details:dapps",
+      "subcategories": {
+        "avm": {
+          "name": "Algorand Virtual Machine",
+          "description": "AVM and TEAL documentation",
+          "path": "developer:docs:details:dapps:avm",
+          "documents": [
+            {"name": "Overview", "path": "developer:docs:details:dapps:avm:index.md"}
+          ],
+          "subcategories": {
+            "teal": {
+              "name": "TEAL",
+              "description": "Transaction Execution Approval Language",
+              "path": "developer:docs:details:dapps:avm:teal",
+              "documents": [
+                {"name": "Overview", "path": "developer:docs:details:dapps:avm:teal:index.md"},
+                {"name": "Guidelines", "path": "developer:docs:details:dapps:avm:teal:guidelines.md"},
+                {"name": "JSON Specification", "path": "developer:docs:details:dapps:avm:teal:jsonspec.md"},
+                {"name": "Specification", "path": "developer:docs:details:dapps:avm:teal:specification.md"}
+              ],
+              "subcategories": {
+                "opcodes": {
+                  "name": "Opcodes",
+                  "description": "TEAL opcode documentation by version",
+                  "path": "developer:docs:details:dapps:avm:teal:opcodes",
+                  "documents": [
+                    {"name": "Overview", "path": "developer:docs:details:dapps:avm:teal:opcodes:index.md"},
+                    {"name": "v1", "path": "developer:docs:details:dapps:avm:teal:opcodes:v1.md"},
+                    {"name": "v2", "path": "developer:docs:details:dapps:avm:teal:opcodes:v2.md"},
+                    {"name": "v3", "path": "developer:docs:details:dapps:avm:teal:opcodes:v3.md"},
+                    {"name": "v4", "path": "developer:docs:details:dapps:avm:teal:opcodes:v4.md"},
+                    {"name": "v5", "path": "developer:docs:details:dapps:avm:teal:opcodes:v5.md"},
+                    {"name": "v6", "path": "developer:docs:details:dapps:avm:teal:opcodes:v6.md"},
+                    {"name": "v7", "path": "developer:docs:details:dapps:avm:teal:opcodes:v7.md"},
+                    {"name": "v8", "path": "developer:docs:details:dapps:avm:teal:opcodes:v8.md"},
+                    {"name": "v9", "path": "developer:docs:details:dapps:avm:teal:opcodes:v9.md"},
+                    {"name": "v10", "path": "developer:docs:details:dapps:avm:teal:opcodes:v10.md"}
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "smart-contracts": {
+          "name": "Smart Contracts",
+          "description": "Smart contract development",
+          "path": "developer:docs:details:dapps:smart-contracts",
+          "documents": [
+            {"name": "Overview", "path": "developer:docs:details:dapps:smart-contracts:index.md"},
+            {"name": "Debugging", "path": "developer:docs:details:dapps:smart-contracts:debugging.md"},
+            {"name": "Guidelines", "path": "developer:docs:details:dapps:smart-contracts:guidelines.md"}
+          ],
+          "subcategories": {
+            "abi": {
+              "name": "ABI",
+              "description": "Application Binary Interface",
+              "path": "developer:docs:details:dapps:smart-contracts:ABI",
+              "documents": [
+                {"name": "Overview", "path": "developer:docs:details:dapps:smart-contracts:ABI:index.md"}
+              ]
+            },
+            "apps": {
+              "name": "Applications",
+              "description": "Smart contract applications",
+              "path": "developer:docs:details:dapps:smart-contracts:apps",
+              "documents": [
+                {"name": "Overview", "path": "developer:docs:details:dapps:smart-contracts:apps:index.md"},
+                {"name": "Create", "path": "developer:docs:details:dapps:smart-contracts:apps:create.md"},
+                {"name": "Inner Transactions", "path": "developer:docs:details:dapps:smart-contracts:apps:innertx.md"},
+                {"name": "State", "path": "developer:docs:details:dapps:smart-contracts:apps:state.md"},
+                {"name": "Transactions", "path": "developer:docs:details:dapps:smart-contracts:apps:txs.md"}
+              ]
+            },
+            "frontend": {
+              "name": "Frontend Integration",
+              "description": "Frontend integration guides",
+              "path": "developer:docs:details:dapps:smart-contracts:frontend",
+              "documents": [
+                {"name": "Applications", "path": "developer:docs:details:dapps:smart-contracts:frontend:apps.md"},
+                {"name": "Smart Signatures", "path": "developer:docs:details:dapps:smart-contracts:frontend:smartsigs.md"}
+              ]
+            },
+            "smartsigs": {
+              "name": "Smart Signatures",
+              "description": "Smart signature documentation",
+              "path": "developer:docs:details:dapps:smart-contracts:smartsigs",
+              "documents": [
+                {"name": "Overview", "path": "developer:docs:details:dapps:smart-contracts:smartsigs:index.md"},
+                {"name": "Modes", "path": "developer:docs:details:dapps:smart-contracts:smartsigs:modes.md"},
+                {"name": "Walkthrough", "path": "developer:docs:details:dapps:smart-contracts:smartsigs:walkthrough.md"}
+              ]
+            }
+          }
+        },
+        "writing-contracts": {
+          "name": "Writing Contracts",
+          "description": "Contract development guides",
+          "path": "developer:docs:details:dapps:writing-contracts",
+          "documents": [
+            {"name": "Beaker", "path": "developer:docs:details:dapps:writing-contracts:beaker.md"},
+            {"name": "PyTeal", "path": "developer:docs:details:dapps:writing-contracts:pyteal.md"},
+            {"name": "Python", "path": "developer:docs:details:dapps:writing-contracts:python.md"}
+          ]
+        }
+      }
+    },
+    "stateproofs": {
+      "name": "State Proofs",
+      "description": "State proofs documentation",
+      "path": "developer:docs:details:stateproofs",
+      "documents": [
+        {"name": "Overview", "path": "developer:docs:details:stateproofs:index.md"},
+        {"name": "Light Client", "path": "developer:docs:details:stateproofs:light_client.md"}
+      ]
+    },
+    "transactions": {
+      "name": "Transactions",
+      "description": "Transaction documentation",
+      "path": "developer:docs:details:transactions",
+      "documents": [
+        {"name": "Overview", "path": "developer:docs:details:transactions:index.md"},
+        {"name": "Offline Transactions", "path": "developer:docs:details:transactions:offline_transactions.md"},
+        {"name": "Payment Prompts", "path": "developer:docs:details:transactions:payment_prompts.md"},
+        {"name": "Signatures", "path": "developer:docs:details:transactions:signatures.md"},
+        {"name": "Transactions", "path": "developer:docs:details:transactions:transactions.md"}
+      ]
+    }
+  }
+}

@@ -1,163 +1,134 @@
-import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { ResourceContent, ResourceResponse, ResourceDefinition } from './types.js';
-import { URI_TEMPLATES } from './uri-config.js';
+import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { walletResources } from './wallet/index.js';
+import { knowledgeResources } from './knowledge/index.js';
 
-// Import NFD resources
-import {
-  nfdResources,
-  nfdResourceSchemas,
-  handleNFDResources
-} from './nfd/index.js';
+import { env } from '../env.js';
 
-// Import Vestige resources
-import {
-  vestigeResources,
-  vestigeResourceSchemas,
-  handleVestigeResources
-} from './vestige/index.js';
-
-// Import algod resources
-import { 
-  accountResources as algodAccountResources, 
-  accountResourceSchemas as algodAccountSchemas,
-  handleAccountResources as handleAlgodAccountResource,
-  applicationResources as algodApplicationResources,
-  applicationResourceSchemas as algodApplicationSchemas,
-  handleApplicationResources as handleAlgodApplicationResources,
-  assetResources as algodAssetResources,
-  assetResourceSchemas as algodAssetSchemas,
-  handleAssetResources as handleAlgodAssetResources,
-  transactionResources,
-  transactionResourceSchemas,
-  handleTransactionResources
-} from './algod/index.js';
-
-// Import indexer resources
-import { 
-  accountResources as indexerAccountResources, 
-  accountResourceSchemas as indexerAccountSchemas,
-  handleAccountResources as handleIndexerAccountResources,
-  applicationResources as indexerApplicationResources,
-  applicationResourceSchemas as indexerApplicationSchemas,
-  handleApplicationResources as handleIndexerApplicationResources,
-  assetResources,
-  assetResourceSchemas,
-  handleAssetResources,
-  transactionResources as indexerTransactionResources,
-  transactionResourceSchemas as indexerTransactionSchemas,
-  handleTransactionResources as handleIndexerTransactionResources
-} from './indexer/index.js';
+// Define wallet resources that will be included if active wallet is configured
+const walletResourceDefinitions = [
+  {
+    uri: 'algorand://wallet/accounts',
+    name: 'Algorand Accounts',
+    description: 'List of Algorand accounts and their balances',
+    schema: {
+      type: 'object',
+      properties: {
+        accounts: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              address: { type: 'string' },
+              amount: { type: 'number' },
+              assets: { type: 'array' }
+            }
+          }
+        }
+      }
+    },
+    handler: walletResources
+  },
+  {
+    uri: 'algorand://wallet/assets',
+    name: 'Account Assets',
+    description: 'Asset holdings for Algorand accounts',
+    schema: {
+      type: 'object',
+      properties: {
+        assets: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              amount: { type: 'number' },
+              frozen: { type: 'boolean' }
+            }
+          }
+        }
+      }
+    },
+    handler: walletResources
+  }
+];
 
 export class ResourceManager {
   static resources = [
-    ...algodAccountResources,
-    ...indexerAccountResources,
-    ...algodApplicationResources,
-    ...indexerApplicationResources,
-    ...algodAssetResources,
-    ...assetResources,
-    ...transactionResources,
-    ...indexerTransactionResources,
-    ...nfdResources,
-    ...vestigeResources
+    // Only include wallet resources if active wallet is configured
+    ...(env.algorand_agent_wallet_active ? walletResourceDefinitions : []),
+    // Knowledge resources
+    {
+      uri: 'algorand://knowledge/taxonomy',
+      name: 'Algorand Knowledge Taxonomy',
+      description: 'Markdown-based knowledge taxonomy',
+      schema: {
+        type: 'object',
+        properties: {
+          categories: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                description: { type: 'string' },
+                content: { type: 'string' }
+              }
+            }
+          }
+        }
+      },
+      handler: knowledgeResources
+    },
+    {
+      uri: 'algorand://knowledge/document/*',
+      name: 'Algorand Knowledge Document',
+      description: 'Individual document from the knowledge taxonomy',
+      schema: {
+        type: 'object',
+        properties: {
+          content: { type: 'string' },
+          name: { type: 'string' },
+          description: { type: 'string' }
+        }
+      },
+      handler: knowledgeResources
+    }
   ];
 
-  static schemas = {
-    ...algodAccountSchemas,
-    ...indexerAccountSchemas,
-    ...algodApplicationSchemas,
-    ...indexerApplicationSchemas,
-    ...algodAssetSchemas,
-    ...assetResourceSchemas,
-    ...transactionResourceSchemas,
-    ...indexerTransactionSchemas,
-    ...nfdResourceSchemas,
-    ...vestigeResourceSchemas
-  };
+  static schemas: Record<string, any> = ResourceManager.resources.reduce((acc, resource) => ({
+    ...acc,
+    [resource.uri]: resource.schema
+  }), {} as Record<string, any>);
 
-  static async handleResource(uri: string): Promise<ResourceResponse> {
+  static async handleResource(uri: string) {
+    const resource = ResourceManager.resources.find(r => {
+      // Exact match
+      if (r.uri === uri) return true;
+      // Wildcard match (e.g. algorand://knowledge/document/*)
+      if (r.uri.endsWith('*')) {
+        const prefix = r.uri.slice(0, -1);
+        return uri.startsWith(prefix);
+      }
+      return false;
+    });
+
+    if (!resource) {
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        `Resource not found: ${uri}`
+      );
+    }
+
     try {
-      // Route to appropriate handler based on URI prefix and path
-      let contents: ResourceContent[] = [];
-
-      if (!uri.startsWith('algorand://')) {
-        throw new McpError(ErrorCode.InvalidRequest, 'URI must start with algorand://');
-      }
-
-      // Extract the source (algod/indexer/nfd/vestige) and resource type from URI
-      const [, source, resourceType] = uri.match(/^algorand:\/\/([^/]+)\/([^/]+)/) || [];
-
-      if (!source || !resourceType) {
-        throw new McpError(ErrorCode.InvalidRequest, `Invalid URI format: ${uri}`);
-      }
-
-      // Handle resources based on source and type
-      switch (source) {
-        case 'algod':
-          switch (resourceType) {
-            case 'accounts':
-              contents = await handleAlgodAccountResource(uri);
-              break;
-            case 'applications':
-              contents = await handleAlgodApplicationResources(uri);
-              break;
-            case 'assets':
-              contents = await handleAlgodAssetResources(uri);
-              break;
-            case 'transactions':
-              contents = await handleTransactionResources(uri);
-              break;
-              case 'status':
-              contents = await handleTransactionResources(uri);
-              break;
-            default:
-              throw new McpError(ErrorCode.InvalidRequest, `Invalid algod resource type: ${resourceType}`);
-          }
-          break;
-
-        case 'indexer':
-          switch (resourceType) {
-            case 'accounts':
-              contents = await handleIndexerAccountResources(uri);
-              break;
-            case 'applications':
-              contents = await handleIndexerApplicationResources(uri);
-              break;
-            case 'assets':
-              contents = await handleAssetResources(uri);
-              break;
-            case 'transactions':
-              contents = await handleIndexerTransactionResources(uri);
-              break;
-            default:
-              throw new McpError(ErrorCode.InvalidRequest, `Invalid indexer resource type: ${resourceType}`);
-          }
-          break;
-
-        case 'nfd':
-          contents = await handleNFDResources(uri);
-          break;
-
-        case 'vestige':
-          contents = await handleVestigeResources(uri);
-          break;
-
-        default:
-          throw new McpError(ErrorCode.InvalidRequest, `Invalid source type: ${source}`);
-      }
-
-      if (contents.length > 0) {
-        return { contents };
-      }
-
-      throw new McpError(ErrorCode.InvalidRequest, `Invalid URI format: ${uri}`);
-    } catch (error) {
+      return await resource.handler(uri);
+    } catch (error: unknown) {
       if (error instanceof McpError) {
         throw error;
       }
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new McpError(
         ErrorCode.InternalError,
-        `Failed to handle resource: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to handle resource: ${message}`
       );
     }
   }

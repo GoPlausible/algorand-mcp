@@ -1,0 +1,92 @@
+{
+  "name": "Algorand Request for Comments",
+  "description": "Specifications and standards for the Algorand blockchain",
+  "path": "ARCs",
+  "documents": [
+    {
+      "name": "README",
+      "description": "Overview of ARCs",
+      "path": "ARCs:README.md"
+    },
+    {
+      "name": "ARC Template",
+      "description": "Template for creating new ARCs",
+      "path": "ARCs:ARC-template.md"
+    }
+  ],
+  "subcategories": {
+    "specs": {
+      "name": "Specifications",
+      "description": "Individual ARC specifications",
+      "path": "ARCs:specs",
+      "documents": [
+        {"name": "ARC-0000", "path": "ARCs:specs:arc-0000.md"},
+        {"name": "ARC-0001", "path": "ARCs:specs:arc-0001.md"},
+        {"name": "ARC-0002", "path": "ARCs:specs:arc-0002.md"},
+        {"name": "ARC-0003", "path": "ARCs:specs:arc-0003.md"},
+        {"name": "ARC-0004", "path": "ARCs:specs:arc-0004.md"},
+        {"name": "ARC-0005", "path": "ARCs:specs:arc-0005.md"},
+        {"name": "ARC-0006", "path": "ARCs:specs:arc-0006.md"},
+        {"name": "ARC-0007", "path": "ARCs:specs:arc-0007.md"},
+        {"name": "ARC-0008", "path": "ARCs:specs:arc-0008.md"},
+        {"name": "ARC-0009", "path": "ARCs:specs:arc-0009.md"},
+        {"name": "ARC-0010", "path": "ARCs:specs:arc-0010.md"},
+        {"name": "ARC-0011", "path": "ARCs:specs:arc-0011.md"},
+        {"name": "ARC-0012", "path": "ARCs:specs:arc-0012.md"},
+        {"name": "ARC-0015", "path": "ARCs:specs:arc-0015.md"},
+        {"name": "ARC-0016", "path": "ARCs:specs:arc-0016.md"},
+        {"name": "ARC-0018", "path": "ARCs:specs:arc-0018.md"},
+        {"name": "ARC-0019", "path": "ARCs:specs:arc-0019.md"},
+        {"name": "ARC-0020", "path": "ARCs:specs:arc-0020.md"},
+        {"name": "ARC-0021", "path": "ARCs:specs:arc-0021.md"},
+        {"name": "ARC-0022", "path": "ARCs:specs:arc-0022.md"},
+        {"name": "ARC-0023", "path": "ARCs:specs:arc-0023.md"},
+        {"name": "ARC-0025", "path": "ARCs:specs:arc-0025.md"},
+        {"name": "ARC-0026", "path": "ARCs:specs:arc-0026.md"},
+        {"name": "ARC-0028", "path": "ARCs:specs:arc-0028.md"},
+        {"name": "ARC-0032", "path": "ARCs:specs:arc-0032.md"},
+        {"name": "ARC-0033", "path": "ARCs:specs:arc-0033.md"},
+        {"name": "ARC-0034", "path": "ARCs:specs:arc-0034.md"},
+        {"name": "ARC-0035", "path": "ARCs:specs:arc-0035.md"},
+        {"name": "ARC-0036", "path": "ARCs:specs:arc-0036.md"},
+        {"name": "ARC-0042", "path": "ARCs:specs:arc-0042.md"},
+        {"name": "ARC-0047", "path": "ARCs:specs:arc-0047.md"},
+        {"name": "ARC-0048", "path": "ARCs:specs:arc-0048.md"},
+        {"name": "ARC-0049", "path": "ARCs:specs:arc-0049.md"},
+        {"name": "ARC-0054", "path": "ARCs:specs:arc-0054.md"},
+        {"name": "ARC-0055", "path": "ARCs:specs:arc-0055.md"},
+        {"name": "ARC-0056", "path": "ARCs:specs:arc-0056.md"},
+        {"name": "ARC-0059", "path": "ARCs:specs:arc-0059.md"},
+        {"name": "ARC-0062", "path": "ARCs:specs:arc-0062.md"},
+        {"name": "ARC-0065", "path": "ARCs:specs:arc-0065.md"},
+        {"name": "ARC-0069", "path": "ARCs:specs:arc-0069.md"},
+        {"name": "ARC-0072", "path": "ARCs:specs:arc-0072.md"},
+        {"name": "ARC-0073", "path": "ARCs:specs:arc-0073.md"},
+        {"name": "ARC-0074", "path": "ARCs:specs:arc-0074.md"},
+        {"name": "ARC-0076", "path": "ARCs:specs:arc-0076.md"},
+        {"name": "ARC-0078", "path": "ARCs:specs:arc-0078.md"},
+        {"name": "ARC-0079", "path": "ARCs:specs:arc-0079.md"},
+        {"name": "ARC-0200", "path": "ARCs:specs:arc-0200.md"}
+      ]
+    },
+    "assets": {
+      "name": "Assets",
+      "description": "Asset-related ARC resources",
+      "path": "ARCs:assets",
+      "documents": [
+        {"name": "ARC-0012 README", "path": "ARCs:assets:arc-0012:README.md"},
+        {"name": "ARC-0062 README", "path": "ARCs:assets:arc-0062:README.md"},
+        {"name": "ARC-0034 Template Form", "path": "ARCs:assets:arc-0034:TemplateForm.md"}
+      ]
+    },
+    "pages": {
+      "name": "Pages",
+      "description": "Additional ARC documentation pages",
+      "path": "ARCs:pages",
+      "documents": [
+        {"name": "NFTs", "path": "ARCs:pages:nfts.md"},
+        {"name": "Wallets", "path": "ARCs:pages:wallets.md"}
+      ]
+    }
+  }
+}
