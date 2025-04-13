@@ -100,28 +100,28 @@ const taxonomyData: TaxonomyData = {
 
 
 async function resolvePath(filePath: string): Promise<string> {
-  console.log('DEBUG: Resolving path for:', filePath);
-  console.log('DEBUG: SRC_DIR:', SRC_DIR);
-  console.log('DEBUG: DIST_DIR:', DIST_DIR);
+  console.log('MCP-RESOURCE: Resolving path for:', filePath);
+  console.log('MCP-RESOURCE: SRC_DIR:', SRC_DIR);
+  console.log('MCP-RESOURCE: DIST_DIR:', DIST_DIR);
   
   // Try src path first
   try {
     const srcPath = path.join(SRC_DIR, filePath);
-    console.log('DEBUG: Trying src path:', srcPath);
+    console.log('MCP-RESOURCE: Trying src path:', srcPath);
     await fs.access(srcPath);
-    console.log('DEBUG: Found file at src path');
+    console.log('MCP-RESOURCE: Found file at src path');
     return srcPath;
   } catch (error) {
-    console.log('DEBUG: File not found in src path:', error);
+    console.log('MCP-RESOURCE: File not found in src path:', error);
     // If src path doesn't exist, try dist path
     const distPath = path.join(DIST_DIR, filePath);
-    console.log('DEBUG: Trying dist path:', distPath);
+    console.log('MCP-RESOURCE: Trying dist path:', distPath);
     try {
       await fs.access(distPath);
-      console.log('DEBUG: Found file at dist path');
+      console.log('MCP-RESOURCE: Found file at dist path');
       return distPath;
     } catch (error) {
-      console.log('DEBUG: File not found in dist path:', error);
+      console.log('MCP-RESOURCE: File not found in dist path:', error);
       throw new McpError(
         ErrorCode.InvalidRequest,
         `File not found in either src or dist paths`
@@ -156,15 +156,15 @@ interface TaxonomyData {
  */
 async function findDocument(docPath: string): Promise<TaxonomyDocument | undefined> {
   try {
-    console.log('DEBUG: Finding document:', docPath);
+    console.log('MCP-RESOURCE: Finding document:', docPath);
     const fullPath = await resolvePath(path.join('taxonomy', docPath));
-    console.log('DEBUG: Full document path:', fullPath);
+    console.log('MCP-RESOURCE: Full document path:', fullPath);
     
     try {
       await fs.access(fullPath);
-      console.log('DEBUG: Document exists at:', fullPath);
+      console.log('MCP-RESOURCE: Document exists at:', fullPath);
     } catch (error) {
-      console.log('DEBUG: Document access error:', error);
+      console.log('MCP-RESOURCE: Document access error:', error);
       throw new McpError(
         ErrorCode.InvalidRequest,
         `Document not found at ${fullPath}`

@@ -306,7 +306,7 @@
 - [ARCs:specs:arc-0011](taxonomy/ARCs:specs:arc-0011.md): ---
 
 ### General
-- [puya:docs:lg-arc28](taxonomy/puya:docs:lg-arc28.md): 
+- [puya:docs:lg-arc28](taxonomy/puya:docs:lg-arc28.md): ARC-28: Structured event logging
 
 ### General
 - [algokit:utils:typescript:capabilities:app-deploy](taxonomy/algokit:utils:typescript:capabilities:app-deploy.md): App deployment
@@ -327,7 +327,7 @@
 - [developer:docs:clis:goal:clerk:group](taxonomy/developer:docs:clis:goal:clerk:group.md): title: goal clerk group
 
 ### General
-- [puya:stubs:README](taxonomy/puya:stubs:README.md): 
+- [puya:stubs:README](taxonomy/puya:stubs:README.md): Algorand Python framework - API for writing Algorand Python smart contracts
 
 ### General
 - [algokit:utils:typescript:code:interfaces:types_testing.AlgorandFixture](taxonomy/algokit:utils:typescript:code:interfaces:types_testing.AlgorandFixture.md): [@algorandfoundation/algokit-utils](../README.md) / [types/testing](../modules/types_testing.md) / AlgorandFixture
@@ -342,7 +342,7 @@
 - [algokit:utils:typescript:code:classes:types_client_manager.ClientManager](taxonomy/algokit:utils:typescript:code:classes:types_client_manager.ClientManager.md): [@algorandfoundation/algokit-utils](../README.md) / [types/client-manager](../modules/types_client_manager.md) / ClientManager
 
 ### General
-- [puya:docs:lg-calling-apps](taxonomy/puya:docs:lg-calling-apps.md): 
+- [puya:docs:lg-calling-apps](taxonomy/puya:docs:lg-calling-apps.md): Calling other applications
 
 ### General
 - [TEALScript:examples:itxns:README](taxonomy/TEALScript:examples:itxns:README.md): To compile `itxns.ts`, generate the algokit client, and run `demo.ts` run `yarn itxns`
@@ -447,7 +447,7 @@
 - [developer:docs:clis:goal:account:dump](taxonomy/developer:docs:clis:goal:account:dump.md): title: goal account dump
 
 ### General
-- [puya:docs:lg-arc4](taxonomy/puya:docs:lg-arc4.md): 
+- [puya:docs:lg-arc4](taxonomy/puya:docs:lg-arc4.md): ARC-4: Application Binary Interface
 
 ### General
 - [algokit:utils:typescript:code:interfaces:types_client_manager.TypedAppClient](taxonomy/algokit:utils:typescript:code:interfaces:types_client_manager.TypedAppClient.md): [@algorandfoundation/algokit-utils](../README.md) / [types/client-manager](../modules/types_client_manager.md) / TypedAppClient
@@ -486,7 +486,7 @@
 - [SDKs:javascript:classes:indexerModels.AssetParams](taxonomy/SDKs:javascript:classes:indexerModels.AssetParams.md): [algosdk](../README.md) / [Exports](../modules.md) / [indexerModels](../modules/indexerModels.md) / AssetParams
 
 ### General
-- [puya:docs:lg-builtins](taxonomy/puya:docs:lg-builtins.md): 
+- [puya:docs:lg-builtins](taxonomy/puya:docs:lg-builtins.md): Python builtins
 
 ### General
 - [ARCs:specs:arc-0015](taxonomy/ARCs:specs:arc-0015.md): ---
@@ -498,7 +498,7 @@
 - [algokit:utils:typescript:code:modules:types_lifecycle_events](taxonomy/algokit:utils:typescript:code:modules:types_lifecycle_events.md): [@algorandfoundation/algokit-utils](../README.md) / types/lifecycle-events
 
 ### General
-- [puya:docs:lg-control](taxonomy/puya:docs:lg-control.md): 
+- [puya:docs:lg-control](taxonomy/puya:docs:lg-control.md): Control flow structures
 
 ### General
 - [algokit:utils:typescript:code:modules:types_dispenser_client](taxonomy/algokit:utils:typescript:code:modules:types_dispenser_client.md): [@algorandfoundation/algokit-utils](../README.md) / types/dispenser-client
@@ -528,7 +528,7 @@
 - [SDKs:javascript:interfaces:EncodedLogicSig](taxonomy/SDKs:javascript:interfaces:EncodedLogicSig.md): [algosdk](../README.md) / [Exports](../modules.md) / EncodedLogicSig
 
 ### General
-- [puya:docs:lg-errors](taxonomy/puya:docs:lg-errors.md): 
+- [puya:docs:lg-errors](taxonomy/puya:docs:lg-errors.md): Error handling and assertions
 
 ### General
 - [algokit:utils:typescript:code:classes:types_asset_manager.AssetManager](taxonomy/algokit:utils:typescript:code:classes:types_asset_manager.AssetManager.md): [@algorandfoundation/algokit-utils](../README.md) / [types/asset-manager](../modules/types_asset_manager.md) / AssetManager
@@ -594,7 +594,7 @@
 - [algokit:utils:typescript:capabilities:app](taxonomy/algokit:utils:typescript:capabilities:app.md): App management
 
 ### General
-- [puya:README](taxonomy/puya:README.md): 
+- [puya:README](taxonomy/puya:README.md): Algorand Python
 
 ### General
 - [algokit:cli:features:compile](taxonomy/algokit:cli:features:compile.md): AlgoKit Compile
@@ -807,7 +807,7 @@
 - [developer:docs:clis:diagcfg:metric:enable](taxonomy/developer:docs:clis:diagcfg:metric:enable.md): title: diagcfg metric enable
 
 ### General
-- [puya:docs:lg-unsupported-python-features](taxonomy/puya:docs:lg-unsupported-python-features.md): 
+- [puya:docs:lg-unsupported-python-features](taxonomy/puya:docs:lg-unsupported-python-features.md): Unsupported Python features
 
 ### General
 - [algokit:utils:python:source:capabilities:app-deploy](taxonomy/algokit:utils:python:source:capabilities:app-deploy.md): App deployment
@@ -1005,7 +1005,7 @@
 - [developer:docs:clis:goal:account:info](taxonomy/developer:docs:clis:goal:account:info.md): title: goal account info
 
 ### General
-- [puya:examples:auction:README](taxonomy/puya:examples:auction:README.md): 
+- [puya:examples:auction:README](taxonomy/puya:examples:auction:README.md): Port of Beaker auction contract to TEALScript. Original source: https://github.com/algorand-devrel/beaker-auction/tree/7e1fe62b852c0d819954a931f10cf39d841cbc02 
 
 ### General
 - [SDKs:javascript:classes:modelsv2.AccountParticipation](taxonomy/SDKs:javascript:classes:modelsv2.AccountParticipation.md): [algosdk](../README.md) / [Exports](../modules.md) / [modelsv2](../modules/modelsv2.md) / AccountParticipation
@@ -1017,7 +1017,7 @@
 - [algokit:utils:python:source:capabilities:dispenser-client](taxonomy/algokit:utils:python:source:capabilities:dispenser-client.md): TestNet Dispenser Client
 
 ### General
-- [puya:docs:lg-transactions](taxonomy/puya:docs:lg-transactions.md): 
+- [puya:docs:lg-transactions](taxonomy/puya:docs:lg-transactions.md): Transactions
 
 ### General
 - [algokit:utils:typescript:code:interfaces:types_testing.LogSnapshotConfig](taxonomy/algokit:utils:typescript:code:interfaces:types_testing.LogSnapshotConfig.md): [@algorandfoundation/algokit-utils](../README.md) / [types/testing](../modules/types_testing.md) / LogSnapshotConfig
@@ -1032,7 +1032,7 @@
 - [developer:docs:clis:algokey:generate](taxonomy/developer:docs:clis:algokey:generate.md): title: algokey generate
 
 ### General
-- [puya:docs:lg-types](taxonomy/puya:docs:lg-types.md): 
+- [puya:docs:lg-types](taxonomy/puya:docs:lg-types.md): Types
 
 ### General
 - [algokit:utils:typescript:code:modules:types_app_factory](taxonomy/algokit:utils:typescript:code:modules:types_app_factory.md): [@algorandfoundation/algokit-utils](../README.md) / types/app-factory
@@ -1095,7 +1095,7 @@
 - [algokit:utils:python:markdown:capabilities:dispenser-client](taxonomy/algokit:utils:python:markdown:capabilities:dispenser-client.md): TestNet Dispenser Client
 
 ### General
-- [puya:docs:lg-ops](taxonomy/puya:docs:lg-ops.md): 
+- [puya:docs:lg-ops](taxonomy/puya:docs:lg-ops.md): AVM operations
 
 ### General
 - [developer:docs:clis:goal:network:create](taxonomy/developer:docs:clis:goal:network:create.md): title: goal network create
@@ -1107,7 +1107,7 @@
 - [SDKs:javascript:classes:modelsv2.SimulationOpcodeTraceUnit](taxonomy/SDKs:javascript:classes:modelsv2.SimulationOpcodeTraceUnit.md): [algosdk](../README.md) / [Exports](../modules.md) / [modelsv2](../modules/modelsv2.md) / SimulationOpcodeTraceUnit
 
 ### General
-- [puya:src:puya:ARCHITECTURE](taxonomy/puya:src:puya:ARCHITECTURE.md): 
+- [puya:src:puya:ARCHITECTURE](taxonomy/puya:src:puya:ARCHITECTURE.md): Layers
 
 ### General
 - [SDKs:javascript:examples:README](taxonomy/SDKs:javascript:examples:README.md): Algorand JavaScript SDK Examples
@@ -1278,10 +1278,10 @@
 - [SDKs:javascript:interfaces:Account](taxonomy/SDKs:javascript:interfaces:Account.md): [algosdk](../README.md) / [Exports](../modules.md) / Account
 
 ### General
-- [puya:docs:language-guide](taxonomy/puya:docs:language-guide.md): 
+- [puya:docs:language-guide](taxonomy/puya:docs:language-guide.md): Language Guide
 
 ### General
-- [puya:docs:index](taxonomy/puya:docs:index.md): 
+- [puya:docs:index](taxonomy/puya:docs:index.md): Algorand Python
 
 ### General
 - [index](taxonomy/index.md): Algorand Knowledge Index
@@ -1317,7 +1317,7 @@
 - [ARCs:assets:arc-0034:TemplateForm](taxonomy/ARCs:assets:arc-0034:TemplateForm.md): ---
 
 ### General
-- [puya:tests:test_expected_output:README](taxonomy/puya:tests:test_expected_output:README.md): 
+- [puya:tests:test_expected_output:README](taxonomy/puya:tests:test_expected_output:README.md): The .test files in this directory are used to quickly confirm expected behaviour of the puya compiler
 
 ### General
 - [developer:docs:clis:goal:asset:create](taxonomy/developer:docs:clis:goal:asset:create.md): title: goal asset create
@@ -1377,7 +1377,7 @@
 - [algokit:utils:typescript:code:interfaces:types_app_arc56.StructField](taxonomy/algokit:utils:typescript:code:interfaces:types_app_arc56.StructField.md): [@algorandfoundation/algokit-utils](../README.md) / [types/app-arc56](../modules/types_app_arc56.md) / StructField
 
 ### General
-- [puya:docs:lg-modules](taxonomy/puya:docs:lg-modules.md): 
+- [puya:docs:lg-modules](taxonomy/puya:docs:lg-modules.md): Module level constructs
 
 ### General
 - [SDKs:javascript:classes:Algodv2](taxonomy/SDKs:javascript:classes:Algodv2.md): [algosdk](../README.md) / [Exports](../modules.md) / Algodv2
@@ -1386,7 +1386,7 @@
 - [ARCs:assets:arc-0012:README](taxonomy/ARCs:assets:arc-0012:README.md): ARC12 Contracts
 
 ### General
-- [puya:docs:principles](taxonomy/puya:docs:principles.md): 
+- [puya:docs:principles](taxonomy/puya:docs:principles.md): Principles & Background
 
 ### General
 - [algokit:utils:typescript:code:interfaces:types_app_client.AppClientDeployParams](taxonomy/algokit:utils:typescript:code:interfaces:types_app_client.AppClientDeployParams.md): [@algorandfoundation/algokit-utils](../README.md) / [types/app-client](../modules/types_app_client.md) / AppClientDeployParams
@@ -1467,7 +1467,7 @@
 - [algokit:utils:typescript:code:enums:types_indexer.AccountStatus](taxonomy/algokit:utils:typescript:code:enums:types_indexer.AccountStatus.md): [@algorandfoundation/algokit-utils](../README.md) / [types/indexer](../modules/types_indexer.md) / AccountStatus
 
 ### General
-- [puya:docs:lg-structure](taxonomy/puya:docs:lg-structure.md): 
+- [puya:docs:lg-structure](taxonomy/puya:docs:lg-structure.md): Program structure
 
 ### General
 - [ARCs:specs:arc-0048](taxonomy/ARCs:specs:arc-0048.md): ---
@@ -1485,13 +1485,13 @@
 - [algokit:cli:features:tasks:wallet](taxonomy/algokit:cli:features:tasks:wallet.md): AlgoKit Task Wallet
 
 ### General
-- [puya:docs:lg-logs](taxonomy/puya:docs:lg-logs.md): 
+- [puya:docs:lg-logs](taxonomy/puya:docs:lg-logs.md): Logging
 
 ### General
 - [developer:docs:clis:goal:node:generatetoken](taxonomy/developer:docs:clis:goal:node:generatetoken.md): title: goal node generatetoken
 
 ### General
-- [puya:docs:algopy_testing:index](taxonomy/puya:docs:algopy_testing:index.md): 
+- [puya:docs:algopy_testing:index](taxonomy/puya:docs:algopy_testing:index.md): Algorand Python Testing
 
 ### General
 - [developer:docs:clis:goal:completion:zsh](taxonomy/developer:docs:clis:goal:completion:zsh.md): title: goal completion zsh
@@ -1635,7 +1635,7 @@
 - [SDKs:javascript:classes:indexerModels.HashFactory](taxonomy/SDKs:javascript:classes:indexerModels.HashFactory.md): [algosdk](../README.md) / [Exports](../modules.md) / [indexerModels](../modules/indexerModels.md) / HashFactory
 
 ### General
-- [puya:docs:lg-compile](taxonomy/puya:docs:lg-compile.md): 
+- [puya:docs:lg-compile](taxonomy/puya:docs:lg-compile.md): Compiling to AVM bytecode
 
 ### General
 - [SDKs:javascript:classes:modelsv2.BlockLogsResponse](taxonomy/SDKs:javascript:classes:modelsv2.BlockLogsResponse.md): [algosdk](../README.md) / [Exports](../modules.md) / [modelsv2](../modules/modelsv2.md) / BlockLogsResponse
@@ -1746,7 +1746,7 @@
 - [ARCs:specs:arc-0002](taxonomy/ARCs:specs:arc-0002.md): ---
 
 ### General
-- [puya:docs:lg-storage](taxonomy/puya:docs:lg-storage.md): 
+- [puya:docs:lg-storage](taxonomy/puya:docs:lg-storage.md): Storing data on-chain
 
 ### General
 - [algokit:utils:typescript:code:interfaces:types_composer.BuiltTransactions](taxonomy/algokit:utils:typescript:code:interfaces:types_composer.BuiltTransactions.md): [@algorandfoundation/algokit-utils](../README.md) / [types/composer](../modules/types_composer.md) / BuiltTransactions
@@ -1839,7 +1839,7 @@
 - [SDKs:javascript:interfaces:ABIMethodReturnParams](taxonomy/SDKs:javascript:interfaces:ABIMethodReturnParams.md): [algosdk](../README.md) / [Exports](../modules.md) / ABIMethodReturnParams
 
 ### General
-- [puya:docs:compiler](taxonomy/puya:docs:compiler.md): 
+- [puya:docs:compiler](taxonomy/puya:docs:compiler.md): PuyaPy compiler
 
 ### General
 - [ARCs:assets:arc-0062:README](taxonomy/ARCs:assets:arc-0062:README.md): ARC-62 Reference Implementation
@@ -1887,7 +1887,7 @@
 - [ARCs:specs:arc-0023](taxonomy/ARCs:specs:arc-0023.md): ---
 
 ### General
-- [puya:docs:lg-opcode-budget](taxonomy/puya:docs:lg-opcode-budget.md): 
+- [puya:docs:lg-opcode-budget](taxonomy/puya:docs:lg-opcode-budget.md): Opcode budgets
 
 ### General
 - [SDKs:javascript:classes:ABIArrayStaticType](taxonomy/SDKs:javascript:classes:ABIArrayStaticType.md): [algosdk](../README.md) / [Exports](../modules.md) / ABIArrayStaticType

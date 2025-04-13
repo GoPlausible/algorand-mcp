@@ -134,3 +134,6 @@ sse-server
 memory*
 *rules
 a2*
+packages/server/src/resources/.DS_Store
+packages/server/src/resources/.DS_Store
+packages/server/src/resources/knowledge/.DS_Store

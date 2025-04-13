@@ -3,37 +3,37 @@
 # Configuration
 BUCKET_NAME="plausibleai"
 OUTPUT_DIR="taxonomy"
-PUYA_LIST="puya_list.json"
+LIST="list.json"
 
 # Create output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
 
-echo "Starting knowledge sync from R2 bucket for Puya docs..."
+echo "Starting knowledge sync from R2 bucket for list docs..."
 
-# Create temporary JSON file from developers-puya.txt
-echo "[" > "$PUYA_LIST"
+# Create temporary JSON file from list
+echo "[" > "$LIST"
 first=true
 while IFS= read -r line || [ -n "$line" ]; do
     if [ -n "$line" ]; then
         if [ "$first" = true ]; then
             first=false
         else
-            echo -n "," >> "$PUYA_LIST"
+            echo -n "," >> "$LIST"
         fi
-        echo -n "{\"key\": \"$line\"}" >> "$PUYA_LIST"
+        echo -n "{\"key\": \"$line\"}" >> "$LIST"
     fi
-done < developers-puya.txt
-echo "]" >> "$PUYA_LIST"
+done < developers.txt
+echo "]" >> "$LIST"
 
 # Validate JSON structure
-if ! jq empty "$PUYA_LIST" 2>/dev/null; then
-    echo "Error: Invalid JSON in $PUYA_LIST"
+if ! jq empty "$LIST" 2>/dev/null; then
+    echo "Error: Invalid JSON in $LIST"
     exit 1
 fi
 
 # Read and process taxonomy list
-echo "Processing Puya docs from $PUYA_LIST..."
-jq -c '.[]' "$PUYA_LIST" 2>/dev/null | while read -r object; do
+echo "Processing List docs from $LIST..."
+jq -c '.[]' "$LIST" 2>/dev/null | while read -r object; do
     if [ -z "$object" ]; then
         echo "Error: Empty object found in JSON"
         continue
@@ -64,10 +64,10 @@ jq -c '.[]' "$PUYA_LIST" 2>/dev/null | while read -r object; do
     fi
 done
 
-# Create index file for Puya docs
-echo "Creating Puya docs index file..."
+# Create index file for List docs
+echo "Creating List docs index file..."
 {
-    echo "# Puya Documentation Index"
+    echo "# List Documentation Index"
     echo
     echo "## Categories"
     echo
@@ -87,11 +87,11 @@ echo "Creating Puya docs index file..."
         echo "- [$name]($file): $description"
         echo
     done
-} > "$OUTPUT_DIR/puya_index.md"
+} > "$OUTPUT_DIR/clis_index.md"
 
 # Cleanup
-rm "$PUYA_LIST"
+rm "$LIST"
 
-echo "Puya docs sync complete!"
+echo "LQ docs sync complete!"
 echo "Files are available in the $OUTPUT_DIR directory"
-echo "Index created at $OUTPUT_DIR/puya_index.md"
+echo "Index created at $OUTPUT_DIR/liquid_auth_index.md"
