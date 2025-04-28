@@ -148,9 +148,9 @@ algorand-mcp/
 - Standardized response format
 - Built-in pagination support
 - NFDomains integration
-- Vestige DeFi analytics
-- Tinyman AMM integration
-- Ultrade DEX integration
+- Vestige DeFi analytics (optional, disabled by default)
+- Tinyman AMM integration (optional, disabled by default)
+- Ultrade DEX integration (optional, disabled by default)
 - Knowledge taxonomy resources:
   - Full documentation taxonomy (algorand://knowledge/taxonomy)
   - Category-specific documentation:

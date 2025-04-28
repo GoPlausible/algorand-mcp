@@ -25,9 +25,9 @@ The Algorand MCP Server provides a comprehensive set of tools and resources for 
 - Asset creation and management
 - Real-time and historical data access
 - NFDomains integration for name resolution and management
-- Vestige integration for DeFi analytics and tracking
-- Tinyman AMM integration for decentralized trading
-- Ultrade DEX integration for trading and market operations
+- Vestige integration for DeFi analytics and tracking (optional, disabled by default)
+- Tinyman AMM integration for decentralized trading (optional, disabled by default)
+- Ultrade DEX integration for trading and market operations (optional, disabled by default)
 
 ## Project Structure
 
