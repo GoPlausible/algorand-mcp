@@ -14,11 +14,16 @@ interface EnvConfig {
   nfd_api_url: string;
   nfd_api_key: string;
 
+  // Tinyman Configuration
+  tinyman_active: string;
+
   // Vestige Configuration
+  vestige_active: string;
   vestige_api_url: string;
   vestige_api_key: string;
 
   // Ultrade Configuration
+  ultrade_active: string;
   ultrade_api_url: string;
 
 
@@ -43,11 +48,14 @@ export const env: EnvConfig = {
   nfd_api_url: process.env.NFD_API_URL || 'https://api.nf.domains',
   nfd_api_key: process.env.NFD_API_KEY || '',
 
+  tinyman_active: process.env.TINYMAN_ACTIVE || 'false',
   // Vestige Configuration
+  vestige_active: process.env.VESTIGE_ACTIVE || 'false',
   vestige_api_url: process.env.VESTIGE_API_URL || 'https://api.vestigelabs.org',
   vestige_api_key: process.env.VESTIGE_API_KEY || '',
 
   // Ultrade Configuration
+  ultrade_active: process.env.ULTRADE_ACTIVE || 'false',
   ultrade_api_url: process.env.ULTRADE_API_URL || 'https://api.testnet.ultrade.org',
 
 
