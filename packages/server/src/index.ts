@@ -154,6 +154,7 @@ class AlgorandMcpServer {
 
       // Handle utility tools
       if (
+        name === 'ping' ||
         name.startsWith('validate_address') ||
         name.startsWith('encode_address') ||
         name.startsWith('decode_address') ||
