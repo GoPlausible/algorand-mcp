@@ -52,7 +52,7 @@ npm install
 # Build the project
 npm run build
 ```
-And you are done! Now you can open you MCP config and add trhe server as :
+And you are done! Now you can open you MCP config and add the server as :
 
 ```json
 {
