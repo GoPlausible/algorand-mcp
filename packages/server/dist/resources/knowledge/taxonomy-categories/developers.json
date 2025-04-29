@@ -1,0 +1,71 @@
+{
+  "name": "Developer Documentation",
+  "description": "Comprehensive developer documentation for Algorand blockchain",
+  "categories": {
+    "getting_started": {
+      "name": "Getting Started",
+      "description": "Basic concepts and introductory materials",
+      "items": [
+        "developer:docs:get-started:basics:why_algorand.md",
+        "developer:docs:get-started:basics:whats_a_dapp.md",
+        "developer:docs:get-started:basics:what_is_blockchain.md",
+        "developer:docs:get-started:basics:where_to_start.md",
+        "developer:docs:get-started:algokit.md"
+      ]
+    },
+    "tokenization": {
+      "name": "Tokenization",
+      "description": "Token creation and management",
+      "items": [
+        "developer:docs:get-started:tokenization:nft.md",
+        "developer:docs:get-started:tokenization:ft.md"
+      ]
+    },
+    "sdks": {
+      "name": "SDKs",
+      "description": "Software Development Kits",
+      "items": [
+        "developer:docs:sdks:index.md",
+        "developer:docs:sdks:python:index.md",
+        "developer:docs:sdks:javascript:index.md",
+        "developer:docs:sdks:java:index.md",
+        "developer:docs:sdks:go:index.md"
+      ]
+    },
+    "rest_apis": {
+      "name": "REST APIs",
+      "description": "API endpoints and usage",
+      "items": [
+        "developer:docs:rest-apis:restendpoints.md",
+        "developer:docs:rest-apis:algod.md",
+        "developer:docs:rest-apis:indexer.md",
+        "developer:docs:rest-apis:kmd.md"
+      ]
+    },
+    "wallet_connect": {
+      "name": "WalletConnect",
+      "description": "Wallet connection integration",
+      "items": [
+        "docs:.walletconnect:index.md",
+        "docs:.walletconnect:walletconnect-schema.md"
+      ]
+    },
+    "examples": {
+      "name": "Code Examples",
+      "description": "Example implementations and scripts",
+      "items": [
+        "docs:scripts:README.md",
+        "docs:scripts:example_tracker:example_list.md",
+        "devportal-code-examples:projects:python-contract-examples:README.md",
+        "devportal-code-examples:README.md"
+      ]
+    },
+    "models": {
+      "name": "Models",
+      "description": "Data models and structures",
+      "items": [
+        "algo-models:README.md"
+      ]
+    }
+  }
+}

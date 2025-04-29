@@ -1,0 +1,105 @@
+{
+  "name": "AlgoKit",
+  "description": "Development tools and CLI for Algorand blockchain",
+  "path": "algokit",
+  "documents": [
+    {"name": "README", "path": "algokit:README.md"},
+    {"name": "Overview", "path": "algokit:cli:algokit.md"}
+  ],
+  "subcategories": {
+    "cli": {
+      "name": "Command Line Interface",
+      "description": "AlgoKit CLI documentation",
+      "path": "algokit:cli",
+      "documents": [
+        {"name": "CLI Index", "path": "algokit:cli:cli:index.md"}
+      ],
+      "subcategories": {
+        "features": {
+          "name": "Features",
+          "description": "CLI feature documentation",
+          "path": "algokit:cli:features",
+          "documents": [
+            {"name": "Compile", "path": "algokit:cli:features:compile.md"},
+            {"name": "Completions", "path": "algokit:cli:features:completions.md"},
+            {"name": "Config", "path": "algokit:cli:features:config.md"},
+            {"name": "Dispenser", "path": "algokit:cli:features:dispenser.md"},
+            {"name": "Doctor", "path": "algokit:cli:features:doctor.md"},
+            {"name": "Explore", "path": "algokit:cli:features:explore.md"},
+            {"name": "Generate", "path": "algokit:cli:features:generate.md"},
+            {"name": "Goal", "path": "algokit:cli:features:goal.md"},
+            {"name": "Init", "path": "algokit:cli:features:init.md"},
+            {"name": "Localnet", "path": "algokit:cli:features:localnet.md"},
+            {"name": "Project", "path": "algokit:cli:features:project.md"},
+            {"name": "Tasks", "path": "algokit:cli:features:tasks.md"}
+          ],
+          "subcategories": {
+            "project": {
+              "name": "Project Commands",
+              "description": "Project-related commands",
+              "path": "algokit:cli:features:project",
+              "documents": [
+                {"name": "Bootstrap", "path": "algokit:cli:features:project:bootstrap.md"},
+                {"name": "Deploy", "path": "algokit:cli:features:project:deploy.md"},
+                {"name": "Link", "path": "algokit:cli:features:project:link.md"},
+                {"name": "List", "path": "algokit:cli:features:project:list.md"},
+                {"name": "Run", "path": "algokit:cli:features:project:run.md"}
+              ]
+            },
+            "tasks": {
+              "name": "Task Commands",
+              "description": "Task-related commands",
+              "path": "algokit:cli:features:tasks",
+              "documents": [
+                {"name": "Analyze", "path": "algokit:cli:features:tasks:analyze.md"},
+                {"name": "IPFS", "path": "algokit:cli:features:tasks:ipfs.md"},
+                {"name": "Mint", "path": "algokit:cli:features:tasks:mint.md"},
+                {"name": "NFD", "path": "algokit:cli:features:tasks:nfd.md"},
+                {"name": "Opt", "path": "algokit:cli:features:tasks:opt.md"},
+                {"name": "Send", "path": "algokit:cli:features:tasks:send.md"},
+                {"name": "Sign", "path": "algokit:cli:features:tasks:sign.md"},
+                {"name": "Transfer", "path": "algokit:cli:features:tasks:transfer.md"},
+                {"name": "Vanity Address", "path": "algokit:cli:features:tasks:vanity_address.md"},
+                {"name": "Wallet", "path": "algokit:cli:features:tasks:wallet.md"}
+              ]
+            }
+          }
+        },
+        "tutorials": {
+          "name": "Tutorials",
+          "description": "Getting started tutorials",
+          "path": "algokit:cli:tutorials",
+          "documents": [
+            {"name": "Introduction", "path": "algokit:cli:tutorials:intro.md"},
+            {"name": "Smart Contracts", "path": "algokit:cli:tutorials:smart-contracts.md"},
+            {"name": "AlgoKit Template", "path": "algokit:cli:tutorials:algokit-template.md"}
+          ]
+        },
+        "articles": {
+          "name": "Articles",
+          "description": "Technical articles and guides",
+          "path": "algokit:cli:articles",
+          "documents": [
+            {"name": "Output Stability", "path": "algokit:cli:articles:output_stability.md"}
+          ]
+        }
+      }
+    },
+    "lora": {
+      "name": "Lora",
+      "description": "AlgoKit Lora documentation",
+      "path": "algokit:lora",
+      "documents": [
+        {"name": "README", "path": "algokit:lora:README.md"}
+      ]
+    },
+    "docs": {
+      "name": "Documentation",
+      "description": "Additional AlgoKit documentation",
+      "path": "algokit:docs",
+      "documents": [
+        {"name": "Testnet API", "path": "algokit:docs:testnet_api.md"}
+      ]
+    }
+  }
+}

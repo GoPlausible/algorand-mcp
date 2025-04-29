@@ -1,0 +1,80 @@
+{
+  "name": "TEALScript",
+  "description": "TypeScript-like language for writing Algorand smart contracts",
+  "path": "TEALScript",
+  "documents": [
+    {"name": "README", "path": "TEALScript:README.md"},
+    {"name": "Features", "path": "TEALScript:FEATURES.md"}
+  ],
+  "subcategories": {
+    "guides": {
+      "name": "Guides",
+      "description": "TEALScript development guides",
+      "path": "TEALScript:guides",
+      "documents": [
+        {"name": "Getting Started", "path": "TEALScript:guides:getting_started.md"},
+        {"name": "Atomic Transactions", "path": "TEALScript:guides:atomic_txn.md"},
+        {"name": "Features", "path": "TEALScript:guides:features.md"},
+        {"name": "Inner Transactions", "path": "TEALScript:guides:inner_transactions.md"},
+        {"name": "Lifecycle", "path": "TEALScript:guides:lifecycle.md"},
+        {"name": "Math", "path": "TEALScript:guides:math.md"},
+        {"name": "Methods", "path": "TEALScript:guides:methods.md"},
+        {"name": "Multiple Contracts", "path": "TEALScript:guides:multiple_contracts.md"},
+        {"name": "PyTeal Comparison", "path": "TEALScript:guides:pyteal.md"},
+        {"name": "Storage", "path": "TEALScript:guides:storage.md"}
+      ],
+      "subcategories": {
+        "types": {
+          "name": "Supported Types",
+          "description": "Documentation for supported data types",
+          "path": "TEALScript:guides:Supported Types",
+          "documents": [
+            {"name": "Arrays", "path": "TEALScript:guides:Supported Types:arrays.md"},
+            {"name": "Numbers", "path": "TEALScript:guides:Supported Types:numbers.md"}
+          ]
+        }
+      }
+    },
+    "tutorials": {
+      "name": "Tutorials",
+      "description": "Step-by-step tutorials",
+      "path": "TEALScript:tutorials",
+      "subcategories": {
+        "hello-world": {
+          "name": "Hello World",
+          "description": "Getting started with TEALScript",
+          "path": "TEALScript:tutorials:Hello World",
+          "documents": [
+            {"name": "Introduction", "path": "TEALScript:tutorials:Hello World:0001-intro.md"},
+            {"name": "Project Setup", "path": "TEALScript:tutorials:Hello World:0002-init.md"},
+            {"name": "Writing Contract", "path": "TEALScript:tutorials:Hello World:0003-contract.md"},
+            {"name": "Building Artifacts", "path": "TEALScript:tutorials:Hello World:0004-artifacts.md"},
+            {"name": "Hello Contract", "path": "TEALScript:tutorials:Hello World:0005-hello.md"},
+            {"name": "Testing", "path": "TEALScript:tutorials:Hello World:0006-test.md"}
+          ]
+        }
+      }
+    },
+    "examples": {
+      "name": "Examples",
+      "description": "Example TEALScript contracts",
+      "path": "TEALScript:examples",
+      "documents": [
+        {"name": "AMM", "path": "TEALScript:examples:amm:README.md"},
+        {"name": "Auction", "path": "TEALScript:examples:auction:README.md"},
+        {"name": "Big Box", "path": "TEALScript:examples:big_box:README.md"},
+        {"name": "Inner Transactions", "path": "TEALScript:examples:itxns:README.md"},
+        {"name": "LogicSig with App", "path": "TEALScript:examples:lsig_with_app:README.md"},
+        {"name": "RETI", "path": "TEALScript:examples:reti:README.md"}
+      ]
+    },
+    "tests": {
+      "name": "Tests",
+      "description": "Test package documentation",
+      "path": "TEALScript:tests",
+      "documents": [
+        {"name": "Test Package", "path": "TEALScript:tests:test_package:README.md"}
+      ]
+    }
+  }
+}

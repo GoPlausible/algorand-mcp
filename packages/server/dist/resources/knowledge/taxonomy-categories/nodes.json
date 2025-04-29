@@ -1,0 +1,50 @@
+{
+  "name": "Node Management",
+  "description": "Documentation for running and managing Algorand nodes",
+  "path": "developer:docs:run-a-node",
+  "subcategories": {
+    "setup": {
+      "name": "Setup",
+      "description": "Node setup and installation",
+      "path": "developer:docs:run-a-node:setup",
+      "documents": [
+        {"name": "Installation", "path": "developer:docs:run-a-node:setup:install.md"},
+        {"name": "Indexer Setup", "path": "developer:docs:run-a-node:setup:indexer.md"},
+        {"name": "Node Types", "path": "developer:docs:run-a-node:setup:types.md"},
+        {"name": "Troubleshooting", "path": "developer:docs:run-a-node:setup:node-troubleshooting.md"}
+      ]
+    },
+    "operations": {
+      "name": "Operations",
+      "description": "Node operations and maintenance",
+      "path": "developer:docs:run-a-node:operations",
+      "documents": [
+        {"name": "Catchup", "path": "developer:docs:run-a-node:operations:catchup.md"},
+        {"name": "Switch Networks", "path": "developer:docs:run-a-node:operations:switch_networks.md"}
+      ]
+    },
+    "participate": {
+      "name": "Participation",
+      "description": "Node participation in consensus",
+      "path": "developer:docs:run-a-node:participate",
+      "documents": [
+        {"name": "Overview", "path": "developer:docs:run-a-node:participate:index.md"},
+        {"name": "Generate Keys", "path": "developer:docs:run-a-node:participate:generate_keys.md"},
+        {"name": "Offline", "path": "developer:docs:run-a-node:participate:offline.md"},
+        {"name": "Online", "path": "developer:docs:run-a-node:participate:online.md"},
+        {"name": "Renew", "path": "developer:docs:run-a-node:participate:renew.md"}
+      ]
+    },
+    "reference": {
+      "name": "Reference",
+      "description": "Reference documentation",
+      "path": "developer:docs:run-a-node:reference",
+      "documents": [
+        {"name": "Artifacts", "path": "developer:docs:run-a-node:reference:artifacts.md"},
+        {"name": "Configuration", "path": "developer:docs:run-a-node:reference:config.md"},
+        {"name": "Relay", "path": "developer:docs:run-a-node:reference:relay.md"},
+        {"name": "Telemetry Config", "path": "developer:docs:run-a-node:reference:telemetry-config.md"}
+      ]
+    }
+  }
+}

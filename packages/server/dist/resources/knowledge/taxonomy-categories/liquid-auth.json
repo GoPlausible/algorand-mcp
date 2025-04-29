@@ -1,0 +1,127 @@
+{
+  "name": "Liquid Auth",
+  "description": "Authentication system for Algorand applications",
+  "path": "liquid-auth",
+  "documents": [
+    {"name": "README", "path": "liquid-auth:README.md"},
+    {"name": "Architecture", "path": "liquid-auth:ARCHITECTURE.md"},
+    {"name": "Vision", "path": "liquid-auth:VISION.md"},
+    {"name": "Sequence", "path": "liquid-auth:SEQUENCE.md"}
+  ],
+  "subcategories": {
+    "decisions": {
+      "name": "Architecture Decisions",
+      "description": "Architecture decision records",
+      "path": "liquid-auth:decisions",
+      "documents": [
+        {"name": "Overview", "path": "liquid-auth:decisions:README.md"},
+        {"name": "Service Authentication", "path": "liquid-auth:decisions:1-Service-Authentication.md"},
+        {"name": "Bidirectional Communication", "path": "liquid-auth:decisions:2-Bidirectional-Communication.md"},
+        {"name": "Peer to Peer Signaling", "path": "liquid-auth:decisions:3-Peer-to-Peer-Signaling.md"},
+        {"name": "FIDO Extension", "path": "liquid-auth:decisions:4-Fido-Extension.md"}
+      ]
+    },
+    "docs": {
+      "name": "Documentation",
+      "description": "General documentation",
+      "path": "liquid-auth:docs",
+      "documents": [
+        {"name": "Overview", "path": "liquid-auth:docs:README.md"},
+        {"name": "Architecture", "path": "liquid-auth:docs:architecture.md"},
+        {"name": "Introduction", "path": "liquid-auth:docs:introduction.md"}
+      ],
+      "subcategories": {
+        "clients": {
+          "name": "Client Documentation",
+          "description": "Client implementation guides",
+          "path": "liquid-auth:docs:clients",
+          "subcategories": {
+            "browser": {
+              "name": "Browser Client",
+              "description": "Browser client documentation",
+              "path": "liquid-auth:docs:clients:browser",
+              "documents": [
+                {"name": "Authentication", "path": "liquid-auth:docs:clients:browser:authentication.md"},
+                {"name": "Example", "path": "liquid-auth:docs:clients:browser:example.md"}
+              ]
+            },
+            "android": {
+              "name": "Android Client",
+              "description": "Android client documentation",
+              "path": "liquid-auth:docs:clients:android",
+              "subcategories": {
+                "provider-service": {
+                  "name": "Provider Service",
+                  "description": "Android provider service documentation",
+                  "path": "liquid-auth:docs:clients:android:provider-service",
+                  "documents": [
+                    {"name": "Authentication", "path": "liquid-auth:docs:clients:android:provider-service:authenticate.md"},
+                    {"name": "Registration", "path": "liquid-auth:docs:clients:android:provider-service:register.md"}
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "server": {
+          "name": "Server Documentation",
+          "description": "Server implementation guides",
+          "path": "liquid-auth:docs:server",
+          "documents": [
+            {"name": "Environment Variables", "path": "liquid-auth:docs:server:environment-variables.md"},
+            {"name": "Integrations", "path": "liquid-auth:docs:server:integrations.md"},
+            {"name": "Introduction", "path": "liquid-auth:docs:server:introduction.md"},
+            {"name": "Running Locally", "path": "liquid-auth:docs:server:running-locally.md"}
+          ]
+        }
+      }
+    },
+    "services": {
+      "name": "Services",
+      "description": "Service implementations",
+      "path": "liquid-auth:services",
+      "subcategories": {
+        "api": {
+          "name": "JavaScript API",
+          "description": "JavaScript API implementation",
+          "path": "liquid-auth:services:liquid-auth-api-js:src",
+          "subcategories": {
+            "auth": {
+              "name": "Auth Controllers",
+              "description": "Authentication controllers",
+              "path": "liquid-auth:services:liquid-auth-api-js:src:auth",
+              "documents": [
+                {"name": "Get User", "path": "liquid-auth:services:liquid-auth-api-js:src:auth:auth.controller.get.user.md"}
+              ]
+            },
+            "assertion": {
+              "name": "Assertion Controllers",
+              "description": "Assertion controllers",
+              "path": "liquid-auth:services:liquid-auth-api-js:src:assertion",
+              "documents": [
+                {"name": "Request", "path": "liquid-auth:services:liquid-auth-api-js:src:assertion:assertion.controller.post.request.md"},
+                {"name": "Response", "path": "liquid-auth:services:liquid-auth-api-js:src:assertion:assertion.controller.post.response.md"}
+              ]
+            },
+            "attestation": {
+              "name": "Attestation Controllers",
+              "description": "Attestation controllers",
+              "path": "liquid-auth:services:liquid-auth-api-js:src:attestation",
+              "documents": [
+                {"name": "Request", "path": "liquid-auth:services:liquid-auth-api-js:src:attestation:attestation.controller.post.request.md"}
+              ]
+            }
+          }
+        }
+      }
+    },
+    "sites": {
+      "name": "Example Sites",
+      "description": "Example implementations",
+      "path": "liquid-auth:sites",
+      "documents": [
+        {"name": "Express dApp", "path": "liquid-auth:sites:express-dapp:README.md"}
+      ]
+    }
+  }
+}

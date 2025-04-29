@@ -1,0 +1,76 @@
+{
+  "name": "Puya",
+  "description": "Python-based language for writing Algorand smart contracts",
+  "path": "puya",
+  "documents": [
+    {"name": "README", "path": "puya:README.md"}
+  ],
+  "subcategories": {
+    "docs": {
+      "name": "Documentation",
+      "description": "Puya documentation",
+      "path": "puya:docs",
+      "documents": [
+        {"name": "Index", "path": "puya:docs:index.md"},
+        {"name": "API", "path": "puya:docs:api.md"},
+        {"name": "API - AlgoPy", "path": "puya:docs:api-algopy.md"},
+        {"name": "API - AlgoPy ARC4", "path": "puya:docs:api-algopy.arc4.md"},
+        {"name": "API - AlgoPy Group Transactions", "path": "puya:docs:api-algopy.gtxn.md"},
+        {"name": "API - AlgoPy Inner Transactions", "path": "puya:docs:api-algopy.itxn.md"},
+        {"name": "API - AlgoPy Operations", "path": "puya:docs:api-algopy.op.md"},
+        {"name": "Compiler", "path": "puya:docs:compiler.md"},
+        {"name": "Language Guide", "path": "puya:docs:language-guide.md"},
+        {"name": "Principles", "path": "puya:docs:principles.md"},
+        {"name": "Language Guide - ARC-4", "path": "puya:docs:lg-arc4.md"},
+        {"name": "Language Guide - ARC-28", "path": "puya:docs:lg-arc28.md"},
+        {"name": "Language Guide - Builtins", "path": "puya:docs:lg-builtins.md"},
+        {"name": "Language Guide - Calling Apps", "path": "puya:docs:lg-calling-apps.md"},
+        {"name": "Language Guide - Compilation", "path": "puya:docs:lg-compile.md"},
+        {"name": "Language Guide - Control Flow", "path": "puya:docs:lg-control.md"},
+        {"name": "Language Guide - Errors", "path": "puya:docs:lg-errors.md"},
+        {"name": "Language Guide - Logs", "path": "puya:docs:lg-logs.md"},
+        {"name": "Language Guide - Modules", "path": "puya:docs:lg-modules.md"},
+        {"name": "Language Guide - Opcode Budget", "path": "puya:docs:lg-opcode-budget.md"},
+        {"name": "Language Guide - Operations", "path": "puya:docs:lg-ops.md"},
+        {"name": "Language Guide - Storage", "path": "puya:docs:lg-storage.md"},
+        {"name": "Language Guide - Structure", "path": "puya:docs:lg-structure.md"},
+        {"name": "Language Guide - Transactions", "path": "puya:docs:lg-transactions.md"},
+        {"name": "Language Guide - Types", "path": "puya:docs:lg-types.md"},
+        {"name": "Language Guide - Unsupported Python Features", "path": "puya:docs:lg-unsupported-python-features.md"},
+        {"name": "Testing Guide", "path": "puya:docs:algopy_testing:index.md"}
+      ]
+    },
+    "examples": {
+      "name": "Examples",
+      "description": "Example Puya contracts",
+      "path": "puya:examples",
+      "documents": [
+        {"name": "Auction", "path": "puya:examples:auction:README.md"}
+      ]
+    },
+    "architecture": {
+      "name": "Architecture",
+      "description": "Puya architecture documentation",
+      "path": "puya:src:puya",
+      "documents": [
+        {"name": "Architecture", "path": "puya:src:puya:ARCHITECTURE.md"}
+      ]
+    },
+    "stubs": {
+      "name": "Stubs",
+      "description": "Type stubs documentation",
+      "path": "puya:stubs",
+      "documents": [
+        {"name": "README", "path": "puya:stubs:README.md"}
+      ]
+    },
+    "tests": {
+      "name": "Tests",
+      "description": "Test package documentation",
+      "path": "puya:tests",
+      "documents": [
+        {"name": "Test Expected Output", "path": "puya:tests:test_expected_output:README.md"}
+      ]
+    }
+  }
+}

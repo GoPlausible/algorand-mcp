@@ -1,0 +1,148 @@
+{
+  "name": "AlgoKit Utils",
+  "description": "Utility libraries for Algorand development",
+  "path": "algokit:utils",
+  "subcategories": {
+    "python": {
+      "name": "Python Utils",
+      "description": "Python utility libraries for Algorand development",
+      "path": "algokit:utils:python",
+      "documents": [
+        {"name": "README", "path": "algokit:utils:python:README.md"}
+      ],
+      "subcategories": {
+        "markdown": {
+          "name": "Documentation",
+          "description": "Python utils documentation",
+          "path": "algokit:utils:python:markdown",
+          "documents": [
+            {"name": "Index", "path": "algokit:utils:python:markdown:index.md"}
+          ],
+          "subcategories": {
+            "capabilities": {
+              "name": "Capabilities",
+              "description": "Core functionality documentation",
+              "path": "algokit:utils:python:markdown:capabilities",
+              "documents": [
+                {"name": "Account", "path": "algokit:utils:python:markdown:capabilities:account.md"},
+                {"name": "App Client", "path": "algokit:utils:python:markdown:capabilities:app-client.md"},
+                {"name": "App Deploy", "path": "algokit:utils:python:markdown:capabilities:app-deploy.md"},
+                {"name": "Client", "path": "algokit:utils:python:markdown:capabilities:client.md"},
+                {"name": "Debugger", "path": "algokit:utils:python:markdown:capabilities:debugger.md"},
+                {"name": "Dispenser Client", "path": "algokit:utils:python:markdown:capabilities:dispenser-client.md"},
+                {"name": "Transfer", "path": "algokit:utils:python:markdown:capabilities:transfer.md"}
+              ]
+            }
+          }
+        },
+        "source": {
+          "name": "Source Documentation",
+          "description": "Source code documentation",
+          "path": "algokit:utils:python:source",
+          "documents": [
+            {"name": "Index", "path": "algokit:utils:python:source:index.md"}
+          ],
+          "subcategories": {
+            "capabilities": {
+              "name": "Capabilities",
+              "description": "Source code documentation for core functionality",
+              "path": "algokit:utils:python:source:capabilities",
+              "documents": [
+                {"name": "Account", "path": "algokit:utils:python:source:capabilities:account.md"},
+                {"name": "App Client", "path": "algokit:utils:python:source:capabilities:app-client.md"},
+                {"name": "App Deploy", "path": "algokit:utils:python:source:capabilities:app-deploy.md"},
+                {"name": "Client", "path": "algokit:utils:python:source:capabilities:client.md"},
+                {"name": "Debugger", "path": "algokit:utils:python:source:capabilities:debugger.md"},
+                {"name": "Dispenser Client", "path": "algokit:utils:python:source:capabilities:dispenser-client.md"},
+                {"name": "Transfer", "path": "algokit:utils:python:source:capabilities:transfer.md"}
+              ]
+            }
+          }
+        }
+      }
+    },
+    "typescript": {
+      "name": "TypeScript Utils",
+      "description": "TypeScript utility libraries for Algorand development",
+      "path": "algokit:utils:typescript",
+      "documents": [
+        {"name": "README", "path": "algokit:utils:typescript:README.md"},
+        {"name": "V7 Migration", "path": "algokit:utils:typescript:v7-migration.md"},
+        {"name": "V8 Migration", "path": "algokit:utils:typescript:v8-migration.md"}
+      ],
+      "subcategories": {
+        "capabilities": {
+          "name": "Capabilities",
+          "description": "Core functionality documentation",
+          "path": "algokit:utils:typescript:capabilities",
+          "documents": [
+            {"name": "Account", "path": "algokit:utils:typescript:capabilities:account.md"},
+            {"name": "Algorand Client", "path": "algokit:utils:typescript:capabilities:algorand-client.md"},
+            {"name": "Amount", "path": "algokit:utils:typescript:capabilities:amount.md"},
+            {"name": "App Client", "path": "algokit:utils:typescript:capabilities:app-client.md"},
+            {"name": "App Deploy", "path": "algokit:utils:typescript:capabilities:app-deploy.md"},
+            {"name": "App", "path": "algokit:utils:typescript:capabilities:app.md"},
+            {"name": "Asset", "path": "algokit:utils:typescript:capabilities:asset.md"},
+            {"name": "Client", "path": "algokit:utils:typescript:capabilities:client.md"},
+            {"name": "Debugging", "path": "algokit:utils:typescript:capabilities:debugging.md"},
+            {"name": "Dispenser Client", "path": "algokit:utils:typescript:capabilities:dispenser-client.md"},
+            {"name": "Event Emitter", "path": "algokit:utils:typescript:capabilities:event-emitter.md"},
+            {"name": "Indexer", "path": "algokit:utils:typescript:capabilities:indexer.md"},
+            {"name": "Testing", "path": "algokit:utils:typescript:capabilities:testing.md"},
+            {"name": "Transaction Composer", "path": "algokit:utils:typescript:capabilities:transaction-composer.md"},
+            {"name": "Transaction", "path": "algokit:utils:typescript:capabilities:transaction.md"},
+            {"name": "Transfer", "path": "algokit:utils:typescript:capabilities:transfer.md"},
+            {"name": "Typed App Clients", "path": "algokit:utils:typescript:capabilities:typed-app-clients.md"}
+          ]
+        },
+        "code": {
+          "name": "API Reference",
+          "description": "Detailed API documentation",
+          "path": "algokit:utils:typescript:code",
+          "documents": [
+            {"name": "README", "path": "algokit:utils:typescript:code:README.md"}
+          ],
+          "subcategories": {
+            "classes": {
+              "name": "Classes",
+              "description": "Class documentation",
+              "path": "algokit:utils:typescript:code:classes",
+              "documents": [
+                {"name": "AccountManager", "path": "algokit:utils:typescript:code:classes:types_account_manager.AccountManager.md"},
+                {"name": "AlgoAmount", "path": "algokit:utils:typescript:code:classes:types_amount.AlgoAmount.md"},
+                {"name": "AlgorandClient", "path": "algokit:utils:typescript:code:classes:types_algorand_client.AlgorandClient.md"},
+                {"name": "ApplicationClient", "path": "algokit:utils:typescript:code:classes:types_app_client.ApplicationClient.md"},
+                {"name": "AsyncEventEmitter", "path": "algokit:utils:typescript:code:classes:types_async_event_emitter.AsyncEventEmitter.md"},
+                {"name": "LogicError", "path": "algokit:utils:typescript:code:classes:types_logic_error.LogicError.md"},
+                {"name": "TestLogger", "path": "algokit:utils:typescript:code:classes:testing.TestLogger.md"},
+                {"name": "TransactionLogger", "path": "algokit:utils:typescript:code:classes:testing.TransactionLogger.md"}
+              ]
+            },
+            "interfaces": {
+              "name": "Interfaces",
+              "description": "Interface documentation",
+              "path": "algokit:utils:typescript:code:interfaces",
+              "documents": [
+                {"name": "AlgorandFixture", "path": "algokit:utils:typescript:code:interfaces:types_testing.AlgorandFixture.md"},
+                {"name": "AppClientParams", "path": "algokit:utils:typescript:code:interfaces:types_app_client.AppClientParams.md"},
+                {"name": "AppDeploymentParams", "path": "algokit:utils:typescript:code:interfaces:types_app.AppDeploymentParams.md"},
+                {"name": "Config", "path": "algokit:utils:typescript:code:interfaces:types_config.Config.md"},
+                {"name": "TransactionParams", "path": "algokit:utils:typescript:code:interfaces:types_transaction.SendTransactionParams.md"}
+              ]
+            },
+            "enums": {
+              "name": "Enums",
+              "description": "Enum documentation",
+              "path": "algokit:utils:typescript:code:enums",
+              "documents": [
+                {"name": "EventType", "path": "algokit:utils:typescript:code:enums:types_lifecycle_events.EventType.md"},
+                {"name": "OnSchemaBreak", "path": "algokit:utils:typescript:code:enums:types_app.OnSchemaBreak.md"},
+                {"name": "OnUpdate", "path": "algokit:utils:typescript:code:enums:types_app.OnUpdate.md"}
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "name": "Python Development",
+  "description": "Python development resources for Algorand blockchain",
+  "path": "python",
+  "subcategories": {
+    "examples": {
+      "name": "Code Examples",
+      "description": "Example implementations in Python",
+      "path": "python/examples",
+      "subcategories": {
+        "basics": {
+          "name": "Basic Examples",
+          "path": "python/examples/basics",
+          "documents": [
+            {
+              "name": "hello_world",
+              "description": "Hello World Example",
+              "path": "developer:python:code:example:hello_world.md"
+            },
+            {
+              "name": "accounts",
+              "description": "Account Management",
+              "path": "developer:python:code:example:accounts.md"
+            },
+            {
+              "name": "assets",
+              "description": "Asset Operations",
+              "path": "developer:python:code:example:assets.md"
+            },
+            {
+              "name": "transactions",
+              "description": "Transaction Handling",
+              "path": "developer:python:code:example:transactions.md"
+            }
+          ]
+        },
+        "storage": {
+          "name": "Storage Examples",
+          "path": "python/examples/storage",
+          "documents": [
+            {
+              "name": "box_storage",
+              "description": "Box Storage Example",
+              "path": "developer:python:code:example:box_storage.md"
+            },
+            {
+              "name": "global_storage",
+              "description": "Global Storage Example",
+              "path": "developer:python:code:example:global_storage.md"
+            },
+            {
+              "name": "local_storage",
+              "description": "Local Storage Example",
+              "path": "developer:python:code:example:local_storage.md"
+            },
+            {
+              "name": "scratch_storage",
+              "description": "Scratch Storage Example",
+              "path": "developer:python:code:example:scratch_storage.md"
+            },
+            {
+              "name": "struct_in_box",
+              "description": "Struct in Box Example",
+              "path": "developer:python:code:example:struct_in_box.md"
+            }
+          ]
+        }
+      }
+    },
+    "testing": {
+      "name": "Testing Guide",
+      "description": "Comprehensive testing documentation for Python",
+      "path": "python/testing",
+      "subcategories": {
+        "fundamentals": {
+          "name": "Testing Fundamentals",
+          "path": "python/testing/fundamentals",
+          "documents": [
+            {
+              "name": "index",
+              "description": "Testing Guide Overview",
+              "path": "puya:python:testing:docs:testing-guide:index.md"
+            },
+            {
+              "name": "concepts",
+              "description": "Testing Concepts",
+              "path": "puya:python:testing:docs:testing-guide:concepts.md"
+            },
+            {
+              "name": "coverage",
+              "description": "Test Coverage",
+              "path": "puya:python:testing:docs:coverage.md"
+            },
+            {
+              "name": "examples",
+              "description": "Testing Examples",
+              "path": "puya:python:testing:docs:examples.md"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

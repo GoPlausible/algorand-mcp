@@ -1,0 +1,27 @@
+import algosdk from 'algosdk';
+export declare const API_URIS: {
+    ACCOUNT_DETAILS: string;
+    ASSET_HOLDINGS: string;
+    APPLICATION_STATE: string;
+    ASSET_INFO: string;
+    APPLICATION_INFO: string;
+    APPLICATION_BOX: string;
+    APPLICATION_BOXES: string;
+    PENDING_TRANSACTION: string;
+    PENDING_TRANSACTIONS_BY_ADDRESS: string;
+    PENDING_TRANSACTIONS: string;
+    TRANSACTION_PARAMS: string;
+    NODE_STATUS: string;
+    NODE_STATUS_AFTER_BLOCK: string;
+    TRANSACTION_HISTORY: string;
+    ASSET_DETAILS: string;
+    ASSET_BALANCES: string;
+    ASSET_TRANSACTIONS: string;
+    ASSET_BALANCES_BY_ID: string;
+    ASSET_TRANSACTIONS_BY_ID: string;
+    TRANSACTION_DETAILS: string;
+    TRANSACTION_SEARCH: string;
+};
+export declare const algodClient: algosdk.Algodv2;
+export declare const indexerClient: algosdk.Indexer;
+export { indexerClient as indexer };
