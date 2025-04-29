@@ -31,13 +31,10 @@ Upgrade to 23.6.1 or later if needed!
 
 Then check the Claude or Cursor container folders to have mcp-servers folder (if not create one):
 ```bash
-mkdir /Users/mg/Library/Application\ Support/Claude/mcp-servers
+mkdir PATH_ON_YOUR_MACHINE/Claude/mcp-servers
+# or for Cursor 
+mkdir PATH_ON_YOUR_MACHINE/Cursor/mcp-servers
 ```
-or for Cursor
-```bash
-mkdir /Users/mg/Library/Application\ Support/Cursor/mcp-servers
-```
-
 Then clone this repository under mcp-servers folder and install dependencies:
 
 ```bash
