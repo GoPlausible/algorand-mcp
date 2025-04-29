@@ -20,19 +20,53 @@ The Algorand MCP Client provides a unified interface for wallet connectivity and
 
 ## Installation
 
-```bash
-# Install the client package
-npm install @algorand-mcp/client
+To install the Algorand MCP implementation, clone the repository and install the dependencies:
 
-# Optional: Create .env file for custom configuration
-cp .env.example .env
+First check node version to be 23.6.1 or later:
+```bash
+node -v
 ```
 
-The client comes with built-in defaults for testnet:
+Upgrade to 23.6.1 or later if needed!
+
+Then check the Claude or Cursor container folders to have mcp-servers folder (if not create one):
 ```bash
-# Default configuration (no setup required)
-ALGORAND_NETWORK="testnet"
+mkdir /Users/mg/Library/Application\ Support/Claude/mcp-servers
 ```
+or for Cursor
+```bash
+mkdir /Users/mg/Library/Application\ Support/Cursor/mcp-servers
+```
+
+Then clone this repository under mcp-servers folder and install dependencies:
+
+```bash
+cd /Users/mg/Library/Application\ Support/Claude/mcp-servers
+# or for Cursor 
+cd /Users/mg/Library/Application\ Support/Cursor/mcp-servers
+# Clone the repository
+git clone https://github.com/GoPlausible/algorand-mcp.git
+cd algorand-mcp
+# Install dependencies
+npm install
+# Build the project
+npm run build
+```
+And you are done! Now you can open you MCP config and add trhe server as :
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/mg/Library/Application Support/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
+     ]
+    }
+  }
+}
+```
+Make sure yopu change the paths to match your local system's paths.
 
 ## Project Structure
 
