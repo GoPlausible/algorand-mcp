@@ -1,6 +1,6 @@
 {
   "name": "algorand-mcp",
-  "version": "2.7.1",
+  "version": "2.7.2",
   "description": "Algorand Model Context Protocol Implementation",
   "workspaces": [
     "packages/*"

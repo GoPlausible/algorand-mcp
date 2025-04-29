@@ -33,6 +33,8 @@ class AlgorandMcpServer {
       {
         name,
         version,
+        heartbeatInterval: 15000, // 15 seconds heartbeat interval
+        requestTimeout: 60000,    // 60 seconds request timeout
       },
       {
         capabilities: {
@@ -119,8 +121,19 @@ class AlgorandMcpServer {
 
   private setupPingHandler() {
     // Handle ping requests
-    this.server.setRequestHandler(PingRequestSchema, async () => {
-      return {}; // Empty result object as per MCP spec
+    this.server.setRequestHandler(PingRequestSchema, async (request) => {
+      try {
+        console.error('[MCP Debug] Received ping request:', request);
+        const response = {};
+        console.error('[MCP Debug] Sending ping response:', response);
+        return response;
+      } catch (error) {
+        console.error('[MCP Error] Ping handler error:', error);
+        throw new McpError(
+          ErrorCode.InternalError,
+          `Ping failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+      }
     });
   }
 
