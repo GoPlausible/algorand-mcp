@@ -48,10 +48,6 @@ cd algorand-mcp
 npm install
 # Build the project
 npm run build
-# Make  config files
-cd packages/server
-cp .env.example .env
-# Edit the .env file to set your configurations
 ```
 And you are done! Now you can open you MCP config and add the server as :
 
