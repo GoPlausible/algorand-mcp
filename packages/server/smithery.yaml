@@ -48,22 +48,27 @@ startCommand:
         type: string
         default: https://api.nf.domains
         description: NFDomains API URL
-      NFD_API_KEY:
-        type: string
-        default: ""
-        description: NFDomains API key (optional)
+      VESTIGE_ACTIVE:
+        type: boolean
+        default: false
+        description: Vestige is active
+      ULTRADE_ACTIVE:
+        type: boolean
+        default: false
+        description: UltraDe is active
+      TINYMAN_ACTIVE:
+        type: boolean
+        default: false
+        description: Tinyman is active
       VESTIGE_API_URL:
         type: string
         default: https://api.vestigelabs.org
         description: Vestige API URL
-      VESTIGE_API_KEY:
-        type: string
-        default: ""
-        description: Vestige API key (optional)
       ALGORAND_AGENT_WALLET_ACTIVE:
         type: string
         default: ""
         description: Algorand agent active wallet
+      
   exampleConfig:
     ALGORAND_ALGOD: https://testnet-api.algonode.cloud
     ALGORAND_INDEXER: https://testnet-idx.algonode.cloud
