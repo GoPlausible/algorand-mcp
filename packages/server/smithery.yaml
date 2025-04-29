@@ -78,6 +78,9 @@ startCommand:
     ALGORAND_ALGOD_PORT: ""
     ALGORAND_INDEXER_PORT: ""
     ALGORAND_TOKEN: ""
+    VESTIGE_ACTIVE: false
+    ULTRADE_ACTIVE: false
+    TINYMAN_ACTIVE: false
     ITEMS_PER_PAGE: 10
     NFD_API_URL: https://api.nf.domains
     NFD_API_KEY: ""
@@ -104,6 +107,9 @@ startCommand:
         NFD_API_KEY: config.NFD_API_KEY,
         VESTIGE_API_URL: config.VESTIGE_API_URL,
         VESTIGE_API_KEY: config.VESTIGE_API_KEY,
+        VESTIGE_ACTIVE: config.VESTIGE_ACTIVE,
+        ULTRADE_ACTIVE: config.ULTRADE_ACTIVE,
+        TINYMAN_ACTIVE: config.TINYMAN_ACTIVE,
         ALGORAND_AGENT_WALLET_ACTIVE: config.ALGORAND_AGENT_WALLET_ACTIVE,
       }
     })
