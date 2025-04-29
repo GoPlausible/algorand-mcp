@@ -8,6 +8,7 @@ import {
   ListToolsRequestSchema,
   McpError,
   ReadResourceRequestSchema,
+  PingRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import {
   AccountManager,
@@ -26,7 +27,7 @@ class AlgorandMcpServer {
   private server: Server;
   private name: string;
 
-  constructor(name = 'algorand-mcp-server', version = '2.7.0') {
+  constructor(name = 'algorand-mcp-server', version = '2.7.1') {
     this.name = name;
     this.server = new Server(
       {
@@ -83,6 +84,7 @@ class AlgorandMcpServer {
 
     this.setupResourceHandlers();
     this.setupToolHandlers();
+    this.setupPingHandler();
     
     // Error handling
     this.server.onerror = (error) => console.error('[MCP Error]', error);
@@ -112,6 +114,13 @@ class AlgorandMcpServer {
         throw new McpError(ErrorCode.InvalidRequest, 'URI parameter is required');
       }
       return await ResourceManager.handleResource(request.params.uri);
+    });
+  }
+
+  private setupPingHandler() {
+    // Handle ping requests
+    this.server.setRequestHandler(PingRequestSchema, async () => {
+      return {}; // Empty result object as per MCP spec
     });
   }
 

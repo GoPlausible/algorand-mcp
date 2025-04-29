@@ -175,7 +175,7 @@ export class UtilityManager {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify({ status: 'ok' }, null, 2),
+            text: JSON.stringify({}, null, 2),
           }],
         };
 
