@@ -20,7 +20,7 @@ The Algorand MCP Client provides a unified interface for wallet connectivity and
 
 ## Installation
 
-To install the Algorand MCP implementation, clone the repository and install the dependencies:
+To install or update the Algorand MCP implementation, clone the repository, install the dependencies and build the project":
 
 First check node version to be 23.6.1 or later:
 ```bash
