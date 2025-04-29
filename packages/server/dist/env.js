@@ -1,10 +1,10 @@
 export const env = {
     // Algorand Configuration
-    algorand_network: process.env.ALGORAND_NETWORK || '',
-    algorand_algod_api: process.env.ALGORAND_ALGOD_API || '',
-    algorand_algod: process.env.ALGORAND_ALGOD || '',
-    algorand_indexer_api: process.env.ALGORAND_INDEXER_API || '',
-    algorand_indexer: process.env.ALGORAND_INDEXER || '',
+    algorand_network: process.env.ALGORAND_NETWORK || 'testnet',
+    algorand_algod_api: process.env.ALGORAND_ALGOD_API || 'https://testnet-api.algonode.cloud/v2',
+    algorand_algod: process.env.ALGORAND_ALGOD || 'https://testnet-api.algonode.cloud',
+    algorand_indexer_api: process.env.ALGORAND_INDEXER_API || 'https://testnet-idx.algonode.cloud/v2',
+    algorand_indexer: process.env.ALGORAND_INDEXER || 'https://testnet-idx.algonode.cloud',
     algorand_algod_port: process.env.ALGORAND_ALGOD_PORT || '',
     algorand_indexer_port: process.env.ALGORAND_INDEXER_PORT || '',
     algorand_token: process.env.ALGORAND_TOKEN || '',

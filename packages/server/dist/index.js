@@ -5,7 +5,7 @@ import { CallToolRequestSchema, ErrorCode, ListResourcesRequestSchema, ListTools
 import { AccountManager, UtilityManager, TransactionManager, AlgodManager, transactionTools, apiManager, handleApiManager, arc26Manager, KnowledgeManager } from './tools/index.js';
 import { ResourceManager } from './resources/index.js';
 class AlgorandMcpServer {
-    constructor(name = 'algorand-mcp-server', version = '2.7.2') {
+    constructor(name = 'algorand-mcp-server', version = '2.7.4') {
         this.name = name;
         this.server = new Server({
             name,
