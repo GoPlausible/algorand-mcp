@@ -95,6 +95,20 @@ And you are done! Now you can open you MCP config and add the server as :
 ```
 Make sure yopu change the paths to match your local system's paths.
 
+For example on MACOS and Claud, the path would be something like this:
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "node",
+      "args": [
+        " /Users/YOUR_USERNAME/Library/Application\ Support/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
+     ]
+    }
+  }
+}
+```
 
 ## Project Architecture
 
