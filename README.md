@@ -86,7 +86,7 @@ And you are done! Now you can open you MCP config and add the server as :
       "args": [
         "PATH_ON_YOUR_MACHINE/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
      ],
-          "env": {
+      "env": {
         "ALGORAND_NETWORK": "testnet",
         "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
         "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
