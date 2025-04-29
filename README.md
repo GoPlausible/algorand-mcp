@@ -46,37 +46,53 @@ This repository is a Model Context Protocol (MCP) implementation for Algorand bl
 
 ## Installation
 
-### Via NPM (for developers who wish to run their own instances)
+To install the Algorand MCP implementation, clone the repository and install the dependencies:
+
+First check node version to be 23.6.1 or later:
 ```bash
-# Install both client and server packages
-npm install algorand-mcp
+node -v
 ```
 
-### Via Smithery (For all users)
+Upgrade to 23.6.1 or later if needed!
 
-#### Via Smithery (for Claude Desktop)
-
-Simply run this command in the terminal:
-
+Then check the Claude or Cursor container folders to have mcp-servers folder (if not create one):
 ```bash
-npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client claude --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
-
+mkdir /Users/mg/Library/Application\ Support/Claude/mcp-servers
+```
+or for Cursor
+```bash
+mkdir /Users/mg/Library/Application\ Support/Cursor/mcp-servers
 ```
 
-#### Via Smithery (for Cursor)
-
-Simply run this command in terminal:
+Then clone this repository under mcp-servers folder and install dependencies:
 
 ```bash
-npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client cursor --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
-
+cd /Users/mg/Library/Application\ Support/Claude/mcp-servers
+# or for Cursor 
+cd /Users/mg/Library/Application\ Support/Cursor/mcp-servers
+# Clone the repository
+git clone https://github.com/GoPlausible/algorand-mcp.git
+cd algorand-mcp
+# Install dependencies
+npm install
+# Build the project
+npm run build
 ```
-**IMPORTANT NOTE**
-When using Smithery UI to copy the command, make sure you set ITEMS_PER_PAGE before clicking connect so that all ENV variables are brought to command, otherwise your command will not contain environment variables required for Algorand MCP to run!
+And you are done! Now you can open you MCP config and add trhe server as :
 
-![Screenshot 2025-03-24 at 13 46 49](https://github.com/user-attachments/assets/98473c4a-b242-4000-bcf4-8cf6fd3e37c2)
-
-![Screenshot 2025-03-24 at 13 46 42](https://github.com/user-attachments/assets/1c8f4342-4bd2-4afa-83c8-fae3a0c27afa)
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/mg/Library/Application Support/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
+     ]
+    }
+  }
+}
+```
+Make sure yopu change the paths to match your local system's paths.
 
 
 ## Project Architecture
