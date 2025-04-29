@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import path from "path";
+import dotenv from "dotenv";
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -23,11 +25,14 @@ import {
 } from './tools/index.js';
 import { ResourceManager } from './resources/index.js';
 
+dotenv.config({
+  path: path.resolve(__dirname, "../.env")
+});
 class AlgorandMcpServer {
   private server: Server;
   private name: string;
 
-  constructor(name = 'algorand-mcp-server', version = '2.7.4') {
+  constructor(name = 'algorand-mcp-server', version = '2.7.5') {
     this.name = name;
     this.server = new Server(
       {
