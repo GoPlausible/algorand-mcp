@@ -4,6 +4,11 @@ import nacl from 'tweetnacl';
 
 // Tool schemas
 export const utilityToolSchemas = {
+  ping: {
+    type: 'object',
+    properties: {},
+    required: []
+  },
   validateAddress: {
     type: 'object',
     properties: {
@@ -74,6 +79,11 @@ export const utilityToolSchemas = {
 
 export class UtilityManager {
   static readonly utilityTools = [
+    {
+      name: 'ping',
+      description: 'Basic protocol utility to verify server connectivity',
+      inputSchema: utilityToolSchemas.ping,
+    },
     {
       name: 'validate_address',
       description: 'Check if an Algorand address is valid',
@@ -161,6 +171,14 @@ export class UtilityManager {
   static async handleTool(name: string, args: Record<string, unknown>) {
     try {
       switch (name) {
+      case 'ping':
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({ status: 'ok' }, null, 2),
+          }],
+        };
+
       case 'validate_address':
         if (!args.address || typeof args.address !== 'string') {
           throw new McpError(ErrorCode.InvalidParams, 'Address is required');
