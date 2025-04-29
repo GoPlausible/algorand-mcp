@@ -88,7 +88,28 @@ And you are done! Now you can open you MCP config and add the server as :
       "command": "node",
       "args": [
         "PATH_ON_YOUR_MACHINE/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
-     ]
+     ],
+          "env": {
+        "ALGORAND_NETWORK": "testnet",
+        "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
+        "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
+        "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
+        "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
+        "ALGORAND_ALGOD_PORT": "",
+        "ALGORAND_INDEXER_PORT": "",
+        "ALGORAND_TOKEN": "",
+        "ALGORAND_AGENT_WALLET_ACTIVE": "problem aim online jaguar upper oil flight stumble mystery aerobic toy avoid file tomato moment exclude witness guard lab opera crunch noodle dune abandon broccoli",
+        "NFD_API_URL": "https://api.nf.domains",
+        "NFD_API_KEY": "",
+        "TINYMAN_ACTIVE": "false",
+        "ULTRADE_ACTIVE": "false",
+        "ULTRADE_API_URL": "https://api.ultrade.io",
+        "VESTIGE_ACTIVE": "false",
+        "VESTIGE_API_URL": "https://api.vestigelabs.org",
+        "VESTIGE_API_KEY": "",
+        "ITEMS_PER_PAGE": "10"
+
+      }
     }
   }
 }
