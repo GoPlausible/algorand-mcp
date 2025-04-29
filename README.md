@@ -67,9 +67,9 @@ mkdir /Users/mg/Library/Application\ Support/Cursor/mcp-servers
 Then clone this repository under mcp-servers folder and install dependencies:
 
 ```bash
-cd /Users/mg/Library/Application\ Support/Claude/mcp-servers
+cd PATH_ON_YOUR_MACHINE/Claude/mcp-servers
 # or for Cursor 
-cd /Users/mg/Library/Application\ Support/Cursor/mcp-servers
+cd PATH_ON_YOUR_MACHINE/Cursor/mcp-servers
 # Clone the repository
 git clone https://github.com/GoPlausible/algorand-mcp.git
 cd algorand-mcp
@@ -77,8 +77,12 @@ cd algorand-mcp
 npm install
 # Build the project
 npm run build
+# Make  config files
+cd packages/server
+cp .env.example .env
+# Edit the .env file to set your configurations
 ```
-And you are done! Now you can open you MCP config and add trhe server as :
+And you are done! Now you can open you MCP config and add the server as :
 
 ```json
 {
@@ -86,7 +90,7 @@ And you are done! Now you can open you MCP config and add trhe server as :
     "algorand-mcp": {
       "command": "node",
       "args": [
-        "/Users/mg/Library/Application Support/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
+        "PATH_ON_YOUR_MACHINE/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
      ]
     }
   }
