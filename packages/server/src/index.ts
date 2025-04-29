@@ -1,6 +1,7 @@
-#!/usr/bin/env node
-import path from "path";
-import dotenv from "dotenv";
+// dist/index.js (ESM)
+
+
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -25,9 +26,7 @@ import {
 } from './tools/index.js';
 import { ResourceManager } from './resources/index.js';
 
-dotenv.config({
-  path: path.resolve(__dirname, "../.env")
-});
+
 class AlgorandMcpServer {
   private server: Server;
   private name: string;
@@ -244,6 +243,5 @@ class AlgorandMcpServer {
     console.error(`${this.name} running on stdio`);
   }
 }
-
 const server = new AlgorandMcpServer();
 server.run().catch(console.error);
