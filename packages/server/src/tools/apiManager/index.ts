@@ -16,8 +16,6 @@ export const apiManager = [
   ...(env.vestige_active==='true' ? vestigeTools : []),
   ...(env.tinyman_active==='true' ? tinymanTools : []),
   ...(env.ultrade_active==='true' ? ultradeTools : []),
-  ...tinymanTools,
-  ...ultradeTools,
   ...exampleTools
 ];
 
