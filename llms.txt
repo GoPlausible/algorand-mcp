@@ -1,7 +1,7 @@
 # llms.txt - Optimized Documentation for AI Developer Tools
 
 project_name: algorand-mcp
-version: 1.2.0
+version: 2.7.6
 description: Model Context Protocol (MCP) server for Algorand blockchain interactions, providing tools and resources for account management, asset operations, application interactions, and transaction handling
 base_url: https://github.com/GoPlausible/algorand-mcp
 docs_url: https://github.com/GoPlausible/algorand-mcp/blob/main/packages/server/README.md
@@ -9,84 +9,118 @@ docs_url: https://github.com/GoPlausible/algorand-mcp/blob/main/packages/server/
 # API Endpoints
 
 ## Tools
-  - /tools/account
-    - create_account - Create new Algorand account
-    - rekey_account - Rekey account to new address
-    - mnemonic_operations - Convert between mnemonic, MDK, secret key, and seed
+
+### Transaction Tools
+  - /tools/transaction/account
+    - make_payment_txn - Create payment transactions
+    - make_keyreg_txn - Create key registration transactions
   
-  - /tools/utility
-    - address_validation - Validate and encode/decode Algorand addresses
-    - application_address - Get address for application ID
-    - bytes_conversion - Convert between bytes, BigInt, and uint64
+  - /tools/transaction/asset
+    - make_asset_create_txn - Create new assets
+    - make_asset_config_txn - Modify asset configuration
+    - make_asset_destroy_txn - Remove assets
+    - make_asset_freeze_txn - Freeze/unfreeze assets
+    - make_asset_transfer_txn - Transfer assets between accounts
   
+  - /tools/transaction/application
+    - make_app_create_txn - Deploy new applications
+    - make_app_update_txn - Update application code
+    - make_app_delete_txn - Remove applications
+    - make_app_optin_txn - Opt into applications
+    - make_app_closeout_txn - Close out from applications
+    - make_app_clear_txn - Clear application state
+    - make_app_call_txn - Call application methods
+  
+  - /tools/transaction/general
+    - assign_group_id - Assign group ID to transactions
+    - sign_transaction - Sign transactions
+    - sign_bytes - Sign arbitrary bytes
+    - encode_obj - Encode objects to msgpack
+    - decode_obj - Decode msgpack to objects
+
+### API Tools
   - /tools/algod
-    - compile_teal - Compile TEAL source code
-    - disassemble_teal - Disassemble TEAL bytecode
-    - send_transaction - Submit signed transactions
-    - simulate_transaction - Simulate transaction execution
+    - api_algod_get_account_info - Get account information
+    - api_algod_get_account_application_info - Get account's application info
+    - api_algod_get_account_asset_info - Get account's asset info
+    - api_algod_get_application_by_id - Get application information
+    - api_algod_get_application_box - Get application box
+    - api_algod_get_application_boxes - Get all application boxes
+    - api_algod_get_asset_by_id - Get asset information
+    - api_algod_get_pending_transaction - Get pending transaction
+    - api_algod_get_pending_transactions - Get all pending transactions
+    - api_algod_get_transaction_params - Get suggested parameters
+    - api_algod_get_node_status - Get node status
   
-  - /tools/transaction
-    - payment - Create payment transactions
-    - keyreg - Create key registration transactions
-    - asset
-      - create - Create new assets
-      - config - Modify asset configuration
-      - destroy - Remove assets
-      - freeze - Freeze/unfreeze assets
-      - transfer - Transfer assets between accounts
-    - application
-      - create - Deploy new applications
-      - update - Update application code
-      - delete - Remove applications
-      - opt_in - Opt into applications
-      - close_out - Close out from applications
-      - clear - Clear application state
-      - call - Call application methods
+  - /tools/indexer
+    - api_indexer_lookup_account_by_id - Get account details
+    - api_indexer_lookup_account_assets - Get account assets
+    - api_indexer_lookup_account_created_applications - Get created apps
+    - api_indexer_lookup_applications - Get application info
+    - api_indexer_lookup_asset_by_id - Get asset details
+    - api_indexer_lookup_asset_balances - Get asset holders
+    - api_indexer_search_for_transactions - Search transactions
+    - api_indexer_lookup_transaction_by_id - Get transaction details
+
+### Utility Tools
+  - /tools/utility
+    - validate_address - Validate Algorand addresses
+    - encode_address - Encode public key to address
+    - decode_address - Decode address to public key
+    - get_application_address - Get app address from ID
+    - bytes_to_bigint - Convert bytes to BigInt
+    - bigint_to_bytes - Convert BigInt to bytes
+    - encode_uint64 - Encode uint64 to bytes
+    - decode_uint64 - Decode bytes to uint64
+
+### ARC-26 Tools
+  - /tools/arc26
+    - generate_algorand_uri - Generate Algorand URI
+    - generate_qr_code - Generate QR code for URI
 
 ## Resources
-  - /algod/accounts/{address}
-    - Get account information
-    - Get application-specific info
-    - Get asset-specific info
-  
-  - /algod/applications/{app-id}
-    - Get application info
-    - Get application boxes
-    - Get box by name
-  
-  - /algod/assets/{asset-id}
-    - Get asset information
-  
-  - /algod/transactions
-    - Get pending transaction info
-    - Get pending transactions by address
-    - Get all pending transactions
-    - Get transaction parameters
-    - Get node status
-  
-  - /indexer/accounts/{address}
-    - Lookup account details
-    - Get transaction history
-    - Get asset holdings
-    - Get application states
-    - Get created applications
-    - Search accounts
-  
-  - /indexer/applications/{app-id}
-    - Get application details
-    - Get application logs
-    - Get application boxes
-    - Search applications
-  
-  - /indexer/assets/{asset-id}
-    - Get asset details
-    - Get asset balances
-    - Get asset transactions
-    - Search assets
-  
-  - /indexer/transactions
-    - Lookup by transaction ID
-    - Search transactions
+
+### Wallet Resources
+  - algorand://wallet/secretkey
+    - Secret key of the wallet in hex format
+  - algorand://wallet/publickey
+    - Public key of the wallet in hex format
+  - algorand://wallet/mnemonic
+    - Mnemonic phrase of the wallet
+  - algorand://wallet/address
+    - Algorand address of the wallet
+  - algorand://wallet/account
+    - Algorand account balance and asset holdings
+  - algorand://wallet/assets
+    - Asset holdings for Wallet account
+
+### Knowledge Resources
+  - algorand://knowledge/taxonomy
+    - Full knowledge taxonomy
+  - algorand://knowledge/taxonomy/arcs
+    - Algorand Request for Comments (ARCs)
+  - algorand://knowledge/taxonomy/sdks
+    - Software Development Kits documentation
+  - algorand://knowledge/taxonomy/algokit
+    - AlgoKit development tools and CLI
+  - algorand://knowledge/taxonomy/algokit-utils
+    - AlgoKit utility libraries
+  - algorand://knowledge/taxonomy/tealscript
+    - TEALScript smart contract language
+  - algorand://knowledge/taxonomy/puya
+    - Puya smart contract language
+  - algorand://knowledge/taxonomy/liquid-auth
+    - Liquid authentication system
+  - algorand://knowledge/taxonomy/python
+    - Python development resources
+  - algorand://knowledge/taxonomy/developers
+    - Comprehensive developer documentation
+  - algorand://knowledge/taxonomy/clis
+    - CLI tools documentation
+  - algorand://knowledge/taxonomy/nodes
+    - Node management documentation
+  - algorand://knowledge/taxonomy/details
+    - Detailed technical documentation
 
 # Authentication
 auth_method: Environment Variables

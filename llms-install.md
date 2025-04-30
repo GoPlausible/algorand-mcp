@@ -12,6 +12,7 @@ Before installation, you need:
 
 1. Node.js v23.6.1 or later
 2. npm v10.2.4 or later
+3. Access to Algorand node (mainnet or testnet)
 
 ## Installation and Configuration
 
@@ -37,9 +38,7 @@ Add configuration to your chosen client's MCP settings file:
         "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
         "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
         "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
-        "NFD_API_URL":"https://api.nf.domains",
-        "VESTIGE_API_URL":"https://api.vestigelabs.org",
-        "ITEMS_PER_PAGE":"10",
+        "ITEMS_PER_PAGE": "10",
         "ALGORAND_AGENT_WALLET_ACTIVE": ""
       }
     }
@@ -49,34 +48,119 @@ Add configuration to your chosen client's MCP settings file:
 
 Replace `/path/to/algorand-mcp` with the actual path where the server is installed.
 
+## Tool Categories
+
+### 1. Transaction Tools
+- Account Transactions (payments, key registration)
+- Asset Transactions (create, configure, transfer)
+- Application Transactions (deploy, update, call)
+- General Transaction Tools (signing, grouping)
+
+### 2. API Tools
+- Algod API (node interaction, account info)
+- Indexer API (blockchain queries, history)
+
+### 3. Utility Tools
+- Address Management
+- Byte Conversion
+- Application Tools
+
+### 4. ARC-26 Tools
+- URI Generation
+- QR Code Creation
+
 ## Verify Installation
 
 To verify the installation is working:
 
 1. Restart your LLM application (Cursor, Claude Desktop, etc.)
-2. Test the connection by running a simple command like:
+
+2. Test Transaction Tools:
    ```
-   Please create a new Algorand account using the Algorand MCP server.
+   Create a payment transaction using the transaction tools.
    ```
+
+3. Test API Tools:
+   ```
+   Get account information using the Algod API tools.
+   ```
+
+4. Test Utility Tools:
+   ```
+   Validate an Algorand address using the utility tools.
+   ```
+
+5. Test Resources:
+   ```
+   Access wallet information using the wallet resources.
+   ```
+
+## Available Resources
+
+### Wallet Resources
+- Secret/Public Key Management
+- Mnemonic Access
+- Address Management
+- Balance/Asset Tracking
+
+### Knowledge Resources
+- Algorand Documentation
+- Development Guides
+- SDK References
+- Best Practices
 
 ## Troubleshooting
 
 ### Common Issues and Solutions
 
-1. **MCP server connection issues**
-   - Verify the syntax in your MCP settings file is correct
-   - Ensure Node.js and npm versions meet the requirements
-   - Check if any other MCP servers are causing conflicts
+1. **Node Connection Issues**
+   - Verify Algorand node URLs are correct
+   - Check network selection (mainnet/testnet)
+   - Ensure node is accessible
 
-2. **Transaction failures**
-   - Verify you have sufficient funds for the operation
-   - Check if you're using the correct address format
-   - Ensure your node connection is working
+2. **Transaction Failures**
+   - Verify account has sufficient funds
+   - Check transaction parameters
+   - Validate asset configurations
 
-3. **JSON parsing errors in configuration**
-   - Make sure your MCP settings file is properly formatted
-   - Verify all paths use forward slashes, even on Windows
-   - Check for any missing commas or brackets in the configuration
+3. **Resource Access Issues**
+   - Verify wallet configuration
+   - Check environment variables
+   - Validate resource URIs
+
+### Tool-Specific Issues
+
+#### Transaction Tools
+- Group size limits
+- Proper transaction ordering
+- Signature requirements
+
+#### API Tools
+- Rate limiting considerations
+- Response pagination
+- Error handling
+
+#### Utility Tools
+- Input validation
+- Encoding formats
+- Type conversions
+
+## Security Considerations
+
+1. **Wallet Security**
+   - Secure storage of mnemonics
+   - Key management best practices
+   - Access control
+
+2. **Transaction Safety**
+   - Parameter validation
+   - Amount verification
+   - Asset verification
+
+3. **API Security**
+   - Node authentication
+   - Request validation
+   - Error handling
 
 ## Additional Information
 
