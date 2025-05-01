@@ -14,7 +14,7 @@ interface EnvConfig {
   algorand_indexer_port: string | null;
   algorand_token: string | null;
   goplausible_account: string;
-  algorand_agent_wallet_active: string;
+  algorand_agent_wallet: string;
 }
 
 // Default values if .env is not present
@@ -28,7 +28,7 @@ const defaultConfig: EnvConfig = {
   algorand_indexer_port: null,
   algorand_token: null,
   goplausible_account: '',
-  algorand_agent_wallet_active: '',
+  algorand_agent_wallet: '',
 };
 
 // Get environment variable with fallback to default
@@ -51,5 +51,5 @@ export const env: EnvConfig = {
   algorand_indexer_port: getEnvVar('algorand_indexer_port'),
   algorand_token: getEnvVar('algorand_token'),
   goplausible_account: getEnvVar('goplausible_account') as string,
-  algorand_agent_wallet_active: getEnvVar('algorand_agent_wallet_active') as string,
+  algorand_agent_wallet: getEnvVar('algorand_agent_wallet') as string,
 };

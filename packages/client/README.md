@@ -68,7 +68,7 @@ And you are done! Now you can open you MCP config and add the server as :
         "ALGORAND_ALGOD_PORT": "",
         "ALGORAND_INDEXER_PORT": "",
         "ALGORAND_TOKEN": "",
-        "ALGORAND_AGENT_WALLET_ACTIVE": "problem aim online jaguar upper oil flight stumble mystery aerobic toy avoid file tomato moment exclude witness guard lab opera crunch noodle dune abandon broccoli",
+        "ALGORAND_AGENT_WALLET": "problem aim online jaguar upper oil flight stumble mystery aerobic toy avoid file tomato moment exclude witness guard lab opera crunch noodle dune abandon broccoli",
         "NFD_API_URL": "https://api.nf.domains",
         "NFD_API_KEY": "",
         "TINYMAN_ACTIVE": "false",

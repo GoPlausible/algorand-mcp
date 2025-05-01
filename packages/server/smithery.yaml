@@ -64,7 +64,7 @@ startCommand:
         type: string
         default: https://api.vestigelabs.org
         description: Vestige API URL
-      ALGORAND_AGENT_WALLET_ACTIVE:
+      ALGORAND_AGENT_WALLET:
         type: string
         default: ""
         description: Algorand agent active wallet
@@ -86,7 +86,7 @@ startCommand:
     NFD_API_KEY: ""
     VESTIGE_API_URL: https://api.vestigelabs.org
     VESTIGE_API_KEY: ""
-    ALGORAND_AGENT_WALLET_ACTIVE: ""
+    ALGORAND_AGENT_WALLET: ""
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
@@ -110,6 +110,6 @@ startCommand:
         VESTIGE_ACTIVE: config.VESTIGE_ACTIVE,
         ULTRADE_ACTIVE: config.ULTRADE_ACTIVE,
         TINYMAN_ACTIVE: config.TINYMAN_ACTIVE,
-        ALGORAND_AGENT_WALLET_ACTIVE: config.ALGORAND_AGENT_WALLET_ACTIVE,
+        ALGORAND_AGENT_WALLET: config.ALGORAND_AGENT_WALLET,
       }
     })

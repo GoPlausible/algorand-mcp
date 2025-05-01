@@ -4,13 +4,13 @@ import algosdk from 'algosdk';
 
 // Get account from mnemonic
 const getAccountFromMnemonic = () => {
-  if (!env.algorand_agent_wallet_active) {
+  if (!env.algorand_agent_wallet) {
     throw new McpError(
       ErrorCode.InvalidRequest,
       'No active wallet mnemonic configured'
     );
   }
-  return algosdk.mnemonicToSecretKey(env.algorand_agent_wallet_active);
+  return algosdk.mnemonicToSecretKey(env.algorand_agent_wallet);
 };
 
 // Resource definitions
@@ -110,7 +110,7 @@ export const walletResources = {
   },
 
   handle: async (uri: string) => {
-    if (!env.algorand_agent_wallet_active) {
+    if (!env.algorand_agent_wallet) {
       throw new McpError(
         ErrorCode.InvalidRequest,
         'Wallet resources are not available - no active wallet configured'
@@ -225,7 +225,7 @@ export const walletResources = {
               uri,
               mimeType: 'application/json',
               text: JSON.stringify({
-                mnemonic: env.algorand_agent_wallet_active
+                mnemonic: env.algorand_agent_wallet
               }, null, 2)
             }]
           };
@@ -264,7 +264,7 @@ export const walletResources = {
   },
 
   getResourceDefinitions: () => {
-    if (!env.algorand_agent_wallet_active) {
+    if (!env.algorand_agent_wallet) {
       return [];
     }
     return resourceDefinitions;

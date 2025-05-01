@@ -39,7 +39,7 @@ Add configuration to your chosen client's MCP settings file:
         "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
         "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
         "ITEMS_PER_PAGE": "10",
-        "ALGORAND_AGENT_WALLET_ACTIVE": ""
+        "ALGORAND_AGENT_WALLET": ""
       }
     }
   }
