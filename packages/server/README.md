@@ -88,48 +88,87 @@ Each API tool follows a consistent naming convention with the `api_` prefix for 
 
 ## Installation
 
+To install or update the Algorand MCP implementation, clone the repository, install the dependencies and build the project":
+
+First check node version to be 23.6.1 or later:
 ```bash
-# Install the server package
-npm install algorand-mcp
-
-# Optional: Create .env file for custom configuration
-cp .env.example .env
-```
-### Via Smithery (for Claude Desktop)
-
-Simply run this command in terminal:
-
-```bash
-npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client claude --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
-
+node -v
 ```
 
-### Via Smithery (for Cursor)
+Upgrade to 23.6.1 or later if needed!
 
-Simply run this command in terminal:
+Then check the Claude or Cursor container folders to have mcp-servers folder (if not create one):
+```bash
+mkdir PATH_ON_YOUR_MACHINE/Claude/mcp-servers
+# or for Cursor 
+mkdir PATH_ON_YOUR_MACHINE/Cursor/mcp-servers
+```
+Then clone this repository under mcp-servers folder and install dependencies:
 
 ```bash
-npx -y @smithery/cli@latest install @GoPlausible/algorand-mcp --client cursor --config "{\"NFD_API_KEY\":\"\",\"NFD_API_URL\":\"https://api.nf.domains\",\"ALGORAND_ALGOD\":\"https://testnet-api.algonode.cloud\",\"ALGORAND_TOKEN\":\"\",\"ITEMS_PER_PAGE\":\"10\",\"VESTIGE_API_KEY\":\"\",\"VESTIGE_API_URL\":\"https://api.vestigelabs.org\",\"ALGORAND_INDEXER\":\"https://testnet-idx.algonode.cloud\",\"ALGORAND_NETWORK\":\"testnet\",\"ALGORAND_ALGOD_API\":\"https://testnet-api.algonode.cloud/v2\",\"ALGORAND_ALGOD_PORT\":\"\",\"ALGORAND_INDEXER_API\":\"https://testnet-idx.algonode.cloud/v2\",\"ALGORAND_INDEXER_PORT\":\"\"}"
-
+cd PATH_ON_YOUR_MACHINE/Claude/mcp-servers
+# or for Cursor 
+cd PATH_ON_YOUR_MACHINE/Cursor/mcp-servers
+# Clone the repository
+git clone https://github.com/GoPlausible/algorand-mcp.git
+cd algorand-mcp
+# Install dependencies
+npm install
+# Build the project
+npm run build
+# Edit the .env file to set your configurations
 ```
+And you are done! Now you can open you MCP config and add the server as :
 
-The server comes with built-in defaults for testnet, no additional configuration required:
-```bash
-# Default configuration
-ALGORAND_NETWORK="testnet"
-ALGORAND_ALGOD_API="https://testnet-api.algonode.cloud/v2"
-ALGORAND_ALGOD="https://testnet-api.algonode.cloud"
-ALGORAND_INDEXER_API="https://testnet-idx.algonode.cloud/v2"
-ALGORAND_INDEXER="https://testnet-idx.algonode.cloud"
-NFD_API_URL=https://api.nf.domains
-VESTIGE_API_URL=https://api.vestigelabs.org
-ITEMS_PER_PAGE=10
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "node",
+      "args": [
+        "PATH_ON_YOUR_MACHINE/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
+     ],
+      "env": {
+        "ALGORAND_NETWORK": "testnet",
+        "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
+        "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
+        "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
+        "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
+        "ALGORAND_ALGOD_PORT": "",
+        "ALGORAND_INDEXER_PORT": "",
+        "ALGORAND_TOKEN": "",
+        "ALGORAND_AGENT_WALLET": "problem aim online jaguar upper oil flight stumble mystery aerobic toy avoid file tomato moment exclude witness guard lab opera crunch noodle dune abandon broccoli",
+        "NFD_API_URL": "https://api.nf.domains",
+        "NFD_API_KEY": "",
+        "TINYMAN_ACTIVE": "false",
+        "ULTRADE_ACTIVE": "false",
+        "ULTRADE_API_URL": "https://api.ultrade.io",
+        "VESTIGE_ACTIVE": "false",
+        "VESTIGE_API_URL": "https://api.vestigelabs.org",
+        "VESTIGE_API_KEY": "",
+        "ITEMS_PER_PAGE": "10"
+
+      }
+    }
+  }
+}
 ```
+Make sure yopu change the paths to match your local system's paths.
 
-Override defaults by doing either:
-- Setting environment variables
-- Creating a .env file
-- Configuring in Claude Desktop/Cursor settings (see root README)
+For example on MACOS and Claud, the path would be something like this:
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "node",
+      "args": [
+        " /Users/YOUR_USERNAME/Library/Application\ Support/Claude/mcp-servers/algorand-mcp/packages/server/dist/index.js"
+     ]
+    }
+  }
+}
+```
 
 ## Available Tools
 
