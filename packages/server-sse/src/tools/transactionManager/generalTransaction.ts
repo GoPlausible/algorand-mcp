@@ -33,9 +33,11 @@ export function registerGeneralTransactionTools(server: McpServer): void {
       from: z.string().describe('Sender address'),
       to: z.string().describe('Receiver address'),
       amount: z.number().describe('Amount in microAlgos'),
-      note: z.string().optional().describe('Optional transaction note')
+      note: z.string().optional().describe('Optional transaction note'),
+      closeRemainderTo: z.string().optional().describe('Optional close remainder to address'),
+      rekeyTo: z.string().optional().describe('Optional rekey to address')
     },
-    async ({ from, to, amount, note }, extra) => {
+    async ({ from, to, amount, note, closeRemainderTo, rekeyTo }, extra) => {
       const env = extra as unknown as Env;
       
       if (!env.ALGORAND_ALGOD) {
@@ -69,6 +71,8 @@ export function registerGeneralTransactionTools(server: McpServer): void {
           to,
           amount,
           note: noteBytes,
+          closeRemainderTo,
+          rekeyTo,
           suggestedParams: params
         });
         
@@ -172,6 +176,111 @@ export function registerGeneralTransactionTools(server: McpServer): void {
           content: [{
             type: 'text',
             text: `Error submitting transaction: ${error.message || 'Unknown error'}`
+          }]
+        };
+      }
+    }
+  );
+  
+  // Create key registration transaction
+  server.tool(
+    'create_key_registration_transaction',
+    'Create a key registration transaction on Algorand',
+    { 
+      from: z.string().describe('Sender address'),
+      voteKey: z.string().describe('The root participation public key (58 bytes base64 encoded)'),
+      selectionKey: z.string().describe('VRF public key (32 bytes base64 encoded)'),
+      stateProofKey: z.string().describe('State proof public key (64 bytes base64 encoded)'),
+      voteFirst: z.number().describe('First round this participation key is valid'),
+      voteLast: z.number().describe('Last round this participation key is valid'),
+      voteKeyDilution: z.number().describe('Dilution for the 2-level participation key'),
+      nonParticipation: z.boolean().optional().describe('Mark account as nonparticipating for rewards'),
+      note: z.string().optional().describe('Transaction note field'),
+      rekeyTo: z.string().optional().describe('Address to rekey the sender account to')
+    },
+    async ({ from, voteKey, selectionKey, stateProofKey, voteFirst, voteLast, 
+            voteKeyDilution, nonParticipation, note, rekeyTo }, extra) => {
+      const env = extra as unknown as Env;
+      
+      if (!env.ALGORAND_ALGOD) {
+        return {
+          content: [{
+            type: 'text',
+            text: 'Algorand node URL not configured'
+          }]
+        };
+      }
+      
+      try {
+        // Create algod client
+        const algodClient = createAlgoClient(env.ALGORAND_ALGOD);
+        if (!algodClient) {
+          throw new Error('Failed to create Algorand client');
+        }
+        
+        // Get suggested transaction parameters
+        const params = await algodClient.getTransactionParams().do();
+        
+        // Process optional note
+        let noteBytes: Uint8Array | undefined;
+        if (note) {
+          const encoder = new TextEncoder();
+          noteBytes = encoder.encode(note);
+        }
+        
+        // Create key registration transaction
+        let txn;
+        
+        // There are two different overloads for makeKeyRegistrationTxnWithSuggestedParamsFromObject:
+        // 1. Normal key registration (participation) - requires voting keys and parameters
+        // 2. Going offline (nonParticipation = true) - doesn't use voting keys
+        
+        if (nonParticipation === true) {
+          // Going offline
+          txn = algosdk.makeKeyRegistrationTxnWithSuggestedParamsFromObject({
+            from,
+            suggestedParams: params,
+            nonParticipation: true,
+            note: noteBytes,
+            rekeyTo
+          });
+        } else {
+          // Normal key registration
+          txn = algosdk.makeKeyRegistrationTxnWithSuggestedParamsFromObject({
+            from,
+            voteKey,
+            selectionKey,
+            stateProofKey,
+            voteFirst,
+            voteLast, 
+            voteKeyDilution,
+            suggestedParams: params,
+            // Only pass nonParticipation if it's explicitly false
+            ...(nonParticipation === false ? { nonParticipation: false } : {}),
+            note: noteBytes,
+            rekeyTo
+          });
+        }
+        
+        // Return the encoded transaction
+        return ResponseProcessor.processResponse({
+          txID: txn.txID(),
+          encodedTxn: Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString('base64'),
+          txnInfo: {
+            type: 'keyreg',
+            from,
+            voteFirst,
+            voteLast,
+            fee: params.fee,
+            firstRound: params.firstRound,
+            lastRound: params.lastRound
+          }
+        });
+      } catch (error: any) {
+        return {
+          content: [{
+            type: 'text',
+            text: `Error creating key registration transaction: ${error.message || 'Unknown error'}`
           }]
         };
       }
