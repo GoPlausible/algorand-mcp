@@ -7,11 +7,23 @@ import { z } from 'zod';
 import { ResponseProcessor } from '../../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Env } from '../../types';
+import { registerAlgodApiTools } from './algod';
+import { registerIndexerApiTools } from './indexer';
+import { registerNfdApiTools } from './nfd';
 
 /**
  * Register API tools to the MCP server
  */
 export function registerApiTools(server: McpServer): void {
+  // Register algod API tools
+  registerAlgodApiTools(server);
+  
+  // Register indexer API tools
+  registerIndexerApiTools(server);
+  
+  // Register NFD API tools
+  registerNfdApiTools(server);
+  
   // Generic API request tool
   server.tool(
     'api_request',
@@ -132,40 +144,5 @@ export function registerApiTools(server: McpServer): void {
     }
   );
   
-  // Algorand Name Service (NFD) lookup tool
-  server.tool(
-    'api_nfd_lookup',
-    'Look up an Algorand Name Service (NFD) name or address',
-    {
-      query: z.string().describe('NFD name or Algorand address to look up'),
-      type: z.enum(['name', 'address']).describe('Type of query (name or address)')
-    },
-    async ({ query, type }, extra) => {
-      try {
-        const nfdEndpoint = type === 'name' 
-          ? `https://api.nf.domains/nfd/${encodeURIComponent(query)}`
-          : `https://api.nf.domains/nfd/address/${encodeURIComponent(query)}`;
-        
-        const response = await fetch(nfdEndpoint, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`NFD lookup failed with status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return ResponseProcessor.processResponse(data);
-      } catch (error: any) {
-        return {
-          content: [{
-            type: 'text',
-            text: `NFD lookup error: ${error.message || 'Unknown error'}`
-          }]
-        };
-      }
-    }
-  );
+  // The NFD lookup tool has been moved to the nfd module with additional NFD-specific tools
 }

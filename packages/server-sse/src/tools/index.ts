@@ -8,3 +8,4 @@ export * from './utilityManager';
 export * from './algodManager';
 export * from './arc26Manager';
 export * from './apiManager';
+export * from './knowledgeManager';

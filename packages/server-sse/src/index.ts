@@ -12,9 +12,10 @@ import {
 	registerUtilityTools,
 	registerAlgodTools,
 	registerArc26Tools,
-	registerApiTools
+	registerApiTools,
+	registerKnowledgeTools
 } from './tools';
-import { registerWalletResources } from './resources';
+import { registerWalletResources, registerKnowledgeResources } from './resources';
 
 // Define our MCP agent with tools
 export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
@@ -37,9 +38,9 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 		const itemsPerPage = this.state?.items_per_page || 10;
 		ResponseProcessor.setItemsPerPage(itemsPerPage);
 		
-		// Register basic resources
-		this.registerBasicResources();
+		// Register resources
 		this.registerWalletResources();
+		this.registerKnowledgeResources();
 		
 	// Register tools by category
 	this.registerBasicUtilityTools();
@@ -48,6 +49,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	this.registerAlgodTools();
 	this.registerArc26Tools();
 	this.registerApiTools();
+	this.registerKnowledgeTools();
 		
 		// Additional tool categories will be added here
 	}
@@ -59,6 +61,15 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 		// Register all wallet-related resources
 		// Since this might contain parameters from env, we pass env to the function
 		registerWalletResources(this.server, this.env as Env);
+	}
+	
+	/**
+	 * Register knowledge resources
+	 */
+	private registerKnowledgeResources() {
+		// Register knowledge resources for documentation access
+		// Pass environment for R2 bucket access
+		registerKnowledgeResources(this.server, this.env as Env);
 	}
 	
 	/**
@@ -116,6 +127,14 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	private registerApiTools() {
 		// Register external API integration tools
 		registerApiTools(this.server);
+	}
+	
+	/**
+	 * Register Knowledge tools for documentation access
+	 */
+	private registerKnowledgeTools() {
+		// Register knowledge documentation tools
+		registerKnowledgeTools(this.server, this.env);
 	}
 	onStateUpdate(state: State) {
 		console.log({ stateUpdate: state });

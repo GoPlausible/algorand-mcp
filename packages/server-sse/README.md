@@ -47,12 +47,9 @@ Restart Claude and you should see the tools become available.
    npm install
    ```
 
-3. Copy the example environment file and configure it:
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Update the environment variables in `.env` with your Algorand node details and other configuration.
+3. Configure environment variables:
+   - Environment variables are set in `wrangler.jsonc` under the `vars` section
+   - Sensitive values should be set as secrets (see Deployment section)
 
 ## Development
 
@@ -73,12 +70,76 @@ To deploy to Cloudflare Workers:
    npx wrangler login
    ```
 
-2. Deploy to Cloudflare Workers:
+2. Configure your environment:
+   - Edit `wrangler.jsonc` to set your environment variables
+   - Set up secrets for sensitive information:
+   ```bash
+   # Set up the agent wallet mnemonic as a secret
+   npx wrangler secret put ALGORAND_AGENT_WALLET
+   # (You'll be prompted to enter the value)
+   ```
+   Don't forget to remove the ALGORAND_AGENT_WALLET value from wrangler.jsonc file sothat it could only be served from secrets. GoPlausible has configured a public wallet in wrangler.jsonc just to make it to work. Using that on MAINNET is not recommended!
+
+3. Deploy to Cloudflare Workers:
    ```bash
    npm run deploy
    ```
 
 Your MCP server will be available at `https://algorand-remote-mcp.[your-worker-subdomain].workers.dev`.
+
+## Environment Variables
+
+> **⚠️ IMPORTANT SECURITY WARNING**
+> 
+> For the `ALGORAND_AGENT_WALLET` variable containing your wallet mnemonic, it is **strongly recommended** to use Cloudflare Worker secrets instead of defining it in wrangler.jsonc. Store sensitive credentials using:
+> 
+> ```bash
+> npx wrangler secret put ALGORAND_AGENT_WALLET
+> ```
+> 
+> This ensures your mnemonic is encrypted and not stored in plaintext configuration files.
+
+The MCP server relies on the following environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ALGORAND_NETWORK` | Network to connect to (mainnet/testnet) | testnet |
+| `ALGORAND_ALGOD` | Base URL for Algorand node | https://testnet-api.algonode.cloud |
+| `ALGORAND_ALGOD_API` | Full API URL with version | https://testnet-api.algonode.cloud/v2 |
+| `ALGORAND_INDEXER` | Base URL for Algorand indexer | https://testnet-idx.algonode.cloud |
+| `ALGORAND_INDEXER_API` | Full API URL with version | https://testnet-idx.algonode.cloud/v2 |
+| `ALGORAND_TOKEN` | API token for Algorand nodes | "" |
+| `NFD_API_URL` | NFD API URL for name resolution | https://api.nf.domains |
+| `ITEMS_PER_PAGE` | Default pagination items per page | 10 |
+
+### Secrets
+
+The following secrets should be set using `wrangler secret put`:
+
+- `ALGORAND_AGENT_WALLET`: Mnemonic phrase for the agent's Algorand wallet (**CRITICAL**: Always use secret storage for this sensitive value)
+
+When deploying, you'll be interactively prompted to enter the secret value securely:
+
+```bash
+# Set the wallet mnemonic as a secret (RECOMMENDED)
+npx wrangler secret put ALGORAND_AGENT_WALLET
+# Enter your mnemonic when prompted
+```
+
+### R2 Bucket Configuration
+
+The knowledge resources are stored in a Cloudflare R2 bucket. Configure the bucket in the `wrangler.jsonc` file:
+
+```jsonc
+"r2_buckets": [
+  {
+    "binding": "PLAUSIBLEAI",
+    "bucket_name": "your-bucket-name"
+  }
+]
+```
+
+Make sure to create the bucket in your Cloudflare dashboard and upload the knowledge documents.
 
 # Available Tools and Resources
 
@@ -119,6 +180,10 @@ Your MCP server will be available at `https://algorand-remote-mcp.[your-worker-s
 - `create_application`: Create a new smart contract application on Algorand
 - `call_application`: Call a smart contract application on Algorand
 - `optin_application`: Opt-in to an Algorand application
+- `update_application`: Update an existing smart contract application
+- `delete_application`: Delete an existing smart contract application
+- `closeout_application`: Close out from an Algorand application
+- `clear_application`: Clear state for an Algorand application
 
 #### Group Transaction Tools
 - `assign_group_id`: Assign a group ID to a set of transactions for atomic execution
@@ -138,15 +203,78 @@ Your MCP server will be available at `https://algorand-remote-mcp.[your-worker-s
 - `generate_asset_transfer_uri`: Generate an asset transfer URI following the ARC-26 specification
 
 ### API Integration Tools
+
+#### General API Tools
 - `api_request`: Make a request to an external API
 - `api_indexer_search`: Search the Algorand indexer for accounts, transactions, assets, or applications
-- `api_nfd_lookup`: Look up an Algorand Name Service (NFD) name or address
+
+#### NFD API Tools
+- `api_nfd_get_nfd`: Get NFD domain information by name
+- `api_nfd_get_nfds_for_address`: Get all NFD domains owned by an address
+- `api_nfd_get_nfd_activity`: Get activity for an NFD domain
+- `api_nfd_get_nfd_analytics`: Get analytics for an NFD domain
+- `api_nfd_browse_nfds`: Browse NFD domains with filtering options
+- `api_nfd_search_nfds`: Search for NFD domains
+
+#### Algod API Tools
+- `api_algod_get_account_info`: Get current account balance, assets, and auth address
+- `api_algod_get_account_application_info`: Get account-specific application information
+- `api_algod_get_account_asset_info`: Get account-specific asset information
+- `api_algod_get_application_info`: Get application details
+- `api_algod_get_application_box_value`: Get application box contents
+- `api_algod_get_application_boxes`: Get all application boxes
+- `api_algod_get_application_state`: Get application global state
+- `api_algod_get_asset_info`: Get asset details
+- `api_algod_get_asset_holding`: Get asset holding information for an account
+- `api_algod_get_transaction_info`: Get transaction details by transaction ID
+- `api_algod_get_pending_transactions`: Get pending transactions from algod mempool
+
+#### Indexer API Tools
+- `api_indexer_lookup_account_by_id`: Get account information from indexer
+- `api_indexer_lookup_account_assets`: Get account assets
+- `api_indexer_lookup_account_app_local_states`: Get account application local states
+- `api_indexer_lookup_account_created_applications`: Get applications created by this account
+- `api_indexer_search_for_accounts`: Search for accounts with various criteria
+- `api_indexer_lookup_applications`: Get application information from indexer
+- `api_indexer_lookup_application_logs`: Get application log messages
+- `api_indexer_search_for_applications`: Search for applications with various criteria
+- `api_indexer_lookup_application_box`: Get application box by name
+- `api_indexer_lookup_application_boxes`: Get all application boxes
+- `api_indexer_lookup_asset_by_id`: Get asset information from indexer
+- `api_indexer_lookup_asset_balances`: Get accounts that hold a specific asset
+- `api_indexer_search_for_assets`: Search for assets with various criteria
+- `api_indexer_lookup_transaction_by_id`: Get transaction details from indexer
+- `api_indexer_lookup_account_transactions`: Get transactions related to an account
+- `api_indexer_search_for_transactions`: Search for transactions with various criteria
+
+### Knowledge Management Tools
+- `get_knowledge_doc`: Get markdown content for specified knowledge documents
+- `list_knowledge_docs`: List available knowledge documents by category
 
 ## Resources
 
 ### Wallet Resources
-- `algorand://wallets`: List all wallets
-- `algorand://wallets/account/{address}`: Get account information for a specific address
+- `Wallet Account`: Account information for the configured wallet
+- `Wallet Account Assets`: Asset holdings for the configured wallet
+- `Wallet Account Address`: Algorand address of the configured wallet
+- `Wallet Mnemonic`: Mnemonic phrase of the configured wallet
+- `Wallet Public Key`: Public key of the configured wallet
+- `Wallet Secret Key`: Secret key of the configured wallet
+
+### Knowledge Resources
+- `Algorand Knowledge Full Taxonomy`: Complete taxonomy of Algorand documentation
+- `Algorand Request for Comments`: ARCs documentation
+- `Software Development Kits`: SDKs documentation
+- `AlgoKit`: AlgoKit documentation
+- `AlgoKit Utils`: AlgoKit utilities documentation
+- `TEALScript`: TEALScript documentation
+- `Puya`: Puya documentation
+- `Liquid Auth`: Liquid Auth documentation
+- `Python Development`: Python development documentation
+- `Developer Documentation`: General developer documentation
+- `CLI Tools`: Command-line interface tools documentation
+- `Node Management`: Node management documentation
+- `Developer Details`: Developer details documentation
 
 # Architecture
 
@@ -155,6 +283,7 @@ This MCP server is built using:
 - **Cloudflare Workers**: For serverless, edge-based execution
 - **Server-Sent Events (SSE)**: For real-time communication with MCP clients
 - **Algorand JavaScript SDK**: For interacting with the Algorand blockchain
+- **Cloudflare R2 Storage**: For storing and retrieving knowledge documentation
 
 The architecture follows these key patterns:
 
@@ -177,7 +306,11 @@ packages/server-sse/
 │   │   ├── utilityManager.ts     # Utility tools
 │   │   ├── algodManager.ts       # Algorand node interaction tools
 │   │   ├── arc26Manager.ts       # ARC-26 URI generation tools
+│   │   ├── knowledgeManager.ts   # Knowledge management tools
 │   │   ├── apiManager/           # API integration tools
+│   │   │   ├── algod/            # Algod API tools
+│   │   │   ├── indexer/          # Indexer API tools
+│   │   │   └── nfd/              # NFD API tools
 │   │   └── transactionManager/   # Transaction tools
 │   │       ├── generalTransaction.ts  # Payment transactions
 │   │       ├── assetTransactions.ts   # Asset operations

@@ -26,6 +26,10 @@
 			}
 		]
 	},
+	/**
+	 * PLAUSIBLEAI bucket
+	 * is a property of GoPlausible used for public implementation and you need to make an R2 bucket on cloudflare and configure it here. Use the open data in knowledge folder of server package resources and you find all files to upload to your R2 bucket there. Use taxonomic naming for your uploads and maintain the file naming coming from server package.
+	 */
 	"r2_buckets": [
     {
       "binding": "PLAUSIBLEAI",
@@ -34,8 +38,28 @@
   ],
 	"observability": {
 		"enabled": false
+	},
+	/**
+	 * Environment Variables
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
+	 */
+	"vars": {
+		"ALGORAND_NETWORK": "testnet",
+		"ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
+		"ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
+		"ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
+		"ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
+		"ALGORAND_ALGOD_PORT": "",
+		"ALGORAND_INDEXER_PORT": "",
+		"ALGORAND_TOKEN": "",
+		"NFD_API_URL": "https://api.nf.domains",
+		"ITEMS_PER_PAGE": "10"
 	}
 	/**
+	 * Note: Sensitive data like ALGORAND_AGENT_WALLET should be set as secrets instead of vars.
+	 * To set up secrets, use: 
+	 * npx wrangler secret put ALGORAND_AGENT_WALLET
+	 * 
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
 	 */
@@ -49,12 +73,9 @@
 	 */
 
 	/**
-	 * Environment Variables
-	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
-	 */
-	// "vars": { "MY_VARIABLE": "production_value" },
-	/**
-	 * Note: Use secrets to store sensitive data.
+	 * For reference on how to set up environment variables, see above 'vars' section.
+	 * 
+	 * For setting up secrets (ALGORAND_AGENT_WALLET):
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
 

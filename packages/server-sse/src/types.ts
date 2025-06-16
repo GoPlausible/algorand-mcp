@@ -23,10 +23,15 @@ export interface Env {
    */
   AlgorandRemoteMCP: DurableObjectNamespace;
   
-  /**
-   * Optional R2 bucket binding for knowledge resources (for future use)
-   */
-  KNOWLEDGE_BUCKET?: R2Bucket;
+/**
+ * R2 bucket binding for knowledge resources
+ */
+KNOWLEDGE_BUCKET?: R2Bucket;
+
+/**
+ * R2 bucket binding for PlausibleAI documentation
+ */
+PLAUSIBLEAI?: R2Bucket;
   
   /**
    * Algorand network to use (mainnet, testnet, etc.)
@@ -34,14 +39,39 @@ export interface Env {
   ALGORAND_NETWORK?: string;
   
   /**
-   * Algorand node URL for API access
+   * Algorand node URL for API access (base URL)
    */
   ALGORAND_ALGOD?: string;
   
   /**
-   * Algorand Indexer URL for querying historical data
+   * Algorand node API URL with version (e.g., with /v2)
+   */
+  ALGORAND_ALGOD_API?: string;
+  
+  /**
+   * Algorand node port if different from the default
+   */
+  ALGORAND_ALGOD_PORT?: string;
+  
+  /**
+   * Algorand Indexer URL for querying historical data (base URL)
    */
   ALGORAND_INDEXER?: string;
+  
+  /**
+   * Algorand Indexer API URL with version (e.g., with /v2)
+   */
+  ALGORAND_INDEXER_API?: string;
+  
+  /**
+   * Algorand Indexer port if different from the default
+   */
+  ALGORAND_INDEXER_PORT?: string;
+  
+  /**
+   * NFD API URL for name resolution
+   */
+  NFD_API_URL?: string;
   
   /**
    * API key for Algorand node access if required
