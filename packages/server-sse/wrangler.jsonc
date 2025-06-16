@@ -26,6 +26,12 @@
 			}
 		]
 	},
+	"r2_buckets": [
+    {
+      "binding": "PLAUSIBLEAI",
+      "bucket_name": "plausibleai"
+    }
+  ],
 	"observability": {
 		"enabled": false
 	}

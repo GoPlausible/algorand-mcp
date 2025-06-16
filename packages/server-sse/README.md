@@ -84,17 +84,10 @@ Your MCP server will be available at `https://algorand-remote-mcp.[your-worker-s
 
 ## Tools
 
-- **count**: Increment a counter stored in the MCP server
-- **add**: Simple addition of two numbers
-- **calculate**: Perform basic arithmetic operations (add, subtract, multiply, divide)
-
-*Additional tools will be added as development progresses.*
 
 ## Resources
 
-- **counter**: Access the current session request counter value
 
-*Additional resources like wallet information, blockchain data, and API integrations will be added in future releases.*
 
 # Architecture
 

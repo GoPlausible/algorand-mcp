@@ -1,89 +1,121 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { Env, State } from './types';
+import { ResponseProcessor } from './utils';
+import { 
+	registerAccountTools, 
+	registerGeneralTransactionTools, 
+	registerAssetTransactionTools,
+	registerAppTransactionTools,
+	registerGroupTransactionTools,
+	registerUtilityTools,
+	registerAlgodTools,
+	registerArc26Tools,
+	registerApiTools
+} from './tools';
+import { registerWalletResources } from './resources';
 
-type Env = {
-	AlgorandRemoteMCP: DurableObjectNamespace<AlgorandRemoteMCP>;
-};
-type State = { counter: number };
 // Define our MCP agent with tools
 export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	server = new McpServer({
 		name: "Algorand Remote MCP",
 		version: "1.0.0",
 	});
+	
+	// Initialize state with default values
 	initialState: State = {
-		counter: 1,
+		items_per_page: 10
 	};
 
+	// Initialization function that sets up tools and resources
 	async init() {
-		this.server.resource("counter", "mcp://resource/counter", (uri) => {
-			return {
-				contents: [{ uri: uri.href, text: String(this.state.counter) }],
-			};
-		});
-		this.server.tool(
-			"count",
-			"Add to the counter, stored in the MCP",
-			{ a: z.number() },
-			async ({ a }) => {
-				this.setState({ ...this.state, counter: this.state.counter + a });
-
-				return {
-					content: [
-						{
-							type: "text",
-							text: String(`Added ${a}, total is now ${this.state.counter}`),
-						},
-					],
-				};
-			}
-		);
-		// Simple addition tool
-		// this.server.tool(
-		// 	"add",
-		// 	{ a: z.number(), b: z.number() },
-		// 	async ({ a, b }) => ({
-		// 		content: [{ type: "text", text: String(a + b) }],
-		// 	})
-		// );
-
-		// Calculator tool with multiple operations
-		// this.server.tool(
-		// 	"calculate",
-		// 	{
-		// 		operation: z.enum(["add", "subtract", "multiply", "divide"]),
-		// 		a: z.number(),
-		// 		b: z.number(),
-		// 	},
-		// 	async ({ operation, a, b }) => {
-		// 		let result: number;
-		// 		switch (operation) {
-		// 			case "add":
-		// 				result = a + b;
-		// 				break;
-		// 			case "subtract":
-		// 				result = a - b;
-		// 				break;
-		// 			case "multiply":
-		// 				result = a * b;
-		// 				break;
-		// 			case "divide":
-		// 				if (b === 0)
-		// 					return {
-		// 						content: [
-		// 							{
-		// 								type: "text",
-		// 								text: "Error: Cannot divide by zero",
-		// 							},
-		// 						],
-		// 					};
-		// 				result = a / b;
-		// 				break;
-		// 		}
-		// 		return { content: [{ type: "text", text: String(result) }] };
-		// 	}
-		// );
+		// Configure ResponseProcessor with pagination settings
+		console.log("Initializing Algorand Remote MCP...");
+		console.log("Current state:", this.state);
+		// Set default page size or use from state if available
+		const itemsPerPage = this.state?.items_per_page || 10;
+		ResponseProcessor.setItemsPerPage(itemsPerPage);
+		
+		// Register basic resources
+		this.registerBasicResources();
+		this.registerWalletResources();
+		
+	// Register tools by category
+	this.registerBasicUtilityTools();
+	this.registerAccountTools();
+	this.registerTransactionTools();
+	this.registerAlgodTools();
+	this.registerArc26Tools();
+	this.registerApiTools();
+		
+		// Additional tool categories will be added here
+	}
+	
+	/**
+	 * Register wallet resources
+	 */
+	private registerWalletResources() {
+		// Register all wallet-related resources
+		// Since this might contain parameters from env, we pass env to the function
+		registerWalletResources(this.server, this.env as Env);
+	}
+	
+	/**
+	 * Register basic utility tools
+	 */
+	private registerBasicUtilityTools() {
+		// Register Algorand utility tools
+		registerUtilityTools(this.server);
+	}
+	
+	/**
+	 * Register account management tools
+	 */
+	private registerAccountTools() {
+		// Register all account-related tools
+		registerAccountTools(this.server);
+	}
+	
+	/**
+	 * Register transaction management tools
+	 */
+	private registerTransactionTools() {
+		// Register payment transaction tools
+		registerGeneralTransactionTools(this.server);
+		
+		// Register asset transaction tools
+		registerAssetTransactionTools(this.server);
+		
+		// Register application transaction tools
+		registerAppTransactionTools(this.server);
+		
+		// Register group transaction tools
+		registerGroupTransactionTools(this.server);
+	}
+	
+	/**
+	 * Register Algorand node interaction tools
+	 */
+	private registerAlgodTools() {
+		// Register algod tools for TEAL compilation and simulation
+		registerAlgodTools(this.server);
+	}
+	
+	/**
+	 * Register ARC-26 URI generation tools
+	 */
+	private registerArc26Tools() {
+		// Register ARC-26 URI generation tools
+		registerArc26Tools(this.server);
+	}
+	
+	/**
+	 * Register API integration tools
+	 */
+	private registerApiTools() {
+		// Register external API integration tools
+		registerApiTools(this.server);
 	}
 	onStateUpdate(state: State) {
 		console.log({ stateUpdate: state });
@@ -115,7 +147,9 @@ export default {
 		if (url.pathname === "/mcp") {
 			console.log("Serving MCP endpoint");
 		
-			return AlgorandRemoteMCP.serve("/mcp").fetch(request, env, ctx);
+			return AlgorandRemoteMCP.serve("/mcp", {
+				binding: "MCP_OBJECT"
+			}).fetch(request, env, ctx);
 		}
 
 		return new Response("Not found", { status: 404 });
