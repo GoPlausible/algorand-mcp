@@ -4,4 +4,4 @@
 
 export * from './wallet';
 export * from './knowledge';
-
+export * from './guide';

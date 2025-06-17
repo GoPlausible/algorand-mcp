@@ -4,7 +4,7 @@ export const guide = `# Algorand Remote MCP Guide for Agents
 
 ⚠️ **AGENTS MUST PERFORM THESE ACTIONS AT THE START OF EACH SESSION WITH ALGORAND-REMOTE-MCP:**
 
-1. **Check Wallet Configuration:**
+**Check Wallet Configuration:**
    - Resource: \`algorand://wallet/account\`
    - Purpose: Verify wallet exists and is correctly configured
    - Action Required: Access this resource FIRST in EVERY session
@@ -17,24 +17,6 @@ export const guide = `# Algorand Remote MCP Guide for Agents
        \`\`\`
      * Wait for user to confirm environment is updated
      * Access wallet resource again to verify
-
-2. **Check Knowledge Resources:**
-   - Resource: \`algorand://knowledge/taxonomy\`
-   - Purpose: Verify knowledge resources are available
-   - Action Required: Access this after wallet verification
-   - If knowledge resources exist: Continue with operations
-   - If error response:
-     * Check if R2 bucket is properly configured
-     * Inform user to check R2 bucket configuration
-
-3. **Explore Available Tools:**
-   - Tool: \`get_knowledge_doc\`
-   - Purpose: Understand available capabilities
-   - Action Required: Use this to explore documentation
-   - Example:
-     \`\`\`
-     get_knowledge_doc({ documents: ["ARCs:specs:arc-0026.md"] })
-     \`\`\`
 
 ⚠️ **ALWAYS verify wallet configuration at the start of EVERY session before attempting any blockchain operations!**
 
@@ -49,6 +31,63 @@ export const guide = `# Algorand Remote MCP Guide for Agents
 | 5 | Sign transactions | \`sign_transaction\` | Authorize operations |
 | 6 | Submit transactions | \`submit_transaction\` | Execute on blockchain |
 | 7 | Verify results | API query tools | Confirm operation success |
+
+## Quick Start for LLM Agents
+
+As an LLM agent, here's how to quickly perform basic Algorand operations using direct tool invocation pattern:
+
+### Minimal Working Example - Send Payment
+
+1. First, check the wallet configuration:
+   ```
+   access_resource: algorand://wallet/account
+   ```
+
+2. If wallet exists, create a payment transaction:
+   ```
+   use_tool: create_payment_transaction
+   parameters: {
+     "from": "sender_address",
+     "to": "receiver_address",
+     "amount": 1000000
+   }
+   ```
+
+3. Sign the transaction:
+   ```
+   use_tool: sign_transaction
+   parameters: {
+     "encodedTxn": "[encoded_transaction_from_step_2]",
+     "mnemonic": "[wallet_mnemonic]" 
+   }
+   ```
+
+4. Submit the transaction:
+   ```
+   use_tool: submit_transaction
+   parameters: {
+     "signedTxn": "[signed_transaction_from_step_3]"
+   }
+   ```
+
+5. Verify the result:
+   ```
+   use_tool: api_algod_get_transaction_info
+   parameters: {
+     "txid": "[transaction_id_from_step_4]"
+   }
+   ```
+
+### Common Error Messages and Solutions
+
+| Error Message | Likely Cause | Solution |
+|---------------|--------------|----------|
+| `No active wallet mnemonic configured` | Missing ALGORAND_AGENT_WALLET | Inform user to configure secret via `npx wrangler secret put ALGORAND_AGENT_WALLET` |
+| `Error fetching account info` | Network connection or invalid address | Check ALGORAND_ALGOD setting and address format |
+| `Transaction would result in negative balance` | Insufficient funds | Ensure sender has enough ALGOs (remember min balance requirements) |
+| `Asset hasn't been opted in` | Asset not in receiver's account | Receiver must opt in to asset first |
+| `Cannot access knowledge resources` | R2 bucket misconfiguration | Verify R2 bucket setup and permissions |
+| `Overspend` | Transaction fee + amount exceeds balance | Reduce amount or add funds to account |
 
 ## Understanding Resource Types
 
@@ -299,6 +338,169 @@ export const guide = `# Algorand Remote MCP Guide for Agents
    - Verify asset balances before transfers
    - Handle clawback operations carefully
 
+## Complete Workflow Examples for LLM Agents
+
+### Algo Payment Workflow
+
+1. Check wallet configuration:
+   ```
+   access_resource: algorand://wallet/account
+   ```
+
+2. Get sender address from the response.
+
+3. Create payment transaction:
+   ```
+   use_tool: create_payment_transaction
+   parameters: {
+     "from": "[sender_address]",
+     "to": "[receiver_address]",
+     "amount": 1000000,
+     "note": "Payment example"
+   }
+   ```
+
+4. Sign the transaction:
+   ```
+   use_tool: sign_transaction
+   parameters: {
+     "encodedTxn": "[transaction_from_step_3]",
+     "mnemonic": "[wallet_mnemonic]"
+   }
+   ```
+
+5. Submit the transaction:
+   ```
+   use_tool: submit_transaction
+   parameters: {
+     "signedTxn": "[signed_transaction_from_step_4]"
+   }
+   ```
+
+6. Verify transaction confirmation:
+   ```
+   use_tool: api_indexer_lookup_transaction_by_id
+   parameters: {
+     "txid": "[transaction_id_from_step_5]"
+   }
+   ```
+
+### Asset Opt-In Workflow
+
+1. Check wallet configuration:
+   ```
+   access_resource: algorand://wallet/account
+   ```
+
+2. Get user address from the response.
+
+3. Check if already opted in (optional):
+   ```
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[user_address]",
+     "assetId": 12345
+   }
+   ```
+
+4. Create asset opt-in transaction:
+   ```
+   use_tool: asset_optin
+   parameters: {
+     "address": "[user_address]",
+     "assetID": 12345
+   }
+   ```
+
+5. Sign the transaction:
+   ```
+   use_tool: sign_transaction
+   parameters: {
+     "encodedTxn": "[transaction_from_step_4]",
+     "mnemonic": "[wallet_mnemonic]"
+   }
+   ```
+
+6. Submit the transaction:
+   ```
+   use_tool: submit_transaction
+   parameters: {
+     "signedTxn": "[signed_transaction_from_step_5]"
+   }
+   ```
+
+7. Verify opt-in success:
+   ```
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[user_address]",
+     "assetId": 12345
+   }
+   ```
+
+### Asset Transfer Workflow
+
+1. Check wallet configuration:
+   ```
+   access_resource: algorand://wallet/account
+   ```
+
+2. Get sender address from the response.
+
+3. Check sender's asset balance:
+   ```
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[sender_address]",
+     "assetId": 12345
+   }
+   ```
+
+4. Verify recipient has opted in:
+   ```
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[recipient_address]",
+     "assetId": 12345
+   }
+   ```
+
+5. Create asset transfer transaction:
+   ```
+   use_tool: transfer_asset
+   parameters: {
+     "from": "[sender_address]",
+     "to": "[recipient_address]",
+     "assetID": 12345,
+     "amount": 1
+   }
+   ```
+
+6. Sign the transaction:
+   ```
+   use_tool: sign_transaction
+   parameters: {
+     "encodedTxn": "[transaction_from_step_5]",
+     "mnemonic": "[wallet_mnemonic]"
+   }
+   ```
+
+7. Submit the transaction:
+   ```
+   use_tool: submit_transaction
+   parameters: {
+     "signedTxn": "[signed_transaction_from_step_6]"
+   }
+   ```
+
+8. Verify transfer success:
+   ```
+   use_tool: api_indexer_lookup_transaction_by_id
+   parameters: {
+     "txid": "[transaction_id_from_step_7]"
+   }
+   ```
+
 ## Working with Atomic Transactions
 
 1. Transaction Grouping
@@ -375,7 +577,7 @@ If operations are not working properly, verify:
    - Use simulation before submitting critical transactions
 
 3. **API Security**
-   - Use proper API authorization
+   - Use proper API authorization if possible
    - Handle rate limiting gracefully
    - Don't expose API tokens
    - Implement proper error handling

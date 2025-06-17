@@ -104,28 +104,6 @@ export function registerKnowledgeResources(server: McpServer, env: Env): void {
     }
   });
 
-  // Register a resource for Agents guide to use Algorand Remote MCP
-  server.resource("Algorand MCP Guide", "algorand://knowledge/algorand-remote-mcp", async (uri) => {
-    try {
-      
-      
-      return {
-        contents: [{
-          uri: uri.href,
-          text: guide
-        }]
-      };
-    } catch (error: any) {
-      return {
-        contents: [{
-          uri: uri.href,
-          text: JSON.stringify({
-            error: `Error retrieving guide: ${error.message || 'Unknown error'}`
-          }, null, 2)
-        }]
-      };
-    }
-  });
   
   // Register individual category resources
   categoryNames.forEach(category => {

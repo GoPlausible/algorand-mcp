@@ -15,7 +15,7 @@ import {
 	registerApiTools,
 	registerKnowledgeTools
 } from './tools';
-import { registerWalletResources, registerKnowledgeResources } from './resources';
+import { registerWalletResources, registerKnowledgeResources, registerGuideResource } from './resources';
 
 // Define our MCP agent with tools
 export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
@@ -41,6 +41,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 		// Register resources
 		this.registerWalletResources();
 		this.registerKnowledgeResources();
+		this.registerGuideResources();
 		
 	// Register tools by category
 	this.registerBasicUtilityTools();
@@ -70,6 +71,14 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 		// Register knowledge resources for documentation access
 		// Pass environment for R2 bucket access
 		registerKnowledgeResources(this.server, this.env as Env);
+	}
+	
+	/**
+	 * Register guide resources
+	 */
+	private registerGuideResources() {
+		// Register guide resources for agent usage guidance
+		registerGuideResource(this.server, this.env as Env);
 	}
 	
 	/**
