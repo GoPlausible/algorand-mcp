@@ -8,11 +8,12 @@ import { z } from 'zod';
 import { ResponseProcessor } from '../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { guide } from '../utils/Guide.js';
+import { Env } from '../types';
 
 /**
  * Register utility tools to the MCP server
  */
-export function registerUtilityTools(server: McpServer): void {
+export function registerUtilityTools(server: McpServer,env: Env): void {
   // Validate address
   server.tool(
     'validate_address',

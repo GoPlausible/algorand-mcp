@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register general transaction management tools to the MCP server
  */
-export function registerGeneralTransactionTools(server: McpServer): void {
+export function registerGeneralTransactionTools(server: McpServer,env: Env): void {
   // Create payment transaction tool
   server.tool(
     'create_payment_transaction',
@@ -37,8 +37,7 @@ export function registerGeneralTransactionTools(server: McpServer): void {
       closeRemainderTo: z.string().optional().describe('Optional close remainder to address'),
       rekeyTo: z.string().optional().describe('Optional rekey to address')
     },
-    async ({ from, to, amount, note, closeRemainderTo, rekeyTo }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ from, to, amount, note, closeRemainderTo, rekeyTo }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -139,8 +138,7 @@ export function registerGeneralTransactionTools(server: McpServer): void {
     'submit_transaction',
     'Submit a signed transaction to the Algorand network',
     { signedTxn: z.string().describe('Base64 encoded signed transaction') },
-    async ({ signedTxn }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ signedTxn }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -199,8 +197,7 @@ export function registerGeneralTransactionTools(server: McpServer): void {
       rekeyTo: z.string().optional().describe('Address to rekey the sender account to')
     },
     async ({ from, voteKey, selectionKey, stateProofKey, voteFirst, voteLast, 
-            voteKeyDilution, nonParticipation, note, rekeyTo }, extra) => {
-      const env = extra as unknown as Env;
+            voteKeyDilution, nonParticipation, note, rekeyTo }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {

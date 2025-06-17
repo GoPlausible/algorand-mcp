@@ -24,7 +24,7 @@ function createIndexerClient(indexerUrl: string | undefined): algosdk.Indexer | 
 /**
  * Register indexer account API tools to the MCP server
  */
-export function registerIndexerAccountTools(server: McpServer): void {
+export function registerIndexerAccountTools(server: McpServer,env: Env): void {
   // Lookup account by ID
   server.tool(
     'api_indexer_lookup_account_by_id',
@@ -32,8 +32,7 @@ export function registerIndexerAccountTools(server: McpServer): void {
     { 
       address: z.string().describe('Account address')
     },
-    async ({ address }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ address }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -76,8 +75,7 @@ export function registerIndexerAccountTools(server: McpServer): void {
       assetId: z.number().int().optional().describe('Filter by asset ID'),
       nextToken: z.string().optional().describe('Token for retrieving the next page of results')
     },
-    async ({ address, limit, assetId, nextToken }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ address, limit, assetId, nextToken }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -133,8 +131,7 @@ export function registerIndexerAccountTools(server: McpServer): void {
     { 
       address: z.string().describe('Account address')
     },
-    async ({ address }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ address }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -174,8 +171,7 @@ export function registerIndexerAccountTools(server: McpServer): void {
     { 
       address: z.string().describe('Account address')
     },
-    async ({ address }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ address }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -223,8 +219,7 @@ export function registerIndexerAccountTools(server: McpServer): void {
       currencyLessThan: z.number().int().optional().describe('Filter by maximum balance'),
       nextToken: z.string().optional().describe('Token for retrieving the next page of results')
     },
-    async ({ limit, assetId, applicationId, currencyGreaterThan, currencyLessThan, nextToken }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ limit, assetId, applicationId, currencyGreaterThan, currencyLessThan, nextToken }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {

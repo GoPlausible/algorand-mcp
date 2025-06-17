@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register transaction API tools to the MCP server
  */
-export function registerTransactionApiTools(server: McpServer): void {
+export function registerTransactionApiTools(server: McpServer,env: Env): void {
   // Get transaction information by ID
   server.tool(
     'api_algod_get_transaction_info',
@@ -32,8 +32,8 @@ export function registerTransactionApiTools(server: McpServer): void {
     { 
       txid: z.string().describe('The transaction ID')
     },
-    async ({ txid }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ txid }) => {
+
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -73,8 +73,7 @@ export function registerTransactionApiTools(server: McpServer): void {
     {
       maxResults: z.number().int().min(1).max(1000).default(50).describe('Maximum number of transactions to return')
     },
-    async ({ maxResults }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ maxResults }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {

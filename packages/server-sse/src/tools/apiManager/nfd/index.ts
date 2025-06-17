@@ -11,7 +11,7 @@ import { Env } from '../../../types';
 /**
  * Register NFD API tools to the MCP server
  */
-export function registerNfdApiTools(server: McpServer): void {
+export function registerNfdApiTools(server: McpServer,env: Env): void {
   // NFD lookup tool is already registered in the main apiManager/index.ts file
   
   // Get NFD by name
@@ -23,9 +23,8 @@ export function registerNfdApiTools(server: McpServer): void {
       view: z.enum(['brief', 'full']).optional().default('full').describe('View type - brief or full'),
       includeSales: z.boolean().optional().default(false).describe('Include sales data')
     },
-    async ({ name, view, includeSales }, extra) => {
+    async ({ name, view, includeSales }) => {
       try {
-        const env = extra as unknown as Env;
         const apiBase = env.NFD_API_URL || 'https://api.nf.domains';
         
         let url = `${apiBase}/nfd/${encodeURIComponent(name)}`;
@@ -74,9 +73,8 @@ export function registerNfdApiTools(server: McpServer): void {
       offset: z.number().optional().default(0).describe('Offset for pagination'),
       view: z.enum(['brief', 'full']).optional().default('brief').describe('View type - brief or full')
     },
-    async ({ address, limit, offset, view }, extra) => {
+    async ({ address, limit, offset, view }) => {
       try {
-        const env = extra as unknown as Env;
         const apiBase = env.NFD_API_URL || 'https://api.nf.domains';
         
         let url = `${apiBase}/nfd/address/${encodeURIComponent(address)}`;
@@ -123,9 +121,8 @@ export function registerNfdApiTools(server: McpServer): void {
       limit: z.number().optional().default(50).describe('Maximum number of results'),
       offset: z.number().optional().default(0).describe('Offset for pagination')
     },
-    async ({ name, limit, offset }, extra) => {
+    async ({ name, limit, offset }) => {
       try {
-        const env = extra as unknown as Env;
         const apiBase = env.NFD_API_URL || 'https://api.nf.domains';
         
         let url = `${apiBase}/nfd/activity/${encodeURIComponent(name)}`;
@@ -166,9 +163,8 @@ export function registerNfdApiTools(server: McpServer): void {
     {
       name: z.string().describe('NFD domain name, e.g. "example.algo"'),
     },
-    async ({ name }, extra) => {
+    async ({ name }) => {
       try {
-        const env = extra as unknown as Env;
         const apiBase = env.NFD_API_URL || 'https://api.nf.domains';
         
         const url = `${apiBase}/nfd/analytics/${encodeURIComponent(name)}`;
@@ -208,9 +204,8 @@ export function registerNfdApiTools(server: McpServer): void {
       saleStatus: z.enum(['listed', 'unlisted']).optional().describe('Sale status'),
       nameFilter: z.string().optional().describe('Name filter (substring match)')
     },
-    async ({ limit, offset, sortBy, sortOrder, view, tld, saleStatus, nameFilter }, extra) => {
+    async ({ limit, offset, sortBy, sortOrder, view, tld, saleStatus, nameFilter }) => {
       try {
-        const env = extra as unknown as Env;
         const apiBase = env.NFD_API_URL || 'https://api.nf.domains';
         
         let url = `${apiBase}/nfd/browse`;
@@ -272,9 +267,8 @@ export function registerNfdApiTools(server: McpServer): void {
       offset: z.number().optional().default(0).describe('Offset for pagination'),
       view: z.enum(['brief', 'full']).optional().default('brief').describe('View type - brief or full')
     },
-    async ({ query, limit, offset, view }, extra) => {
+    async ({ query, limit, offset, view }) => {
       try {
-        const env = extra as unknown as Env;
         const apiBase = env.NFD_API_URL || 'https://api.nf.domains';
         
         let url = `${apiBase}/nfd/search`;

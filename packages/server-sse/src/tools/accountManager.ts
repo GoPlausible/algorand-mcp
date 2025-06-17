@@ -12,7 +12,7 @@ import { Env } from '../types';
 /**
  * Register account management tools to the MCP server
  */
-export function registerAccountTools(server: McpServer): void {
+export function registerAccountTools(server: McpServer,env: Env): void {
   // Create account tool
   server.tool(
     'create_account',
@@ -57,9 +57,7 @@ export function registerAccountTools(server: McpServer): void {
     'check_balance',
     'Check the balance of an Algorand account',
     { address: z.string() },
-    async ({ address }, extra) => {
-      const env = extra as unknown as Env;
-      
+    async ({ address }) => { 
       if (!env.ALGORAND_ALGOD) {
         return {
           content: [{

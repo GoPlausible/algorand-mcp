@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register account API tools to the MCP server
  */
-export function registerAccountApiTools(server: McpServer): void {
+export function registerAccountApiTools(server: McpServer,env: Env): void {
   // Get account information
   server.tool(
     'api_algod_get_account_info',
@@ -32,8 +32,7 @@ export function registerAccountApiTools(server: McpServer): void {
     { 
       address: z.string().describe('The account public key')
     },
-    async ({ address }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ address }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -79,8 +78,7 @@ export function registerAccountApiTools(server: McpServer): void {
       address: z.string().describe('The account public key'),
       appId: z.number().int().describe('The application ID')
     },
-    async ({ address, appId }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ address, appId }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -126,8 +124,7 @@ export function registerAccountApiTools(server: McpServer): void {
       address: z.string().describe('The account public key'),
       assetId: z.number().int().describe('The asset ID')
     },
-    async ({ address, assetId }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ address, assetId }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {

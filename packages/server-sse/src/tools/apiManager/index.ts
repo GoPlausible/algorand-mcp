@@ -14,15 +14,15 @@ import { registerNfdApiTools } from './nfd';
 /**
  * Register API tools to the MCP server
  */
-export function registerApiTools(server: McpServer): void {
+export function registerApiTools(server: McpServer,env: Env): void {
   // Register algod API tools
-  registerAlgodApiTools(server);
+  registerAlgodApiTools(server, env);
   
   // Register indexer API tools
-  registerIndexerApiTools(server);
+  registerIndexerApiTools(server, env);
   
   // Register NFD API tools
-  registerNfdApiTools(server);
+  registerNfdApiTools(server, env);
   
   // Generic API request tool
   server.tool(
@@ -34,7 +34,7 @@ export function registerApiTools(server: McpServer): void {
       headers: z.record(z.string()).optional().describe('HTTP headers'),
       body: z.any().optional().describe('Request body')
     },
-    async ({ url, method, headers = {}, body }, extra) => {
+    async ({ url, method, headers = {}, body }) => {
       try {
         const options: RequestInit = {
           method,
@@ -87,8 +87,7 @@ export function registerApiTools(server: McpServer): void {
       query: z.record(z.any()).describe('Query parameters'),
       limit: z.number().int().min(1).max(1000).default(100).describe('Max number of results')
     },
-    async ({ type, query, limit }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ type, query, limit }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {

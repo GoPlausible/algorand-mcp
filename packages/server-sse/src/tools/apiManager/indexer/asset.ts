@@ -24,7 +24,7 @@ function createIndexerClient(indexerUrl: string | undefined): algosdk.Indexer | 
 /**
  * Register indexer asset API tools to the MCP server
  */
-export function registerIndexerAssetTools(server: McpServer): void {
+export function registerIndexerAssetTools(server: McpServer,env: Env): void {
   // Lookup asset by ID
   server.tool(
     'api_indexer_lookup_asset_by_id',
@@ -32,8 +32,7 @@ export function registerIndexerAssetTools(server: McpServer): void {
     { 
       assetId: z.number().int().describe('Asset ID')
     },
-    async ({ assetId }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ assetId }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -77,8 +76,7 @@ export function registerIndexerAssetTools(server: McpServer): void {
       currencyLessThan: z.number().int().optional().describe('Filter by maximum balance'),
       nextToken: z.string().optional().describe('Token for retrieving the next page of results')
     },
-    async ({ assetId, limit, currencyGreaterThan, currencyLessThan, nextToken }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ assetId, limit, currencyGreaterThan, currencyLessThan, nextToken }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -138,8 +136,7 @@ export function registerIndexerAssetTools(server: McpServer): void {
       limit: z.number().int().optional().describe('Maximum number of assets to return'),
       nextToken: z.string().optional().describe('Token for retrieving the next page of results')
     },
-    async ({ name, unit, creator, limit, nextToken }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ name, unit, creator, limit, nextToken }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {

@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register application API tools to the MCP server
  */
-export function registerApplicationApiTools(server: McpServer): void {
+export function registerApplicationApiTools(server: McpServer,env: Env): void {
   // Get application information
   server.tool(
     'api_algod_get_application_info',
@@ -32,8 +32,7 @@ export function registerApplicationApiTools(server: McpServer): void {
     { 
       appId: z.number().int().describe('The application ID')
     },
-    async ({ appId }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ appId }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -74,8 +73,7 @@ export function registerApplicationApiTools(server: McpServer): void {
       appId: z.number().int().describe('The application ID'),
       name: z.string().describe('The box name (will be UTF-8 encoded)')
     },
-    async ({ appId, name }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ appId, name }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -128,8 +126,7 @@ export function registerApplicationApiTools(server: McpServer): void {
       appId: z.number().int().describe('The application ID'),
       maxResults: z.number().int().min(1).max(100).default(20).describe('Maximum number of results to return')
     },
-    async ({ appId, maxResults }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ appId, maxResults }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -188,8 +185,7 @@ export function registerApplicationApiTools(server: McpServer): void {
     { 
       appId: z.number().int().describe('The application ID')
     },
-    async ({ appId }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ appId }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {

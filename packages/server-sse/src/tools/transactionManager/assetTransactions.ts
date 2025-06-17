@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register asset transaction management tools to the MCP server
  */
-export function registerAssetTransactionTools(server: McpServer): void {
+export function registerAssetTransactionTools(server: McpServer,env: Env): void {
   // Create a new Algorand Standard Asset (ASA)
   server.tool(
     'create_asset',
@@ -45,8 +45,7 @@ export function registerAssetTransactionTools(server: McpServer): void {
       note: z.string().optional().describe('Optional transaction note')
     },
     async ({ creator, name, unitName, totalSupply, decimals, defaultFrozen, 
-            url, metadataHash, manager, reserve, freeze, clawback, note }, extra) => {
-      const env = extra as unknown as Env;
+            url, metadataHash, manager, reserve, freeze, clawback, note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -138,8 +137,7 @@ export function registerAssetTransactionTools(server: McpServer): void {
       assetID: z.number().describe('Asset ID to opt-in to'),
       note: z.string().optional().describe('Optional transaction note')
     },
-    async ({ address, assetID, note }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ address, assetID, note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -212,8 +210,7 @@ export function registerAssetTransactionTools(server: McpServer): void {
       amount: z.number().describe('Amount of asset to transfer'),
       note: z.string().optional().describe('Optional transaction note')
     },
-    async ({ from, to, assetID, amount, note }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ from, to, assetID, amount, note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {

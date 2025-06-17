@@ -24,7 +24,7 @@ function createIndexerClient(indexerUrl: string | undefined): algosdk.Indexer | 
 /**
  * Register indexer transaction API tools to the MCP server
  */
-export function registerIndexerTransactionTools(server: McpServer): void {
+export function registerIndexerTransactionTools(server: McpServer,env: Env): void {
   // Lookup transaction by ID
   server.tool(
     'api_indexer_lookup_transaction_by_id',
@@ -32,8 +32,7 @@ export function registerIndexerTransactionTools(server: McpServer): void {
     { 
       txid: z.string().describe('Transaction ID')
     },
-    async ({ txid }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ txid }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -86,8 +85,7 @@ export function registerIndexerTransactionTools(server: McpServer): void {
       nextToken: z.string().optional().describe('Token for retrieving the next page of results')
     },
     async ({ address, limit, txType, sigType, assetId, beforeTime, afterTime,
-             currencyGreaterThan, currencyLessThan, round, minRound, maxRound, nextToken }, extra) => {
-      const env = extra as unknown as Env;
+             currencyGreaterThan, currencyLessThan, round, minRound, maxRound, nextToken }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -185,8 +183,7 @@ export function registerIndexerTransactionTools(server: McpServer): void {
     },
     async ({ limit, notePrefix, txType, sigType, address, addressRole, assetId, beforeTime, afterTime, 
              currencyGreaterThan, currencyLessThan, round, minRound, maxRound, 
-             applicationId, rekeyTo, nextToken }, extra) => {
-      const env = extra as unknown as Env;
+             applicationId, rekeyTo, nextToken }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {

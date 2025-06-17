@@ -63,7 +63,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	private registerWalletResources() {
 		// Register all wallet-related resources
 		// Since this might contain parameters from env, we pass env to the function
-		registerWalletResources(this.server, this.env as Env);
+		registerWalletResources(this.server, this.env);
 	}
 	
 	/**
@@ -72,7 +72,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	private registerKnowledgeResources() {
 		// Register knowledge resources for documentation access
 		// Pass environment for R2 bucket access
-		registerKnowledgeResources(this.server, this.env as Env);
+		registerKnowledgeResources(this.server, this.env);
 	}
 	
 	/**
@@ -80,7 +80,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	 */
 	private registerGuideResources() {
 		// Register guide resources for agent usage guidance
-		registerGuideResource(this.server, this.env as Env);
+		registerGuideResource(this.server, this.env);
 	}
 	
 	/**
@@ -88,7 +88,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	 */
 	private registerBasicUtilityTools() {
 		// Register Algorand utility tools
-		registerUtilityTools(this.server);
+		registerUtilityTools(this.server, this.env);
 	}
 	
 	/**
@@ -96,7 +96,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	 */
 	private registerAccountTools() {
 		// Register all account-related tools
-		registerAccountTools(this.server);
+		registerAccountTools(this.server, this.env);
 	}
 	
 	/**
@@ -104,16 +104,16 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	 */
 	private registerTransactionTools() {
 		// Register payment transaction tools
-		registerGeneralTransactionTools(this.server);
+		registerGeneralTransactionTools(this.server, this.env);
 		
 		// Register asset transaction tools
-		registerAssetTransactionTools(this.server);
+		registerAssetTransactionTools(this.server, this.env);
 		
 		// Register application transaction tools
-		registerAppTransactionTools(this.server);
+		registerAppTransactionTools(this.server, this.env);
 		
 		// Register group transaction tools
-		registerGroupTransactionTools(this.server);
+		registerGroupTransactionTools(this.server, this.env);
 	}
 	
 	/**
@@ -121,7 +121,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	 */
 	private registerAlgodTools() {
 		// Register algod tools for TEAL compilation and simulation
-		registerAlgodTools(this.server);
+		registerAlgodTools(this.server, this.env);
 	}
 	
 	/**
@@ -129,7 +129,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	 */
 	private registerArc26Tools() {
 		// Register ARC-26 URI generation tools
-		registerArc26Tools(this.server);
+		registerArc26Tools(this.server, this.env);
 	}
 	
 	/**
@@ -137,7 +137,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	 */
 	private registerApiTools() {
 		// Register external API integration tools
-		registerApiTools(this.server);
+		registerApiTools(this.server, this.env);
 	}
 	
 	/**

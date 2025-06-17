@@ -24,7 +24,7 @@ function createIndexerClient(indexerUrl: string | undefined): algosdk.Indexer | 
 /**
  * Register indexer application API tools to the MCP server
  */
-export function registerIndexerApplicationTools(server: McpServer): void {
+export function registerIndexerApplicationTools(server: McpServer,env: Env): void {
   // Lookup applications
   server.tool(
     'api_indexer_lookup_applications',
@@ -32,8 +32,7 @@ export function registerIndexerApplicationTools(server: McpServer): void {
     { 
       appId: z.number().int().describe('Application ID')
     },
-    async ({ appId }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ appId }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -82,8 +81,7 @@ export function registerIndexerApplicationTools(server: McpServer): void {
       sender: z.string().optional().describe('Filter by sender address'),
       nextToken: z.string().optional().describe('Token for retrieving the next page of results')
     },
-    async ({ appId, limit, minRound, maxRound, txid, sender, nextToken }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ appId, limit, minRound, maxRound, txid, sender, nextToken }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -147,8 +145,7 @@ export function registerIndexerApplicationTools(server: McpServer): void {
       creator: z.string().optional().describe('Filter by creator address'),
       nextToken: z.string().optional().describe('Token for retrieving the next page of results')
     },
-    async ({ limit, creator, nextToken }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ limit, creator, nextToken }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -205,8 +202,7 @@ export function registerIndexerApplicationTools(server: McpServer): void {
       appId: z.number().int().describe('Application ID'),
       boxName: z.string().describe('Box name (string, base64, or number)')
     },
-    async ({ appId, boxName }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ appId, boxName }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {
@@ -285,8 +281,7 @@ export function registerIndexerApplicationTools(server: McpServer): void {
       appId: z.number().int().describe('Application ID'),
       maxBoxes: z.number().int().optional().describe('Maximum number of boxes to return')
     },
-    async ({ appId, maxBoxes }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ appId, maxBoxes }) => {
       
       if (!env.ALGORAND_INDEXER) {
         return {

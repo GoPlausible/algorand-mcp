@@ -7,11 +7,11 @@ import algosdk from 'algosdk';
 import { z } from 'zod';
 import { ResponseProcessor } from '../../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-
+import { Env } from '../../types';
 /**
  * Register group transaction tools to the MCP server
  */
-export function registerGroupTransactionTools(server: McpServer): void {
+export function registerGroupTransactionTools(server: McpServer,env: Env): void {
   // Assign group ID to transactions
   server.tool(
     'assign_group_id',

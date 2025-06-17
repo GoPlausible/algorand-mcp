@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register Algod tools to the MCP server
  */
-export function registerAlgodTools(server: McpServer): void {
+export function registerAlgodTools(server: McpServer,env: Env): void {
   // Compile TEAL code
   server.tool(
     'compile_teal',
@@ -32,8 +32,7 @@ export function registerAlgodTools(server: McpServer): void {
     { 
       source: z.string().describe('Logic that executes when the app is called (TEAL source)')
     },
-    async ({ source }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ source }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -86,8 +85,7 @@ export function registerAlgodTools(server: McpServer): void {
     { 
       bytecode: z.string().describe('TEAL bytecode to disassemble (base64-encoded)')
     },
-    async ({ bytecode }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ bytecode }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -132,8 +130,8 @@ export function registerAlgodTools(server: McpServer): void {
     { 
       signedTxns: z.array(z.string()).describe('Array of base64-encoded signed transactions')
     },
-    async ({ signedTxns }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ signedTxns }) => {
+
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -178,8 +176,8 @@ export function registerAlgodTools(server: McpServer): void {
     { 
       txns: z.array(z.string()).describe('Array of base64-encoded transactions to simulate')
     },
-    async ({ txns }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ txns }) => {
+
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -228,8 +226,7 @@ export function registerAlgodTools(server: McpServer): void {
         allowMoreLogging: z.boolean().optional().describe('Enable additional logging during simulation')
       }).optional().describe('Simulation options')
     },
-    async ({ encodedTxns, options }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ encodedTxns, options }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {

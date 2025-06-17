@@ -55,7 +55,7 @@ function processNote(note?: string): Uint8Array | undefined {
 /**
  * Register application (smart contract) transaction management tools to the MCP server
  */
-export function registerAppTransactionTools(server: McpServer): void {
+export function registerAppTransactionTools(server: McpServer,env: Env): void {
   // Create application (smart contract)
   server.tool(
     'create_application',
@@ -73,8 +73,7 @@ export function registerAppTransactionTools(server: McpServer): void {
       extraPages: z.number().min(0).max(3).default(0).describe('Extra pages allocated to the app')
     },
     async ({ creator, approvalProgram, clearProgram, numGlobalInts, numGlobalBytes, 
-            numLocalInts, numLocalBytes, args = [], note, extraPages }, extra) => {
-      const env = extra as unknown as Env;
+            numLocalInts, numLocalBytes, args = [], note, extraPages }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -173,8 +172,7 @@ export function registerAppTransactionTools(server: McpServer): void {
       note: z.string().optional().describe('Optional transaction note')
     },
     async ({ sender, appId, approvalProgram, clearProgram, appArgs = [], accounts = [], 
-            foreignApps = [], foreignAssets = [], note }, extra) => {
-      const env = extra as unknown as Env;
+            foreignApps = [], foreignAssets = [], note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -263,8 +261,7 @@ export function registerAppTransactionTools(server: McpServer): void {
       note: z.string().optional().describe('Optional transaction note')
     },
     async ({ sender, appId, appArgs = [], accounts = [], 
-            foreignApps = [], foreignAssets = [], note }, extra) => {
-      const env = extra as unknown as Env;
+            foreignApps = [], foreignAssets = [], note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -341,8 +338,7 @@ export function registerAppTransactionTools(server: McpServer): void {
       note: z.string().optional().describe('Optional transaction note')
     },
     async ({ account, appId, appArgs = [], accounts = [], 
-            foreignApps = [], foreignAssets = [], note }, extra) => {
-      const env = extra as unknown as Env;
+            foreignApps = [], foreignAssets = [], note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -419,8 +415,7 @@ export function registerAppTransactionTools(server: McpServer): void {
       note: z.string().optional().describe('Optional transaction note')
     },
     async ({ account, appId, appArgs = [], accounts = [], 
-            foreignApps = [], foreignAssets = [], note }, extra) => {
-      const env = extra as unknown as Env;
+            foreignApps = [], foreignAssets = [], note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -498,8 +493,7 @@ export function registerAppTransactionTools(server: McpServer): void {
       note: z.string().optional().describe('Optional transaction note')
     },
     async ({ sender, appId, appArgs = [], accounts = [], foreignApps = [], 
-            foreignAssets = [], onComplete, note }, extra) => {
-      const env = extra as unknown as Env;
+            foreignAssets = [], onComplete, note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
@@ -595,8 +589,7 @@ export function registerAppTransactionTools(server: McpServer): void {
       appArgs: z.array(z.string()).optional().describe('Optional application arguments'),
       note: z.string().optional().describe('Optional transaction note')
     },
-    async ({ account, appId, appArgs = [], note }, extra) => {
-      const env = extra as unknown as Env;
+    async ({ account, appId, appArgs = [], note }) => {
       
       if (!env.ALGORAND_ALGOD) {
         return {
