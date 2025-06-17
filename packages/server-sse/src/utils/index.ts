@@ -3,3 +3,4 @@
  */
 
 export * from './responseProcessor';
+export * from './Guide';

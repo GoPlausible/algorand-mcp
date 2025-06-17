@@ -7,6 +7,7 @@ import algosdk from 'algosdk';
 import { z } from 'zod';
 import { ResponseProcessor } from '../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { guide } from '../utils/Guide.js';
 
 /**
  * Register utility tools to the MCP server
@@ -302,6 +303,25 @@ export function registerUtilityTools(server: McpServer): void {
           content: [{
             type: 'text',
             text: `Error decoding object: ${error.message || 'Unknown error'}`
+          }]
+        };
+      }
+    }
+  );
+
+  // Get agent guide for Algorand Remote MCP
+  server.tool(
+    'algorand_mcp_guide',
+    'Access comprehensive guide for using Algorand Remote MCP, including step-by-step workflows, examples, and best practices.',
+    {},
+    async () => {
+      try {
+        return ResponseProcessor.processResponse(guide);
+      } catch (error: any) {
+        return {
+          content: [{
+            type: 'text',
+            text: `Error getting agents guide: ${error.message || 'Unknown error'}`
           }]
         };
       }
