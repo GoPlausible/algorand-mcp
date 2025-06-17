@@ -4,7 +4,7 @@
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { guide } from '../../utils/Guide';
+import { guide } from '../../utils/Guide.js';
 import { Env } from '../../types';
 
 /**

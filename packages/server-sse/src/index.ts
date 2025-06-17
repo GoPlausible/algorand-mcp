@@ -13,7 +13,8 @@ import {
 	registerAlgodTools,
 	registerArc26Tools,
 	registerApiTools,
-	registerKnowledgeTools
+	registerKnowledgeTools,
+	registerWalletTools
 } from './tools';
 import { registerWalletResources, registerKnowledgeResources, registerGuideResource } from './resources';
 
@@ -51,6 +52,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	this.registerArc26Tools();
 	this.registerApiTools();
 	this.registerKnowledgeTools();
+	this.registerWalletTools();
 		
 		// Additional tool categories will be added here
 	}
@@ -144,6 +146,14 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, {}> {
 	private registerKnowledgeTools() {
 		// Register knowledge documentation tools
 		registerKnowledgeTools(this.server, this.env);
+	}
+	
+	/**
+	 * Register Wallet tools for wallet information access
+	 */
+	private registerWalletTools() {
+		// Register wallet management tools
+		registerWalletTools(this.server, this.env);
 	}
 	onStateUpdate(state: State) {
 		console.log({ stateUpdate: state });

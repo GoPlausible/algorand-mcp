@@ -1,3 +1,8 @@
+/**
+ * Guide content for Algorand Remote MCP
+ * This file contains the full markdown documentation used by AI agents
+ */
+
 export const guide = `# Algorand Remote MCP Guide for Agents
 
 ## 🚨 CRITICAL: FIRST STEPS FOR EVERY NEW SESSION
@@ -5,32 +10,31 @@ export const guide = `# Algorand Remote MCP Guide for Agents
 ⚠️ **AGENTS MUST PERFORM THESE ACTIONS AT THE START OF EACH SESSION WITH ALGORAND-REMOTE-MCP:**
 
 **Check Wallet Configuration:**
-   - Resource: \`algorand://wallet/account\`
+   - Tool: \`get_wallet_account\`
    - Purpose: Verify wallet exists and is correctly configured
-   - Action Required: Access this resource FIRST in EVERY session
-   - If wallet exists: Proceed to check available resources
+   - Action Required: Use this tool FIRST in EVERY session
+   - If wallet exists: Proceed to perform blockchain operations
    - If no wallet or error response:
-     * Check if ALGORAND_AGENT_WALLET is properly set in environment
-     * Inform user to add wallet mnemonic via Wrangler secret:
+     * Inform user that wallet configuration is missing
+     * Suggest that they need to add a wallet mnemonic via Wrangler secret:
        \`\`\`
        npx wrangler secret put ALGORAND_AGENT_WALLET
        \`\`\`
      * Wait for user to confirm environment is updated
-     * Access wallet resource again to verify
+     * Check wallet again to verify
 
 ⚠️ **ALWAYS verify wallet configuration at the start of EVERY session before attempting any blockchain operations!**
 
 ## 📋 Session Workflow Quick Reference
 
-| Step | Action | Tool/Resource | Purpose |
-|------|--------|---------------|---------|
-| 1 | Check wallet | \`algorand://wallet/account\` | Verify wallet configuration |
-| 2 | Verify resources | Knowledge resources | Check knowledge availability |
-| 3 | Explore APIs | Get API documentation | Understand available actions |
-| 4 | Create transactions | Transaction tools | Prepare blockchain operations |
-| 5 | Sign transactions | \`sign_transaction\` | Authorize operations |
-| 6 | Submit transactions | \`submit_transaction\` | Execute on blockchain |
-| 7 | Verify results | API query tools | Confirm operation success |
+| Step | Action | Tool | Purpose |
+|------|--------|------|---------|
+| 1 | Check wallet | \`get_wallet_account\` | Verify wallet configuration |
+| 2 | Get blockchain data | API query tools | Retrieve necessary information |
+| 3 | Create transactions | Transaction tools | Prepare blockchain operations |
+| 4 | Sign transactions | \`sign_transaction\` | Authorize operations |
+| 5 | Submit transactions | \`submit_transaction\` | Execute on blockchain |
+| 6 | Verify results | API query tools | Confirm operation success |
 
 ## Quick Start for LLM Agents
 
@@ -38,123 +42,134 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
 
 ### Minimal Working Example - Send Payment
 
-1. First, check the wallet configuration:
-   ```
-   access_resource: algorand://wallet/account
-   ```
+1. First, retrieve wallet information:
+   \`\`\`
+   use_tool: "get_wallet_account"
+   parameters: {}
+   \`\`\`
 
 2. If wallet exists, create a payment transaction:
-   ```
-   use_tool: create_payment_transaction
+   \`\`\`
+   use_tool: "create_payment_transaction"
    parameters: {
-     "from": "sender_address",
+     "from": "[sender_address]",
      "to": "receiver_address",
      "amount": 1000000
    }
-   ```
+   \`\`\`
 
 3. Sign the transaction:
-   ```
+   \`\`\`
    use_tool: sign_transaction
    parameters: {
      "encodedTxn": "[encoded_transaction_from_step_2]",
      "mnemonic": "[wallet_mnemonic]" 
    }
-   ```
+   \`\`\`
 
 4. Submit the transaction:
-   ```
+   \`\`\`
    use_tool: submit_transaction
    parameters: {
      "signedTxn": "[signed_transaction_from_step_3]"
    }
-   ```
+   \`\`\`
 
 5. Verify the result:
-   ```
+   \`\`\`
    use_tool: api_algod_get_transaction_info
    parameters: {
      "txid": "[transaction_id_from_step_4]"
    }
-   ```
+   \`\`\`
 
 ### Common Error Messages and Solutions
 
 | Error Message | Likely Cause | Solution |
 |---------------|--------------|----------|
-| `No active wallet mnemonic configured` | Missing ALGORAND_AGENT_WALLET | Inform user to configure secret via `npx wrangler secret put ALGORAND_AGENT_WALLET` |
-| `Error fetching account info` | Network connection or invalid address | Check ALGORAND_ALGOD setting and address format |
-| `Transaction would result in negative balance` | Insufficient funds | Ensure sender has enough ALGOs (remember min balance requirements) |
-| `Asset hasn't been opted in` | Asset not in receiver's account | Receiver must opt in to asset first |
-| `Cannot access knowledge resources` | R2 bucket misconfiguration | Verify R2 bucket setup and permissions |
-| `Overspend` | Transaction fee + amount exceeds balance | Reduce amount or add funds to account |
+| \`No active wallet mnemonic configured\` | Missing ALGORAND_AGENT_WALLET | Inform user to configure secret via \`npx wrangler secret put ALGORAND_AGENT_WALLET\` |
+| \`Error fetching account info\` | Network connection or invalid address | Check ALGORAND_ALGOD setting and address format |
+| \`Transaction would result in negative balance\` | Insufficient funds | Ensure sender has enough ALGOs (remember min balance requirements) |
+| \`Asset hasn't been opted in\` | Asset not in receiver's account | Receiver must opt in to asset first |
+| \`Cannot access knowledge resources\` | R2 bucket misconfiguration | Verify R2 bucket setup and permissions |
+| \`Overspend\` | Transaction fee + amount exceeds balance | Reduce amount or add funds to account |
 
-## Understanding Resource Types
+## Understanding Tool Categories
 
-1. Wallet Resources
-   - Type: User account data
-   - Examples: Wallet Account, Wallet Address
+> **Note**: The following tools are directly accessible to LLM agents.
+
+1. Wallet Management Tools
+   - Type: Wallet data retrieval
+   - Examples: \`get_wallet_address\`, \`get_wallet_account\`
+   - Purpose: Access configured wallet information
+   - Note: Requires proper server configuration
+
+2. Account Information Tools
+   - Type: Account data retrieval
+   - Examples: \`api_algod_get_account_info\`, \`check_balance\`
    - Purpose: Access account information
-   - Note: Requires proper wallet configuration
+   - Note: Requires valid Algorand address
 
-2. Knowledge Resources
-   - Type: Documentation and specifications
-   - Examples: ARCs, SDKs, Developer Documentation
-   - Purpose: Understand blockchain capabilities
-   - Note: Requires proper R2 bucket configuration
+3. Transaction Tools
+   - Type: Blockchain transaction creation and submission
+   - Examples: \`create_payment_transaction\`, \`submit_transaction\`
+   - Purpose: Create and submit transactions
+   - Note: Requires proper parameter validation
 
-3. API Resources
-   - Type: Blockchain interaction endpoints
-   - Examples: Algod, Indexer
-   - Purpose: Query blockchain state
-   - Note: Requires proper API endpoint configuration
+4. Asset Management Tools
+   - Type: ASA operations
+   - Examples: \`asset_optin\`, \`transfer_asset\`
+   - Purpose: Manage Algorand Standard Assets
+   - Note: Requires asset IDs and proper authorization
 
-## Available Resources & Tools
+## Available Tools
 
-1. Core Wallet Resources
-   - Resource: \`algorand://wallet/account\`
-   - Purpose: Get current wallet account information
-   - Returns: Account address, balance, assets
+1. Wallet Management Tools
+   - Tool: \`get_wallet_address\`
+   - Purpose: Get the address for the configured wallet
+   - Parameters: None
+   - Returns: Address of the configured wallet
 
-   - Resource: \`algorand://wallet/assets\`
-   - Purpose: Get assets held by the wallet
-   - Returns: List of ASAs in wallet
+   - Tool: \`get_wallet_account\`
+   - Purpose: Get account information for the configured wallet
+   - Parameters: None
+   - Returns: Full account details including balance and assets
 
-   - Resource: \`algorand://wallet/address\`
-   - Purpose: Get wallet address
-   - Returns: Algorand account address
+   - Tool: \`get_wallet_assets\`
+   - Purpose: Get assets owned by the configured wallet
+   - Parameters: None
+   - Returns: List of assets owned by the wallet
 
-   - Resource: \`algorand://wallet/publickey\`
-   - Purpose: Get wallet public key
-   - Returns: Public key for wallet
+   - Tool: \`get_wallet_mnemonic\`
+   - Purpose: Get the mnemonic for the configured wallet
+   - Parameters: None
+   - Returns: The mnemonic phrase (sensitive!)
 
-   - Resource: \`algorand://wallet/secretkey\`
-   - Purpose: Get wallet secret key
-   - Returns: Secret key for wallet (sensitive!)
+   - Tool: \`get_wallet_publickey\`
+   - Purpose: Get the public key for the configured wallet
+   - Parameters: None
+   - Returns: The public key in hex format
 
-   - Resource: \`algorand://wallet/mnemonic\`
-   - Purpose: Get wallet mnemonic
-   - Returns: Mnemonic phrase (sensitive!)
+   - Tool: \`get_wallet_secretkey\`
+   - Purpose: Get the secret key for the configured wallet
+   - Parameters: None
+   - Returns: The secret key in hex format (sensitive!)
 
-2. Knowledge Resources
-   - Resource: \`algorand://knowledge/taxonomy\`
-   - Purpose: Get full knowledge taxonomy
-   - Returns: Complete documentation structure
+2. Account Information Tools
+   - Tool: \`api_algod_get_account_info\`
+   - Purpose: Get detailed account information
+   - Parameters: \`{ address: string }\`
+   - Returns: Account data including balance, status, apps, and assets
 
-   - Resource: \`algorand://knowledge/taxonomy/{category}\`
-   - Purpose: Get category-specific knowledge
-   - Returns: Documentation for specific category
-   - Example Categories:
-     * \`arcs\` - Algorand Request for Comments
-     * \`sdks\` - Software Development Kits
-     * \`algokit\` - AlgoKit
-     * \`tealscript\` - TEALScript
-     * \`puya\` - Puya
-     * \`liquid-auth\` - Liquid Auth
-     * \`python\` - Python Development
-     * \`developers\` - Developer Documentation
-     * \`clis\` - CLI Tools
-     * \`nodes\` - Node Management
+   - Tool: \`api_indexer_lookup_account_by_id\`
+   - Purpose: Get comprehensive account information from the indexer
+   - Parameters: \`{ address: string }\`
+   - Returns: Full account details including participation information
+
+   - Tool: \`check_balance\`
+   - Purpose: Get simplified account balance
+   - Parameters: \`{ address: string }\`
+   - Returns: Account balance in microAlgos
 
 3. Account Management Tools
    - Tool: \`create_account\`
@@ -342,15 +357,16 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
 
 ### Algo Payment Workflow
 
-1. Check wallet configuration:
-   ```
-   access_resource: algorand://wallet/account
-   ```
+1. Retrieve wallet information:
+   \`\`\`
+   use_tool: get_wallet_account
+   parameters: {}
+   \`\`\`
 
 2. Get sender address from the response.
 
 3. Create payment transaction:
-   ```
+   \`\`\`
    use_tool: create_payment_transaction
    parameters: {
      "from": "[sender_address]",
@@ -358,115 +374,129 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
      "amount": 1000000,
      "note": "Payment example"
    }
-   ```
+   \`\`\`
 
-4. Sign the transaction:
-   ```
+4. Get wallet mnemonic:
+   \`\`\`
+   use_tool: get_wallet_mnemonic
+   parameters: {}
+   \`\`\`
+
+5. Sign the transaction:
+   \`\`\`
    use_tool: sign_transaction
    parameters: {
      "encodedTxn": "[transaction_from_step_3]",
-     "mnemonic": "[wallet_mnemonic]"
+     "mnemonic": "[mnemonic_from_step_4]"
    }
-   ```
+   \`\`\`
 
-5. Submit the transaction:
-   ```
+6. Submit the transaction:
+   \`\`\`
    use_tool: submit_transaction
    parameters: {
-     "signedTxn": "[signed_transaction_from_step_4]"
+     "signedTxn": "[signed_transaction_from_step_5]"
    }
-   ```
+   \`\`\`
 
-6. Verify transaction confirmation:
-   ```
+7. Verify transaction confirmation:
+   \`\`\`
    use_tool: api_indexer_lookup_transaction_by_id
    parameters: {
-     "txid": "[transaction_id_from_step_5]"
+     "txid": "[transaction_id_from_step_6]"
    }
-   ```
+   \`\`\`
 
 ### Asset Opt-In Workflow
 
-1. Check wallet configuration:
-   ```
-   access_resource: algorand://wallet/account
-   ```
+1. Retrieve wallet information:
+   \`\`\`
+   use_tool: get_wallet_account
+   parameters: {}
+   \`\`\`
 
 2. Get user address from the response.
 
 3. Check if already opted in (optional):
-   ```
+   \`\`\`
    use_tool: api_algod_get_account_asset_info
    parameters: {
      "address": "[user_address]",
      "assetId": 12345
    }
-   ```
+   \`\`\`
 
 4. Create asset opt-in transaction:
-   ```
+   \`\`\`
    use_tool: asset_optin
    parameters: {
      "address": "[user_address]",
      "assetID": 12345
    }
-   ```
+   \`\`\`
 
-5. Sign the transaction:
-   ```
+5. Get wallet mnemonic:
+   \`\`\`
+   use_tool: get_wallet_mnemonic
+   parameters: {}
+   \`\`\`
+
+6. Sign the transaction:
+   \`\`\`
    use_tool: sign_transaction
    parameters: {
      "encodedTxn": "[transaction_from_step_4]",
-     "mnemonic": "[wallet_mnemonic]"
+     "mnemonic": "[mnemonic_from_step_5]"
    }
-   ```
+   \`\`\`
 
-6. Submit the transaction:
-   ```
+7. Submit the transaction:
+   \`\`\`
    use_tool: submit_transaction
    parameters: {
-     "signedTxn": "[signed_transaction_from_step_5]"
+     "signedTxn": "[signed_transaction_from_step_6]"
    }
-   ```
+   \`\`\`
 
-7. Verify opt-in success:
-   ```
+8. Verify opt-in success:
+   \`\`\`
    use_tool: api_algod_get_account_asset_info
    parameters: {
      "address": "[user_address]",
      "assetId": 12345
    }
-   ```
+   \`\`\`
 
 ### Asset Transfer Workflow
 
-1. Check wallet configuration:
-   ```
-   access_resource: algorand://wallet/account
-   ```
+1. Retrieve wallet information:
+   \`\`\`
+   use_tool: get_wallet_account
+   parameters: {}
+   \`\`\`
 
 2. Get sender address from the response.
 
 3. Check sender's asset balance:
-   ```
+   \`\`\`
    use_tool: api_algod_get_account_asset_info
    parameters: {
      "address": "[sender_address]",
      "assetId": 12345
    }
-   ```
+   \`\`\`
 
 4. Verify recipient has opted in:
-   ```
+   \`\`\`
    use_tool: api_algod_get_account_asset_info
    parameters: {
      "address": "[recipient_address]",
      "assetId": 12345
    }
-   ```
+   \`\`\`
 
 5. Create asset transfer transaction:
-   ```
+   \`\`\`
    use_tool: transfer_asset
    parameters: {
      "from": "[sender_address]",
@@ -474,32 +504,172 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
      "assetID": 12345,
      "amount": 1
    }
-   ```
+   \`\`\`
 
-6. Sign the transaction:
-   ```
+6. Get wallet mnemonic:
+   \`\`\`
+   use_tool: get_wallet_mnemonic
+   parameters: {}
+   \`\`\`
+
+7. Sign the transaction:
+   \`\`\`
    use_tool: sign_transaction
    parameters: {
      "encodedTxn": "[transaction_from_step_5]",
-     "mnemonic": "[wallet_mnemonic]"
+     "mnemonic": "[mnemonic_from_step_6]"
    }
-   ```
+   \`\`\`
+
+8. Submit the transaction:
+   \`\`\`
+   use_tool: submit_transaction
+   parameters: {
+     "signedTxn": "[signed_transaction_from_step_7]"
+   }
+   \`\`\`
+
+9. Verify transfer success:
+   \`\`\`
+   use_tool: api_indexer_lookup_transaction_by_id
+   parameters: {
+     "txid": "[transaction_id_from_step_8]"
+   }
+   \`\`\`
+
+### USDC Opt-In Example (Mainnet)
+
+1. Retrieve wallet information:
+   \`\`\`
+   use_tool: get_wallet_account
+   parameters: {}
+   \`\`\`
+
+2. Get user address from the response.
+
+3. Check if wallet is already opted-in to USDC:
+   \`\`\`
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[user_address]",
+     "assetId": 31566704  // USDC ASA ID on Algorand Mainnet
+   }
+   \`\`\`
+
+4. If not opted-in, create USDC opt-in transaction:
+   \`\`\`
+   use_tool: asset_optin
+   parameters: {
+     "address": "[user_address]",
+     "assetID": 31566704  // USDC ASA ID
+   }
+   \`\`\`
+
+5. Get wallet mnemonic:
+   \`\`\`
+   use_tool: get_wallet_mnemonic
+   parameters: {}
+   \`\`\`
+
+6. Sign the transaction:
+   \`\`\`
+   use_tool: sign_transaction
+   parameters: {
+     "encodedTxn": "[transaction_from_step_4]",
+     "mnemonic": "[mnemonic_from_step_5]"
+   }
+   \`\`\`
 
 7. Submit the transaction:
-   ```
+   \`\`\`
    use_tool: submit_transaction
    parameters: {
      "signedTxn": "[signed_transaction_from_step_6]"
    }
-   ```
+   \`\`\`
 
-8. Verify transfer success:
-   ```
+8. Verify opt-in success:
+   \`\`\`
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[user_address]",
+     "assetId": 31566704
+   }
+   \`\`\`
+
+9. Inform the user that they can now receive USDC on Algorand.
+
+### USDC Transfer Example (Mainnet)
+
+1. Retrieve wallet information:
+   \`\`\`
+   use_tool: get_wallet_account
+   parameters: {}
+   \`\`\`
+
+2. Get sender address from the response.
+
+3. Check sender's USDC balance:
+   \`\`\`
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[sender_address]",
+     "assetId": 31566704  // USDC ASA ID on Algorand Mainnet
+   }
+   \`\`\`
+
+4. Verify recipient has opted in to USDC:
+   \`\`\`
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[recipient_address]",
+     "assetId": 31566704
+   }
+   \`\`\`
+
+5. Create USDC transfer transaction (remember USDC has 6 decimals):
+   \`\`\`
+   use_tool: transfer_asset
+   parameters: {
+     "from": "[sender_address]",
+     "to": "[recipient_address]",
+     "assetID": 31566704,
+     "amount": 1000000  // 1 USDC (1,000,000 microUSDC)
+   }
+   \`\`\`
+
+6. Get wallet mnemonic:
+   \`\`\`
+   use_tool: get_wallet_mnemonic
+   parameters: {}
+   \`\`\`
+
+7. Sign the transaction:
+   \`\`\`
+   use_tool: sign_transaction
+   parameters: {
+     "encodedTxn": "[transaction_from_step_5]",
+     "mnemonic": "[mnemonic_from_step_6]"
+   }
+   \`\`\`
+
+8. Submit the transaction:
+   \`\`\`
+   use_tool: submit_transaction
+   parameters: {
+     "signedTxn": "[signed_transaction_from_step_7]"
+   }
+   \`\`\`
+
+9. Verify transfer success:
+   \`\`\`
    use_tool: api_indexer_lookup_transaction_by_id
    parameters: {
-     "txid": "[transaction_id_from_step_7]"
+     "txid": "[transaction_id_from_step_8]"
    }
-   ```
+   \`\`\`
+
+> **Note**: For Testnet, you may need to use a different ASA ID for test USDC. On TestNet, you should identify the appropriate test USDC asset ID or use another test asset. The workflow remains the same, just substitute the correct asset ID.
 
 ## Working with Atomic Transactions
 
@@ -539,9 +709,9 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
 If operations are not working properly, verify:
 
 1. **Wallet Configuration:**
-   - Is ALGORAND_AGENT_WALLET correctly set as a secret?
-   - Can you access wallet resources successfully?
-   - Are you getting proper wallet information responses?
+   - Is wallet information retrievable with wallet tools?
+   - Does the \`get_wallet_account\` tool return valid information?
+   - If wallet tools return errors, suggest wallet configuration to the user
 
 2. **Network Configuration:**
    - Are ALGORAND_ALGOD and ALGORAND_INDEXER properly set?
@@ -554,11 +724,10 @@ If operations are not working properly, verify:
    - Check for encoding issues in parameters
    - Verify proper signing of transactions
 
-4. **Resource Access Issues:**
-   - Check R2 bucket configuration for knowledge resources
+4. **API Issues:**
    - Verify API endpoints are accessible
    - Check for rate limiting issues
-   - Verify proper URL formatting for resources
+   - Ensure proper parameter formats in API calls
 
 ## Security Guidelines
 
@@ -581,4 +750,4 @@ If operations are not working properly, verify:
    - Handle rate limiting gracefully
    - Don't expose API tokens
    - Implement proper error handling
-   - Validate inputs before API calls`
+   - Validate inputs before API calls`;
