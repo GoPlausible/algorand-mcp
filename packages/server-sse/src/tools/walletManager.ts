@@ -17,7 +17,7 @@ function createAlgoClient(algodUrl: string | undefined, token: string = ''): alg
     console.error('Algorand node URL not configured');
     return null;
   }
-  
+
   return new algosdk.Algodv2(token, algodUrl, '');
 }
 
@@ -29,7 +29,7 @@ function getAccountFromMnemonic(mnemonic: string | undefined): algosdk.Account |
     console.error('No active wallet mnemonic configured');
     return null;
   }
-  
+
   try {
     return algosdk.mnemonicToSecretKey(mnemonic);
   } catch (error) {
@@ -41,14 +41,27 @@ function getAccountFromMnemonic(mnemonic: string | undefined): algosdk.Account |
 /**
  * Register wallet management tools to the MCP server
  */
-export function registerWalletTools(server: McpServer, env: Env, props: Props): void {
+export async function registerWalletTools(server: McpServer, env: Env, props: Props): Promise<void> {
+  const ALGORAND_AGENT_WALLET = await env?.OAUTH_KV_ACCOUNTS?.get(props.email);
+  if (!ALGORAND_AGENT_WALLET) {
+    try {
+      console.log('Generating new account for Oauth user by email:', props.email);
+      const account = algosdk.generateAccount();
+      if (!account) {
+        throw new Error('Failed to generate account for Oauth user by email');
+      }
+      await env?.OAUTH_KV_ACCOUNTS?.put(props.email, algosdk.secretKeyToMnemonic(account.sk));
+    } catch (error: any) {
+      throw new Error(`Failed to generate account for Oauth user by email: ${error.message || 'Unknown error'}`);
+    }
+  }
   // Get wallet secret key
   server.tool(
     'get_wallet_secretkey',
     'Get the secret key for the configured wallet',
     {},
     async () => {
-      if (!env.ALGORAND_AGENT_WALLET) {
+      if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',
@@ -56,13 +69,13 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
           }]
         };
       }
-      
+
       try {
-        const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+        const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
         if (!account) {
           throw new Error('Failed to load account from mnemonic');
         }
-        
+
         return ResponseProcessor.processResponse({
           secretKey: Buffer.from(account.sk).toString('hex')
         });
@@ -76,16 +89,14 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
       }
     }
   );
-  
+
   // Get wallet public key
   server.tool(
     'get_wallet_publickey',
     'Get the public key for the configured wallet',
     {},
     async () => {
-
-      
-      if (!env.ALGORAND_AGENT_WALLET) {
+      if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',
@@ -93,13 +104,15 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
           }]
         };
       }
-      
+
+
+
       try {
-        const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+        const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
         if (!account) {
           throw new Error('Failed to load account from mnemonic');
         }
-        
+
         return ResponseProcessor.processResponse({
           publicKey: Buffer.from(account.sk.slice(32)).toString('hex')
         });
@@ -113,15 +126,16 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
       }
     }
   );
-  
+
   // Get wallet mnemonic
   server.tool(
     'get_wallet_mnemonic',
     'Get the mnemonic for the configured wallet',
     {},
     async () => {
-      
-      if (!env.ALGORAND_AGENT_WALLET) {
+
+
+if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',
@@ -129,10 +143,9 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
           }]
         };
       }
-      
       try {
         return ResponseProcessor.processResponse({
-          mnemonic: env.ALGORAND_AGENT_WALLET
+          mnemonic: ALGORAND_AGENT_WALLET
         });
       } catch (error: any) {
         return {
@@ -144,15 +157,15 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
       }
     }
   );
-  
+
   // Get wallet address
   server.tool(
     'get_wallet_address',
     'Get the address for the configured wallet',
     {},
     async () => {
-      
-      if (!env.ALGORAND_AGENT_WALLET) {
+
+if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',
@@ -160,13 +173,13 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
           }]
         };
       }
-      
+
       try {
-        const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+        const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
         if (!account) {
           throw new Error('Failed to load account from mnemonic');
         }
-        
+
         return ResponseProcessor.processResponse({
           address: account.addr
         });
@@ -180,7 +193,7 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
       }
     }
   );
-  
+
   // Get wallet account information
   server.tool(
     'get_wallet_account',
@@ -188,8 +201,7 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
     {},
     async () => {
 
-      
-      if (!env.ALGORAND_AGENT_WALLET) {
+if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',
@@ -197,7 +209,8 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
           }]
         };
       }
-      
+
+
       if (!env.ALGORAND_ALGOD) {
         return {
           content: [{
@@ -206,22 +219,22 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
           }]
         };
       }
-      
+
       try {
-        const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+        const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
         if (!account) {
           throw new Error('Failed to load account from mnemonic');
         }
-        
+
         // Create algod client
         const algodClient = createAlgoClient(env.ALGORAND_ALGOD, env.ALGORAND_TOKEN || '');
         if (!algodClient) {
           throw new Error('Failed to create Algorand client');
         }
-        
+
         // Get account information
         const accountInfo = await algodClient.accountInformation(account.addr).do();
-        
+
         return ResponseProcessor.processResponse({
           accounts: [{
             address: account.addr,
@@ -239,15 +252,14 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
       }
     }
   );
-  
+
   // Get wallet assets
   server.tool(
     'get_wallet_assets',
     'Get the assets for the configured wallet',
     {},
     async () => {
-      
-      if (!env.ALGORAND_AGENT_WALLET) {
+      if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',
@@ -255,7 +267,7 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
           }]
         };
       }
-      
+
       if (!env.ALGORAND_ALGOD) {
         return {
           content: [{
@@ -264,22 +276,22 @@ export function registerWalletTools(server: McpServer, env: Env, props: Props): 
           }]
         };
       }
-      
+
       try {
-        const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+        const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
         if (!account) {
           throw new Error('Failed to load account from mnemonic');
         }
-        
+
         // Create algod client
         const algodClient = createAlgoClient(env.ALGORAND_ALGOD, env.ALGORAND_TOKEN || '');
         if (!algodClient) {
           throw new Error('Failed to create Algorand client');
         }
-        
+
         // Get account information
         const accountInfo = await algodClient.accountInformation(account.addr).do();
-        
+
         return ResponseProcessor.processResponse({
           assets: accountInfo.assets || []
         });

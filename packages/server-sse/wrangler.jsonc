@@ -33,10 +33,14 @@
     }
   ],
   "kv_namespaces": [
-	{
-	  "binding": "OAUTH_KV",
-	  "id": "7f55745ea16e43c6be6e52faafc643fa"
-	}
+    {
+      "binding": "OAUTH_KV",
+      "id": "7f55745ea16e43c6be6e52faafc643fa"
+    },
+    {
+      "binding": "OAUTH_KV_ACCOUNTS",
+      "id": "710ae87516544f17bcee0f2af8463163"
+    }
   ],
   "observability": {
     "enabled": false

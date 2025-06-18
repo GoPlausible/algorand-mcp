@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Env, State, Props } from './types';
 import { ResponseProcessor } from './utils';
 import OAuthProvider from "@cloudflare/workers-oauth-provider";
-import { GoogleHandler } from "./google-handler";
+import { OauthHandler } from "./oauth-handler";
 import algosdk from 'algosdk';
 import {
 	registerAccountTools,
@@ -50,7 +50,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 
 
 		// Register resources
-		this.registerWalletResources();
+		await this.registerWalletResources();
 		this.registerKnowledgeResources();
 		this.registerGuideResources();
 
@@ -62,7 +62,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 		this.registerArc26Tools();
 		this.registerApiTools();
 		this.registerKnowledgeTools();
-		this.registerWalletTools();
+		await this.registerWalletTools();
 		// Additional tool categories will be added here
 	}
 
@@ -70,10 +70,10 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	/**
 	 * Register wallet resources
 	 */
-	private registerWalletResources() {
+	private async registerWalletResources() {
 		// Register all wallet-related resources
 		// Since this might contain parameters from env, we pass env to the function
-		registerWalletResources(this.server, this.env, this.props);
+		await registerWalletResources(this.server, this.env, this.props);
 	}
 
 	/**
@@ -161,9 +161,9 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	/**
 	 * Register Wallet tools for wallet information access
 	 */
-	private registerWalletTools() {
+	private async registerWalletTools() {
 		// Register wallet management tools
-		registerWalletTools(this.server, this.env, this.props);
+		await registerWalletTools(this.server, this.env, this.props);
 	}
 	onStateUpdate(state: State) {
 		console.log({ stateUpdate: state });
@@ -212,6 +212,7 @@ export default new OAuthProvider({
 	apiRoute: "/sse",
 	authorizeEndpoint: "/authorize",
 	clientRegistrationEndpoint: "/register",
-	defaultHandler: GoogleHandler as any,
+	defaultHandler: OauthHandler as any,
 	tokenEndpoint: "/token",
 });
+

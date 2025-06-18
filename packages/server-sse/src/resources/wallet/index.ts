@@ -15,7 +15,7 @@ function createAlgoClient(algodUrl: string | undefined, token: string = ''): alg
     console.error('Algorand node URL not configured');
     return null;
   }
-  
+
   return new algosdk.Algodv2(token, algodUrl, '');
 }
 
@@ -27,7 +27,7 @@ function getAccountFromMnemonic(mnemonic: string | undefined): algosdk.Account |
     console.error('No active wallet mnemonic configured');
     return null;
   }
-  
+
   try {
     return algosdk.mnemonicToSecretKey(mnemonic);
   } catch (error) {
@@ -39,12 +39,24 @@ function getAccountFromMnemonic(mnemonic: string | undefined): algosdk.Account |
 /**
  * Register wallet resources to the MCP server
  */
-export function registerWalletResources(server: McpServer, env: Env, props: Props): void {  
+export async function registerWalletResources(server: McpServer, env: Env, props: Props): Promise<void> {
 
-  
+  const ALGORAND_AGENT_WALLET = await env?.OAUTH_KV_ACCOUNTS?.get(props.email);
+  if (!ALGORAND_AGENT_WALLET) {
+    try {
+      console.log('Generating new account for Oauth user by email:', props.email);
+      const account = algosdk.generateAccount();
+      if (!account) {
+        throw new Error('Failed to generate account for Oauth user by email');
+      }
+      await env?.OAUTH_KV_ACCOUNTS?.put(props.email, algosdk.secretKeyToMnemonic(account.sk));
+    } catch (error: any) {
+      throw new Error(`Failed to generate account for Oauth user by email: ${error.message || 'Unknown error'}`);
+    }
+  }
   // === Wallet Secret Key ===
   server.resource("Wallet Account Secret Key", "algorand://wallet/secretkey", async (uri) => {
-    if (!env.ALGORAND_AGENT_WALLET) {
+    if (!ALGORAND_AGENT_WALLET) {
       return {
         contents: [{
           uri: uri.href,
@@ -54,13 +66,13 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
         }]
       };
     }
-    
+
     try {
-      const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+      const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
       if (!account) {
         throw new Error('Failed to load account from mnemonic');
       }
-      
+
       return {
         contents: [{
           uri: uri.href,
@@ -80,10 +92,10 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
       };
     }
   });
-  
+
   // === Wallet Public Key ===
   server.resource("Wallet Account Public Key", "algorand://wallet/publickey", async (uri) => {
-    if (!env.ALGORAND_AGENT_WALLET) {
+    if (!ALGORAND_AGENT_WALLET) {
       return {
         contents: [{
           uri: uri.href,
@@ -93,13 +105,13 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
         }]
       };
     }
-    
+
     try {
-      const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+      const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
       if (!account) {
         throw new Error('Failed to load account from mnemonic');
       }
-      
+
       return {
         contents: [{
           uri: uri.href,
@@ -119,10 +131,10 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
       };
     }
   });
-  
+
   // === Wallet Mnemonic ===
   server.resource("Wallet Account Mnemonic", "algorand://wallet/mnemonic", async (uri) => {
-    if (!env.ALGORAND_AGENT_WALLET) {
+    if (!ALGORAND_AGENT_WALLET) {
       return {
         contents: [{
           uri: uri.href,
@@ -132,13 +144,13 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
         }]
       };
     }
-    
+
     try {
       return {
         contents: [{
           uri: uri.href,
           text: JSON.stringify({
-            mnemonic: env.ALGORAND_AGENT_WALLET
+            mnemonic: ALGORAND_AGENT_WALLET
           }, null, 2)
         }]
       };
@@ -153,10 +165,10 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
       };
     }
   });
-  
+
   // === Wallet Address ===
   server.resource("Wallet Account Address", "algorand://wallet/address", async (uri) => {
-    if (!env.ALGORAND_AGENT_WALLET) {
+    if (!ALGORAND_AGENT_WALLET) {
       return {
         contents: [{
           uri: uri.href,
@@ -166,13 +178,13 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
         }]
       };
     }
-    
+
     try {
-      const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+      const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
       if (!account) {
         throw new Error('Failed to load account from mnemonic');
       }
-      
+
       return {
         contents: [{
           uri: uri.href,
@@ -192,10 +204,10 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
       };
     }
   });
-  
+
   // === Wallet Account ===
   server.resource("Wallet Account Information", "algorand://wallet/account", async (uri) => {
-    if (!env.ALGORAND_AGENT_WALLET) {
+    if (!ALGORAND_AGENT_WALLET) {
       return {
         contents: [{
           uri: uri.href,
@@ -205,7 +217,7 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
         }]
       };
     }
-    
+
     if (!env.ALGORAND_ALGOD) {
       return {
         contents: [{
@@ -216,22 +228,22 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
         }]
       };
     }
-    
+
     try {
-      const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+      const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
       if (!account) {
         throw new Error('Failed to load account from mnemonic');
       }
-      
+
       // Create algod client
       const algodClient = createAlgoClient(env.ALGORAND_ALGOD, env.ALGORAND_TOKEN || '');
       if (!algodClient) {
         throw new Error('Failed to create Algorand client');
       }
-      
+
       // Get account information
       const accountInfo = await algodClient.accountInformation(account.addr).do();
-      
+
       return {
         contents: [{
           uri: uri.href,
@@ -255,10 +267,10 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
       };
     }
   });
-  
+
   // === Wallet Assets ===
   server.resource("Wallet Account Assets", "algorand://wallet/assets", async (uri) => {
-    if (!env.ALGORAND_AGENT_WALLET) {
+    if (!ALGORAND_AGENT_WALLET) {
       return {
         contents: [{
           uri: uri.href,
@@ -268,7 +280,7 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
         }]
       };
     }
-    
+
     if (!env.ALGORAND_ALGOD) {
       return {
         contents: [{
@@ -279,22 +291,22 @@ export function registerWalletResources(server: McpServer, env: Env, props: Prop
         }]
       };
     }
-    
+
     try {
-      const account = getAccountFromMnemonic(env.ALGORAND_AGENT_WALLET);
+      const account = getAccountFromMnemonic(ALGORAND_AGENT_WALLET);
       if (!account) {
         throw new Error('Failed to load account from mnemonic');
       }
-      
+
       // Create algod client
       const algodClient = createAlgoClient(env.ALGORAND_ALGOD, env.ALGORAND_TOKEN || '');
       if (!algodClient) {
         throw new Error('Failed to create Algorand client');
       }
-      
+
       // Get account information
       const accountInfo = await algodClient.accountInformation(account.addr).do();
-      
+
       return {
         contents: [{
           uri: uri.href,

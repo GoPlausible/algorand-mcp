@@ -129,4 +129,4 @@ app.get("/callback", async (c) => {
 	return Response.redirect(redirectTo);
 });
 
-export { app as GoogleHandler };
+export { app as OauthHandler };
