@@ -3,91 +3,89 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "algorand-remote-mcp",
-	"main": "src/index.ts",
-	"compatibility_date": "2025-03-10",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"migrations": [
-		{
-			"new_sqlite_classes": [
-				"AlgorandRemoteMCP"
-			],
-			"tag": "v1"
-		}
-	],
-	"durable_objects": {
-		"bindings": [
-			{
-				"class_name": "AlgorandRemoteMCP",
-				"name": "AlgorandRemoteMCP"
-			}
-		]
-	},
-	/**
-	 * PLAUSIBLEAI bucket
-	 * is a property of GoPlausible used for public implementation and you need to make an R2 bucket on cloudflare and configure it here. Use the open data in knowledge folder of server package resources and you find all files to upload to your R2 bucket there. Use taxonomic naming for your uploads and maintain the file naming coming from server package.
-	 */
-	"r2_buckets": [
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "algorand-remote-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    {
+      "new_sqlite_classes": ["AlgorandRemoteMCP"],
+      "tag": "v1"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "AlgorandRemoteMCP",
+        "name": "AlgorandRemoteMCP"
+      }
+    ]
+  },
+  /**
+   * PLAUSIBLEAI bucket
+   * is a property of GoPlausible used for public implementation and you need to make an R2 bucket on cloudflare and configure it here. Use the open data in knowledge folder of server package resources and you find all files to upload to your R2 bucket there. Use taxonomic naming for your uploads and maintain the file naming coming from server package.
+   */
+  "r2_buckets": [
     {
       "binding": "PLAUSIBLEAI",
       "bucket_name": "plausibleai"
     }
   ],
-	"observability": {
-		"enabled": false
-	},
-	/**
-	 * Environment Variables
-	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
-	 */
-	"vars": {
-		"ALGORAND_NETWORK": "testnet",
-		"ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
-		"ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
-		"ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
-		"ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
-		"ALGORAND_ALGOD_PORT": "",
-		"ALGORAND_INDEXER_PORT": "",
-		"ALGORAND_TOKEN": "",
-		"NFD_API_URL": "https://api.nf.domains",
-		"ITEMS_PER_PAGE": "10"
+  "kv_namespaces": [
+	{
+	  "binding": "OAUTH_KV",
+	  "id": "7f55745ea16e43c6be6e52faafc643fa"
 	}
-	/**
-	 * Note: Sensitive data like ALGORAND_AGENT_WALLET should be set as secrets instead of vars.
-	 * To set up secrets, use: 
-	 * npx wrangler secret put ALGORAND_AGENT_WALLET
-	 * 
-	 * Smart Placement
-	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
-	 */
-	// "placement": { "mode": "smart" },
+  ],
+  "observability": {
+    "enabled": false
+  },
+  /**
+   * Environment Variables
+   * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
+   */
+  "vars": {
+    "ALGORAND_NETWORK": "testnet",
+    "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
+    "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
+    "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
+    "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
+    "ALGORAND_ALGOD_PORT": "",
+    "ALGORAND_INDEXER_PORT": "",
+    "ALGORAND_TOKEN": "",
+    "NFD_API_URL": "https://api.nf.domains",
+    "ITEMS_PER_PAGE": "10"
+  }
+  /**
+   * Smart Placement
+   * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
+   */
+  // "placement": { "mode": "smart" },
 
-	/**
-	 * Bindings
-	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
-	 * databases, object storage, AI inference, real-time communication and more.
-	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
-	 */
+  /**
+   * Bindings
+   * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
+   * databases, object storage, AI inference, real-time communication and more.
+   * https://developers.cloudflare.com/workers/runtime-apis/bindings/
+   */
 
-	/**
-	 * For reference on how to set up environment variables, see above 'vars' section.
-	 * 
-	 * For setting up secrets (ALGORAND_AGENT_WALLET):
-	 * https://developers.cloudflare.com/workers/configuration/secrets/
-	 */
+  /**
+   * For reference on how to set up environment variables, see above 'vars' section.
+   *
+   * For setting up secrets:
+   * https://developers.cloudflare.com/workers/configuration/secrets/
+   */
 
-	/**
-	 * Static Assets
-	 * https://developers.cloudflare.com/workers/static-assets/binding/
-	 */
-	// "assets": { "directory": "./public/", "binding": "ASSETS" },
+  /**
+   * Static Assets
+   * https://developers.cloudflare.com/workers/static-assets/binding/
+   */
+  // "assets": { "directory": "./public/", "binding": "ASSETS" },
 
-	/**
-	 * Service Bindings (communicate between multiple Workers)
-	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
-	 */
-	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
+  /**
+   * Service Bindings (communicate between multiple Workers)
+   * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
+   */
+  // "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
 }

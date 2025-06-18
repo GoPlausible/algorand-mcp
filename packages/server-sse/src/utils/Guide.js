@@ -16,11 +16,6 @@ export const guide = `# Algorand Remote MCP Guide for Agents
    - If wallet exists: Proceed to perform blockchain operations
    - If no wallet or error response:
      * Inform user that wallet configuration is missing
-     * Suggest that they need to add a wallet mnemonic via Wrangler secret:
-       \`\`\`
-       npx wrangler secret put ALGORAND_AGENT_WALLET
-       \`\`\`
-     * Wait for user to confirm environment is updated
      * Check wallet again to verify
 
 ⚠️ **ALWAYS verify wallet configuration at the start of EVERY session before attempting any blockchain operations!**
@@ -87,7 +82,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
 
 | Error Message | Likely Cause | Solution |
 |---------------|--------------|----------|
-| \`No active wallet mnemonic configured\` | Missing ALGORAND_AGENT_WALLET | Inform user to configure secret via \`npx wrangler secret put ALGORAND_AGENT_WALLET\` |
+| \`No active wallet mnemonic configured\` | Missing ALGORAND_AGENT_WALLET |Inform user and try again\` |
 | \`Error fetching account info\` | Network connection or invalid address | Check ALGORAND_ALGOD setting and address format |
 | \`Transaction would result in negative balance\` | Insufficient funds | Ensure sender has enough ALGOs (remember min balance requirements) |
 | \`Asset hasn't been opted in\` | Asset not in receiver's account | Receiver must opt in to asset first |

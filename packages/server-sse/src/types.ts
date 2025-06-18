@@ -83,8 +83,6 @@ PLAUSIBLEAI?: R2Bucket;
    */
   ITEMS_PER_PAGE?: string;
   
-  /**
-   * Mnemonic for the agent wallet
-   */
-  ALGORAND_AGENT_WALLET?: string;
+
+  OAUTH_KV?: KVNamespace;
 }

@@ -1,6 +1,6 @@
 {
 	"name": "algorand-remote-mcp",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"private": true,
 	"scripts": {
 		"deploy": "wrangler deploy",
@@ -13,7 +13,10 @@
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.12.1",
+		"@cloudflare/workers-oauth-provider": "^0.0.5",
 		"agents": "^0.0.95",
+		"hono": "^4.8.0",
+		"just-pick": "^4.2.0",
 		"zod": "^3.25.61"
 	},
 	"devDependencies": {
