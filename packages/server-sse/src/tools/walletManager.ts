@@ -55,6 +55,42 @@ export async function registerWalletTools(server: McpServer, env: Env, props: Pr
       throw new Error(`Failed to generate account for Oauth user by email: ${error.message || 'Unknown error'}`);
     }
   }
+  //Reset wallet account
+  server.tool(
+    'reset-wallet_account',
+    'Reset the wallet account for the configured user',
+    {},
+    async () => {
+      if (!ALGORAND_AGENT_WALLET) {
+        return {
+          content: [{
+            type: 'text',
+            text: 'No active wallet mnemonic configured'
+          }]
+        };
+      }
+
+      try {
+        console.log('Generating new account for Oauth user by email:', props.email);
+        const account = algosdk.generateAccount();
+        if (!account) {
+          throw new Error('Failed to generate account for Oauth user by email');
+        }
+        await env?.OAUTH_KV_ACCOUNTS?.put(props.email, algosdk.secretKeyToMnemonic(account.sk));
+
+        return ResponseProcessor.processResponse({
+          address: account.addr,
+        });
+      } catch (error: any) {
+        return {
+          content: [{
+            type: 'text',
+            text: `Failed to reset wallet account: ${error.message || 'Unknown error'}`
+          }]
+        };
+      }
+    }
+  );
   // Get wallet secret key
   server.tool(
     'get_wallet_secretkey',
@@ -135,7 +171,7 @@ export async function registerWalletTools(server: McpServer, env: Env, props: Pr
     async () => {
 
 
-if (!ALGORAND_AGENT_WALLET) {
+      if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',
@@ -165,7 +201,7 @@ if (!ALGORAND_AGENT_WALLET) {
     {},
     async () => {
 
-if (!ALGORAND_AGENT_WALLET) {
+      if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',
@@ -201,7 +237,7 @@ if (!ALGORAND_AGENT_WALLET) {
     {},
     async () => {
 
-if (!ALGORAND_AGENT_WALLET) {
+      if (!ALGORAND_AGENT_WALLET) {
         return {
           content: [{
             type: 'text',

@@ -1,6 +1,13 @@
 # Algorand Remote MCP Server
 This repository contains a remote Model Context Protocol (MCP) server for Algorand, designed to facilitate interaction with the Algorand blockchain using the MCP protocol. It is built on Cloudflare Workers and utilizes Server-Sent Events (SSE) for real-time communication.
 
+## New Features
+
+- **Google OAuth Authentication**: Users can authenticate with their Google accounts to access the MCP server
+- **Per-User Wallet Management**: Each authenticated user gets their own dedicated Algorand wallet
+- **Account Persistence**: Wallets are stored in Cloudflare KV storage and associated with user emails
+- **Wallet Reset Capability**: Users can reset their wallet and generate a new one if needed
+
 # Getting Started
 ## Connect Claude Desktop to your MCP server
 
@@ -32,7 +39,8 @@ Restart Claude and you should see the tools become available.
 
 - [Node.js](https://nodejs.org/) (v18 or later)
 - [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (Cloudflare Workers CLI)
-- An Algorand node access (via AlgoNode, PureStake, or your own node)
+- An Algorand node access (via AlgoNode (Nodely), or your own node)
+- Google OAuth credentials (for authentication)
 
 ## Installation
 
@@ -50,6 +58,7 @@ Restart Claude and you should see the tools become available.
 3. Configure environment variables:
    - Environment variables are set in `wrangler.jsonc` under the `vars` section
    - Sensitive values should be set as secrets (see Deployment section)
+   - Add OAuth credentials as secrets
 
 ## Development
 
@@ -60,6 +69,39 @@ npm run dev
 ```
 
 This starts the server on `localhost:8787`.
+
+## Google OAuth Setup
+
+To set up Google OAuth authentication:
+
+1. Create OAuth 2.0 credentials in the [Google Cloud Console](https://console.cloud.google.com/):
+   - Create a new project (or use an existing one)
+   - Configure the OAuth consent screen
+   - Create OAuth 2.0 credentials (Web application)
+   - Add authorized redirect URIs:
+     - For local development: `http://localhost:8787/callback`
+     - For production: `https://your-worker-subdomain.workers.dev/callback`
+
+2. Set the required environment secrets:
+   ```bash
+   npx wrangler secret put GOOGLE_CLIENT_ID
+   npx wrangler secret put GOOGLE_CLIENT_SECRET
+   npx wrangler secret put COOKIE_ENCRYPTION_KEY  # A random string for cookie signing
+   ```
+
+3. Configure KV namespaces in `wrangler.jsonc`:
+   ```jsonc
+   "kv_namespaces": [
+     {
+       "binding": "AGENT_SESSIONS",
+       "id": "your-kv-namespace-id-for-sessions"
+     },
+     {
+       "binding": "OAUTH_KV_ACCOUNTS",
+       "id": "your-kv-namespace-id-for-accounts"
+     }
+   ]
+   ```
 
 ## Deployment
 
@@ -74,13 +116,24 @@ To deploy to Cloudflare Workers:
    - Edit `wrangler.jsonc` to set your environment variables
    - Set up secrets for sensitive information:
    ```bash
-   # Set up the agent wallet mnemonic as a secret
-   npx wrangler secret put ALGORAND_AGENT_WALLET
-   # (You'll be prompted to enter the value)
+   # Set up various secrets
+   npx wrangler secret put ALGORAND_AGENT_WALLET  # Default wallet (fallback)
+   npx wrangler secret put GOOGLE_CLIENT_ID
+   npx wrangler secret put GOOGLE_CLIENT_SECRET
+   npx wrangler secret put COOKIE_ENCRYPTION_KEY
+   # (You'll be prompted to enter the value for each)
    ```
-   Don't forget to remove the ALGORAND_AGENT_WALLET value from wrangler.jsonc file sothat it could only be served from secrets. GoPlausible has configured a public wallet in wrangler.jsonc just to make it to work. Using that on MAINNET is not recommended!
+   Don't forget to remove sensitive values from wrangler.jsonc file so they are only served from secrets.
 
-3. Deploy to Cloudflare Workers:
+3. Create KV namespaces:
+   ```bash
+   npx wrangler kv:namespace create "AGENT_SESSIONS"
+   npx wrangler kv:namespace create "OAUTH_KV_ACCOUNTS"
+   ```
+
+4. Add the KV namespace IDs to `wrangler.jsonc` as shown above.
+
+5. Deploy to Cloudflare Workers:
    ```bash
    npm run deploy
    ```
@@ -91,13 +144,13 @@ Your MCP server will be available at `https://algorand-remote-mcp.[your-worker-s
 
 > **⚠️ IMPORTANT SECURITY WARNING**
 > 
-> For the `ALGORAND_AGENT_WALLET` variable containing your wallet mnemonic, it is **strongly recommended** to use Cloudflare Worker secrets instead of defining it in wrangler.jsonc. Store sensitive credentials using:
+> For sensitive variables like `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`, it is **strongly recommended** to use Cloudflare Worker secrets instead of defining them in wrangler.jsonc. Store sensitive credentials using:
 > 
 > ```bash
-> npx wrangler secret put ALGORAND_AGENT_WALLET
+> npx wrangler secret put VARIABLE_NAME
 > ```
 > 
-> This ensures your mnemonic is encrypted and not stored in plaintext configuration files.
+> This ensures sensitive values are encrypted and not stored in plaintext configuration files.
 
 The MCP server relies on the following environment variables:
 
@@ -111,35 +164,35 @@ The MCP server relies on the following environment variables:
 | `ALGORAND_TOKEN` | API token for Algorand nodes | "" |
 | `NFD_API_URL` | NFD API URL for name resolution | https://api.nf.domains |
 | `ITEMS_PER_PAGE` | Default pagination items per page | 10 |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | (Required as secret) |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | (Required as secret) |
+| `COOKIE_ENCRYPTION_KEY` | Key for cookie encryption | (Required as secret) |
 
-### Secrets
+### Authentication Flow
 
-The following secrets should be set using `wrangler secret put`:
+The authentication flow works as follows:
 
-- `ALGORAND_AGENT_WALLET`: Mnemonic phrase for the agent's Algorand wallet (**CRITICAL**: Always use secret storage for this sensitive value)
+1. User connects to the MCP server
+2. User is redirected to Google OAuth for authentication
+3. After successful authentication, the user's email is used to look up or create a wallet
+4. All transactions use the user's dedicated wallet
 
-When deploying, you'll be interactively prompted to enter the secret value securely:
+## Per-User Wallet Management
 
-```bash
-# Set the wallet mnemonic as a secret (RECOMMENDED)
-npx wrangler secret put ALGORAND_AGENT_WALLET
-# Enter your mnemonic when prompted
-```
+Each authenticated user gets their own dedicated Algorand wallet:
 
-### R2 Bucket Configuration
+- Wallets are stored in the `OAUTH_KV_ACCOUNTS` KV namespace
+- The user's email is used as the key to store/retrieve the wallet mnemonic
+- If a user doesn't have a wallet, one is automatically created
+- The wallet persists across sessions, providing a consistent identity
 
-The knowledge resources are stored in a Cloudflare R2 bucket. Configure the bucket in the `wrangler.jsonc` file:
+### Wallet Reset Tool
 
-```jsonc
-"r2_buckets": [
-  {
-    "binding": "PLAUSIBLEAI",
-    "bucket_name": "your-bucket-name"
-  }
-]
-```
+Users can reset their wallet using the `reset-wallet_account` tool:
 
-Make sure to create the bucket in your Cloudflare dashboard and upload the knowledge documents.
+- This generates a new Algorand account
+- The new wallet replaces the old one in KV storage
+- All future operations will use the new wallet
 
 # Available Tools and Resources
 
@@ -149,6 +202,7 @@ Make sure to create the bucket in your Cloudflare dashboard and upload the knowl
 - `create_account`: Create a new Algorand account
 - `recover_account`: Recover an Algorand account from mnemonic
 - `check_balance`: Check the balance of an Algorand account
+- `reset-wallet_account`: Reset the user's wallet and generate a new one
 
 ### Utility Tools
 - `validate_address`: Check if an Algorand address is valid
@@ -284,6 +338,8 @@ This MCP server is built using:
 - **Server-Sent Events (SSE)**: For real-time communication with MCP clients
 - **Algorand JavaScript SDK**: For interacting with the Algorand blockchain
 - **Cloudflare R2 Storage**: For storing and retrieving knowledge documentation
+- **Cloudflare KV Storage**: For storing user wallets and session data
+- **Google OAuth**: For user authentication
 
 The architecture follows these key patterns:
 
@@ -291,6 +347,8 @@ The architecture follows these key patterns:
 - **Modular Tools & Resources**: Organized by functionality category
 - **Tool Managers**: Separate managers for different categories of tools (transaction, utility, etc.)
 - **Resource Providers**: Organized access to blockchain data
+- **OAuth Authentication**: Secure user authentication flow
+- **Per-User Wallet Management**: Isolated wallet environments for each user
 
 ## Project Structure
 
@@ -299,6 +357,8 @@ packages/server-sse/
 ├── src/
 │   ├── index.ts                  # Main entry point
 │   ├── types.ts                  # Type definitions
+│   ├── oauth-handler.ts          # OAuth implementation
+│   ├── workers-oauth-utils.ts    # OAuth utilities
 │   ├── resources/                # Resource implementations
 │   │   └── wallet/               # Wallet resources
 │   ├── tools/                    # Tool implementations
@@ -307,6 +367,7 @@ packages/server-sse/
 │   │   ├── algodManager.ts       # Algorand node interaction tools
 │   │   ├── arc26Manager.ts       # ARC-26 URI generation tools
 │   │   ├── knowledgeManager.ts   # Knowledge management tools
+│   │   ├── walletManager.ts      # Wallet management tools
 │   │   ├── apiManager/           # API integration tools
 │   │   │   ├── algod/            # Algod API tools
 │   │   │   ├── indexer/          # Indexer API tools
@@ -317,7 +378,9 @@ packages/server-sse/
 │   │       ├── appTransactions.ts     # Application operations
 │   │       └── groupTransactions.ts   # Atomic group operations
 │   └── utils/                    # Utility functions
-│       └── responseProcessor.ts  # Response formatting
+│       ├── responseProcessor.ts  # Response formatting
+│       ├── Guide.js              # Guide content for agents
+│       └── oauth-utils.ts        # OAuth utility functions
 ```
 
 # Contributing

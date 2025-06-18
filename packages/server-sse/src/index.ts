@@ -57,7 +57,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 		// Register tools by category
 		this.registerBasicUtilityTools();
 		this.registerAccountTools();
-		this.registerTransactionTools();
+		await this.registerTransactionTools();
 		this.registerAlgodTools();
 		this.registerArc26Tools();
 		this.registerApiTools();
@@ -112,9 +112,9 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	/**
 	 * Register transaction management tools
 	 */
-	private registerTransactionTools() {
+	private async registerTransactionTools() {
 		// Register payment transaction tools
-		registerGeneralTransactionTools(this.server, this.env, this.props);
+		await registerGeneralTransactionTools(this.server, this.env, this.props);
 
 		// Register asset transaction tools
 		registerAssetTransactionTools(this.server, this.env, this.props);

@@ -57,8 +57,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    \`\`\`
    use_tool: sign_transaction
    parameters: {
-     "encodedTxn": "[encoded_transaction_from_step_2]",
-     "mnemonic": "[wallet_mnemonic]" 
+     "encodedTxn": "[encoded_transaction_from_step_2]"
    }
    \`\`\`
 
@@ -149,6 +148,12 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    - Purpose: Get the secret key for the configured wallet
    - Parameters: None
    - Returns: The secret key in hex format (sensitive!)
+   
+   - Tool: \`reset-wallet_account\`
+   - Purpose: Reset the wallet account for the configured user
+   - Parameters: None
+   - Returns: Address of the new wallet
+   - Note: This will generate a new Algorand account and replace the existing one
 
 2. Account Information Tools
    - Tool: \`api_algod_get_account_info\`
@@ -745,4 +750,4 @@ If operations are not working properly, verify:
    - Handle rate limiting gracefully
    - Don't expose API tokens
    - Implement proper error handling
-   - Validate inputs before API calls`;
+   - Validate inputs before API calls`
