@@ -7,7 +7,7 @@ import algosdk, { OnApplicationComplete } from 'algosdk';
 import { z } from 'zod';
 import { ResponseProcessor } from '../../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../../types';
+import { Env, Props } from '../../types';
 
 /**
  * Create and validate an Algorand client
@@ -55,7 +55,7 @@ function processNote(note?: string): Uint8Array | undefined {
 /**
  * Register application (smart contract) transaction management tools to the MCP server
  */
-export function registerAppTransactionTools(server: McpServer,env: Env): void {
+export function registerAppTransactionTools(server: McpServer,env: Env, props: Props): void {
   // Create application (smart contract)
   server.tool(
     'create_application',

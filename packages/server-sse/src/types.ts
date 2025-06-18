@@ -86,3 +86,8 @@ PLAUSIBLEAI?: R2Bucket;
 
   OAUTH_KV?: KVNamespace;
 }
+export interface Props {
+	name: string;
+	email: string;
+	accessToken: string;
+};

@@ -4,7 +4,7 @@
  */
 
 import algosdk from 'algosdk';
-import { Env } from '../../types';
+import { Env, Props } from '../../types';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 /**
@@ -39,7 +39,7 @@ function getAccountFromMnemonic(mnemonic: string | undefined): algosdk.Account |
 /**
  * Register wallet resources to the MCP server
  */
-export function registerWalletResources(server: McpServer, env: Env): void {  
+export function registerWalletResources(server: McpServer, env: Env, props: Props): void {  
 
   
   // === Wallet Secret Key ===

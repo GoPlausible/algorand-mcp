@@ -7,7 +7,7 @@ import algosdk from 'algosdk';
 import { z } from 'zod';
 import { ResponseProcessor } from '../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../types';
+import { Env, Props } from '../types';
 
 /**
  * Create and validate an Algorand client
@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register Algod tools to the MCP server
  */
-export function registerAlgodTools(server: McpServer,env: Env): void {
+export function registerAlgodTools(server: McpServer,env: Env, props: Props): void {
   // Compile TEAL code
   server.tool(
     'compile_teal',

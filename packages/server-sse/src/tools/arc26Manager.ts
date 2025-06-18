@@ -7,7 +7,7 @@
 import { z } from 'zod';
 import { ResponseProcessor } from '../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../types';
+import { Env, Props } from '../types';
 /**
  * Generate Algorand URI following ARC-26 specification
  */
@@ -57,7 +57,7 @@ function generateAlgorandUri(
 /**
  * Register ARC-26 tools to the MCP server
  */
-export function registerArc26Tools(server: McpServer,env: Env): void {
+export function registerArc26Tools(server: McpServer,env: Env, props: Props): void {
   // Generate Algorand URI
   server.tool(
     'generate_algorand_uri',

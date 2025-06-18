@@ -7,7 +7,7 @@ import algosdk from 'algosdk';
 import { z } from 'zod';
 import { ResponseProcessor } from '../../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../../types';
+import { Env, Props } from '../../types';
 
 /**
  * Create and validate an Algorand client
@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register general transaction management tools to the MCP server
  */
-export function registerGeneralTransactionTools(server: McpServer,env: Env): void {
+export function registerGeneralTransactionTools(server: McpServer,env: Env, props: Props): void {
   // Create payment transaction tool
   server.tool(
     'create_payment_transaction',

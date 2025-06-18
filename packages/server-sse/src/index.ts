@@ -1,7 +1,7 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { Env, State } from './types';
+import { Env, State, Props } from './types';
 import { ResponseProcessor } from './utils';
 import OAuthProvider from "@cloudflare/workers-oauth-provider";
 import { GoogleHandler } from "./google-handler";
@@ -21,11 +21,7 @@ import {
 } from './tools';
 import { registerWalletResources, registerKnowledgeResources, registerGuideResource } from './resources';
 
-type Props = {
-	name: string;
-	email: string;
-	accessToken: string;
-};
+
 
 // Define our MCP agent with tools
 export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
@@ -77,7 +73,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	private registerWalletResources() {
 		// Register all wallet-related resources
 		// Since this might contain parameters from env, we pass env to the function
-		registerWalletResources(this.server, this.env);
+		registerWalletResources(this.server, this.env, this.props);
 	}
 
 	/**
@@ -86,7 +82,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	private registerKnowledgeResources() {
 		// Register knowledge resources for documentation access
 		// Pass environment for R2 bucket access
-		registerKnowledgeResources(this.server, this.env);
+		registerKnowledgeResources(this.server, this.env, this.props);
 	}
 
 	/**
@@ -94,7 +90,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerGuideResources() {
 		// Register guide resources for agent usage guidance
-		registerGuideResource(this.server, this.env);
+		registerGuideResource(this.server, this.env, this.props);
 	}
 
 	/**
@@ -102,7 +98,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerBasicUtilityTools() {
 		// Register Algorand utility tools
-		registerUtilityTools(this.server, this.env);
+		registerUtilityTools(this.server, this.env, this.props);
 	}
 
 	/**
@@ -110,7 +106,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerAccountTools() {
 		// Register all account-related tools
-		registerAccountTools(this.server, this.env);
+		registerAccountTools(this.server, this.env, this.props);
 	}
 
 	/**
@@ -118,16 +114,16 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerTransactionTools() {
 		// Register payment transaction tools
-		registerGeneralTransactionTools(this.server, this.env);
+		registerGeneralTransactionTools(this.server, this.env, this.props);
 
 		// Register asset transaction tools
-		registerAssetTransactionTools(this.server, this.env);
+		registerAssetTransactionTools(this.server, this.env, this.props);
 
 		// Register application transaction tools
-		registerAppTransactionTools(this.server, this.env);
+		registerAppTransactionTools(this.server, this.env, this.props);
 
 		// Register group transaction tools
-		registerGroupTransactionTools(this.server, this.env);
+		registerGroupTransactionTools(this.server, this.env, this.props);
 	}
 
 	/**
@@ -135,7 +131,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerAlgodTools() {
 		// Register algod tools for TEAL compilation and simulation
-		registerAlgodTools(this.server, this.env);
+		registerAlgodTools(this.server, this.env, this.props);
 	}
 
 	/**
@@ -143,7 +139,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerArc26Tools() {
 		// Register ARC-26 URI generation tools
-		registerArc26Tools(this.server, this.env);
+		registerArc26Tools(this.server, this.env, this.props);
 	}
 
 	/**
@@ -151,7 +147,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerApiTools() {
 		// Register external API integration tools
-		registerApiTools(this.server, this.env);
+		registerApiTools(this.server, this.env, this.props);
 	}
 
 	/**
@@ -159,7 +155,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerKnowledgeTools() {
 		// Register knowledge documentation tools
-		registerKnowledgeTools(this.server, this.env);
+		registerKnowledgeTools(this.server, this.env, this.props);
 	}
 
 	/**
@@ -167,7 +163,7 @@ export class AlgorandRemoteMCP extends McpAgent<Env, State, Props> {
 	 */
 	private registerWalletTools() {
 		// Register wallet management tools
-		registerWalletTools(this.server, this.env);
+		registerWalletTools(this.server, this.env, this.props);
 	}
 	onStateUpdate(state: State) {
 		console.log({ stateUpdate: state });

@@ -5,12 +5,12 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { guide } from '../../utils/Guide.js';
-import { Env } from '../../types';
+import { Env, Props } from '../../types';
 
 /**
  * Register guide resource to the MCP server
  */
-export function registerGuideResource(server: McpServer, env: Env): void {
+export function registerGuideResource(server: McpServer, env: Env, props: Props): void {
   // Main guide resource
   server.resource("Algorand MCP Guide", "algorand://remote-mcp-guide", (uri) => {
     return {

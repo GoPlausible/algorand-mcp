@@ -7,7 +7,7 @@ import algosdk from 'algosdk';
 import { z } from 'zod';
 import { ResponseProcessor } from '../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../types';
+import { Env, Props } from '../types';
 
 /**
  * Create and validate an Algorand client
@@ -41,7 +41,7 @@ function getAccountFromMnemonic(mnemonic: string | undefined): algosdk.Account |
 /**
  * Register wallet management tools to the MCP server
  */
-export function registerWalletTools(server: McpServer, env: Env): void {
+export function registerWalletTools(server: McpServer, env: Env, props: Props): void {
   // Get wallet secret key
   server.tool(
     'get_wallet_secretkey',

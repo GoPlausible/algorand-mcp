@@ -6,14 +6,14 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ResponseProcessor } from '../utils';
-import { Env } from '../types';
+import { Env, Props } from '../types';
 
 /**
  * Register knowledge tools to the MCP server
  * @param server The MCP server instance
  * @param env The environment object containing Cloudflare bindings
  */
-export function registerKnowledgeTools(server: McpServer, env: Env): void {
+export function registerKnowledgeTools(server: McpServer, env: Env, props: Props): void {
   // Get knowledge document
   server.tool(
     'get_knowledge_doc',

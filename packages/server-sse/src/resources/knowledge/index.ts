@@ -4,7 +4,7 @@
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../../types';
+import { Env, Props } from '../../types';
 import { guide } from '../../utils/Guide.js';
 
 // These categories will be dynamically fetched from R2
@@ -63,7 +63,7 @@ const categoryDisplayNames: Record<string, string> = {
  * @param server The MCP server instance
  * @param env The environment object containing Cloudflare bindings
  */
-export function registerKnowledgeResources(server: McpServer, env: Env): void {
+export function registerKnowledgeResources(server: McpServer, env: Env, props: Props): void {
   // Register full taxonomy resource
   server.resource("Algorand Knowledge Full Taxonomy", "algorand://knowledge/taxonomy", async (uri) => {
     try {

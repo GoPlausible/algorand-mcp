@@ -7,7 +7,7 @@ import algosdk from 'algosdk';
 import { z } from 'zod';
 import { ResponseProcessor } from '../../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../../types';
+import { Env, Props } from '../../types';
 
 /**
  * Create and validate an Algorand client
@@ -24,7 +24,7 @@ function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null 
 /**
  * Register asset transaction management tools to the MCP server
  */
-export function registerAssetTransactionTools(server: McpServer,env: Env): void {
+export function registerAssetTransactionTools(server: McpServer,env: Env, props: Props): void {
   // Create a new Algorand Standard Asset (ASA)
   server.tool(
     'create_asset',

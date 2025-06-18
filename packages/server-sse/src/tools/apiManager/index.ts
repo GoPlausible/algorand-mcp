@@ -6,7 +6,7 @@
 import { z } from 'zod';
 import { ResponseProcessor } from '../../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../../types';
+import { Env, Props } from '../../types';
 import { registerAlgodApiTools } from './algod';
 import { registerIndexerApiTools } from './indexer';
 import { registerNfdApiTools } from './nfd';
@@ -14,7 +14,7 @@ import { registerNfdApiTools } from './nfd';
 /**
  * Register API tools to the MCP server
  */
-export function registerApiTools(server: McpServer,env: Env): void {
+export function registerApiTools(server: McpServer,env: Env, props: Props): void {
   // Register algod API tools
   registerAlgodApiTools(server, env);
   

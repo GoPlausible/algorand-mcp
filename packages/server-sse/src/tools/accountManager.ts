@@ -7,12 +7,12 @@ import algosdk from 'algosdk';
 import { z } from 'zod';
 import { ResponseProcessor } from '../utils';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Env } from '../types';
+import { Env, Props } from '../types';
 
 /**
  * Register account management tools to the MCP server
  */
-export function registerAccountTools(server: McpServer,env: Env): void {
+export function registerAccountTools(server: McpServer,env: Env, props: Props): void {
   // Create account tool
   server.tool(
     'create_account',
