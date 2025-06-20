@@ -37,7 +37,6 @@ app.post("/authorize", async (c) => {
 	if (!state.oauthReqInfo) {
 		return c.text("Invalid request", 400);
 	}
-
 	return redirectToGoogle(c, state.oauthReqInfo, headers);
 });
 

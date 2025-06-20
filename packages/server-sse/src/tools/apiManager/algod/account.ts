@@ -12,13 +12,13 @@ import { Env } from '../../../types';
 /**
  * Create and validate an Algorand client
  */
-function createAlgoClient(algodUrl: string | undefined): algosdk.Algodv2 | null {
+function createAlgoClient(algodUrl: string, token: string): algosdk.Algodv2 | null {
   if (!algodUrl) {
     console.error('Algorand node URL not configured');
     return null;
   }
-  
-  return new algosdk.Algodv2('', algodUrl, '');
+
+  return new algosdk.Algodv2(token, algodUrl, '');
 }
 
 /**
@@ -45,7 +45,7 @@ export function registerAccountApiTools(server: McpServer,env: Env): void {
       
       try {
         // Create algod client
-        const algodClient = createAlgoClient(env.ALGORAND_ALGOD);
+        const algodClient = createAlgoClient(env.ALGORAND_ALGOD, env.ALGORAND_TOKEN || '');
         if (!algodClient) {
           throw new Error('Failed to create Algorand client');
         }
@@ -91,7 +91,7 @@ export function registerAccountApiTools(server: McpServer,env: Env): void {
       
       try {
         // Create algod client
-        const algodClient = createAlgoClient(env.ALGORAND_ALGOD);
+        const algodClient = createAlgoClient(env.ALGORAND_ALGOD, env.ALGORAND_TOKEN || '');
         if (!algodClient) {
           throw new Error('Failed to create Algorand client');
         }
@@ -137,7 +137,7 @@ export function registerAccountApiTools(server: McpServer,env: Env): void {
       
       try {
         // Create algod client
-        const algodClient = createAlgoClient(env.ALGORAND_ALGOD);
+        const algodClient = createAlgoClient(env.ALGORAND_ALGOD, env.ALGORAND_TOKEN || '');
         if (!algodClient) {
           throw new Error('Failed to create Algorand client');
         }

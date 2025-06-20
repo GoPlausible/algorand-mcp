@@ -69,7 +69,7 @@ export function registerAccountTools(server: McpServer,env: Env, props: Props): 
       
       try {
         // Create algod client
-        const algodClient = new algosdk.Algodv2('', env.ALGORAND_ALGOD, '');
+        const algodClient = new algosdk.Algodv2(env.ALGORAND_TOKEN || '', env.ALGORAND_ALGOD, '');
         
         // Get account information
         const accountInfo = await algodClient.accountInformation(address).do();

@@ -50,14 +50,14 @@
    * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
    */
   "vars": {
-    "ALGORAND_NETWORK": "testnet",
-    "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
-    "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
-    "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
-    "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
+    "ALGORAND_NETWORK": "mainnet",
+    "ALGORAND_ALGOD_API": "https://mainnet-api.algonode.cloud/v2",
+    "ALGORAND_ALGOD": "https://mainnet-api.algonode.cloud",
+    "ALGORAND_INDEXER_API": "https://mainnet-idx.algonode.cloud/v2",
+    "ALGORAND_INDEXER": "https://mainnet-idx.algonode.cloud",
     "ALGORAND_ALGOD_PORT": "",
     "ALGORAND_INDEXER_PORT": "",
-    "ALGORAND_TOKEN": "",
+    // "ALGORAND_TOKEN": "", // sent to secrets
     "NFD_API_URL": "https://api.nf.domains",
     "ITEMS_PER_PAGE": "10"
   }

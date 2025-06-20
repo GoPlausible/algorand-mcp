@@ -10,7 +10,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 /**
  * Create and validate an Algorand client
  */
-function createAlgoClient(algodUrl: string | undefined, token: string = ''): algosdk.Algodv2 | null {
+function createAlgoClient(algodUrl: string, token: string): algosdk.Algodv2 | null {
   if (!algodUrl) {
     console.error('Algorand node URL not configured');
     return null;
