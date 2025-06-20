@@ -77,6 +77,91 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    }
    \`\`\`
 
+### Minimal Working Example - Optin to Asset
+
+1. First, retrieve wallet information:
+   \`\`\`
+   use_tool: "get_wallet_account"
+   parameters: {}
+   \`\`\`
+
+2. If wallet exists, create an asset opt-in transaction:
+   \`\`\`
+   use_tool: "asset_optin"
+   parameters: {
+     "address": "[wallet_address]",
+     "assetID": 12345
+   }
+   \`\`\`
+
+3. Sign the transaction:
+   \`\`\`
+   use_tool: sign_transaction
+   parameters: {
+     "encodedTxn": "[encoded_transaction_from_step_2]"
+   }
+   \`\`\`
+
+4. Submit the transaction:
+   \`\`\`
+   use_tool: submit_transaction
+   parameters: {
+     "signedTxn": "[signed_transaction_from_step_3]"
+   }
+   \`\`\`
+
+5. Verify the result:
+   \`\`\`
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[wallet_address]",
+     "assetId": 12345
+   }
+   \`\`\`
+
+### Minimal Working Example - Send Asset
+
+1. First, retrieve wallet information:
+   \`\`\`
+   use_tool: "get_wallet_account"
+   parameters: {}
+   \`\`\`
+
+2. If wallet exists, create an asset transfer transaction:
+   \`\`\`
+   use_tool: "transfer_asset"
+   parameters: {
+     "from": "[sender_address]",
+     "to": "receiver_address",
+     "assetID": 12345,
+     "amount": 1
+   }
+   \`\`\`
+
+3. Sign the transaction:
+   \`\`\`
+   use_tool: sign_transaction
+   parameters: {
+     "encodedTxn": "[encoded_transaction_from_step_2]"
+   }
+   \`\`\`
+
+4. Submit the transaction:
+   \`\`\`
+   use_tool: submit_transaction
+   parameters: {
+     "signedTxn": "[signed_transaction_from_step_3]"
+   }
+   \`\`\`
+
+5. Verify the result:
+   \`\`\`
+   use_tool: api_algod_get_transaction_info
+   parameters: {
+     "txid": "[transaction_id_from_step_4]"
+   }
+   \`\`\`
+
 ### Common Error Messages and Solutions
 
 | Error Message | Likely Cause | Solution |
