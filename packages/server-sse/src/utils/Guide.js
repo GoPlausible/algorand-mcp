@@ -5,6 +5,8 @@
 
 export const guide = `# Algorand Remote MCP Guide for Agents
 
+> **🌐 NETWORK CONFIGURATION**: This system is configured for **Algorand Mainnet**. All examples and asset IDs reference mainnet assets (e.g., USDC ASA ID: 31566704).
+
 ## 🚨 CRITICAL: FIRST STEPS FOR EVERY NEW SESSION
 
 ⚠️ **AGENTS MUST PERFORM THESE ACTIONS AT THE START OF EACH SESSION WITH ALGORAND-REMOTE-MCP:**
@@ -13,7 +15,15 @@ export const guide = `# Algorand Remote MCP Guide for Agents
    - Tool: \`get_wallet_account\`
    - Purpose: Verify wallet exists and is correctly configured
    - Action Required: Use this tool FIRST in EVERY session
-   - If wallet exists: Proceed to perform blockchain operations
+   - If wallet exists. Verify opt-in success:
+   \`\`\`
+   use_tool: api_algod_get_account_asset_info
+   parameters: {
+     "address": "[user_address]",
+     "assetId": 31566704  // USDC on Algorand Mainnet
+   }
+   \`\`\`
+   proceed to perform blockchain operations
    - If no wallet or error response:
      * Inform user that wallet configuration is missing
      * Check wallet again to verify
@@ -90,7 +100,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    use_tool: "asset_optin"
    parameters: {
      "address": "[wallet_address]",
-     "assetID": 12345
+     "assetID": 31566704  // USDC on Algorand Mainnet
    }
    \`\`\`
 
@@ -115,7 +125,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    use_tool: api_algod_get_account_asset_info
    parameters: {
      "address": "[wallet_address]",
-     "assetId": 12345
+     "assetId": 31566704  // USDC on Algorand Mainnet
    }
    \`\`\`
 
@@ -133,8 +143,8 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    parameters: {
      "from": "[sender_address]",
      "to": "receiver_address",
-     "assetID": 12345,
-     "amount": 1
+     "assetID": 31566704,  // USDC on Algorand Mainnet
+     "amount": 1000000     // 1 USDC (6 decimals)
    }
    \`\`\`
 
@@ -161,6 +171,21 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
      "txid": "[transaction_id_from_step_4]"
    }
    \`\`\`
+
+## Common Algorand Mainnet Assets
+
+Here are frequently used assets on Algorand Mainnet for reference:
+
+| Asset Name | Asset ID | Decimals | Description |
+|------------|----------|----------|-------------|
+| USDC | 31566704 | 6 | USD Coin - Most common stablecoin |
+| USDT | 312769 | 6 | Tether USD - Popular stablecoin |
+| ALGO | N/A | 6 | Native Algorand token (no ASA ID needed) |
+| goETH | 386192725 | 8 | Wrapped Ethereum |
+| goBTC | 386195940 | 8 | Wrapped Bitcoin |
+| PLANET | 27165954 | 6 | Planetwatch token |
+
+> **Note**: Always verify asset IDs before transactions, as scam tokens may use similar names.
 
 ### Common Error Messages and Solutions
 
@@ -425,7 +450,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    - Protect sensitive account information
 
 3. **Smart Contract Interactions**
-   - Test applications before mainnet deployment
+   - Applications are deployed directly to mainnet (exercise caution)
    - Verify application state before operations
    - Use proper argument encoding
    - Handle application state carefully
@@ -507,7 +532,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    use_tool: api_algod_get_account_asset_info
    parameters: {
      "address": "[user_address]",
-     "assetId": 12345
+     "assetId": 31566704  // USDC on Algorand Mainnet
    }
    \`\`\`
 
@@ -516,7 +541,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    use_tool: asset_optin
    parameters: {
      "address": "[user_address]",
-     "assetID": 12345
+     "assetID": 31566704  // USDC on Algorand Mainnet
    }
    \`\`\`
 
@@ -561,7 +586,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    use_tool: api_algod_get_account_asset_info
    parameters: {
      "address": "[sender_address]",
-     "assetId": 12345
+     "assetId": 31566704  // USDC on Algorand Mainnet
    }
    \`\`\`
 
@@ -570,7 +595,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    use_tool: api_algod_get_account_asset_info
    parameters: {
      "address": "[recipient_address]",
-     "assetId": 12345
+     "assetId": 31566704  // USDC on Algorand Mainnet
    }
    \`\`\`
 
@@ -580,8 +605,8 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    parameters: {
      "from": "[sender_address]",
      "to": "[recipient_address]",
-     "assetID": 12345,
-     "amount": 1
+     "assetID": 31566704,  // USDC on Algorand Mainnet
+     "amount": 1000000     // 1 USDC (6 decimals)
    }
    \`\`\`
 
@@ -742,7 +767,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    }
    \`\`\`
 
-> **Note**: For Testnet, you may need to use a different ASA ID for test USDC. On TestNet, you should identify the appropriate test USDC asset ID or use another test asset. The workflow remains the same, just substitute the correct asset ID.
+> **Note**: This system is configured for Algorand Mainnet. The examples above use USDC (ASA ID: 31566704). For TestNet testing, you would need to use different asset IDs for test assets. The workflow patterns remain the same, just substitute the appropriate asset ID for your target network.
 
 ## Working with Atomic Transactions
 
@@ -789,7 +814,7 @@ If operations are not working properly, verify:
 2. **Network Configuration:**
    - Are ALGORAND_ALGOD and ALGORAND_INDEXER properly set?
    - Are you experiencing network connectivity issues?
-   - Is the configured network (testnet/mainnet) correct?
+   - Is the configured network properly set to Mainnet?
 
 3. **Transaction Issues:**
    - Check minimum balance requirements (0.1A per asset, 0.1A per app)
@@ -804,6 +829,8 @@ If operations are not working properly, verify:
 
 ## Security Guidelines
 
+⚠️ **MAINNET WARNING**: This system operates on Algorand Mainnet with real assets and real value. Exercise extreme caution with all operations.
+
 1. **Sensitive Data Protection**
    - Never expose mnemonics
    - Never reveal private keys
@@ -812,7 +839,8 @@ If operations are not working properly, verify:
    - Use Wrangler secrets for sensitive values
 
 2. **Transaction Best Practices**
-   - Always verify transaction outputs
+   - Always verify transaction outputs before submission
+   - Double-check recipient addresses (mainnet transactions are irreversible)
    - Check fee structures
    - Use proper atomic grouping for dependent operations
    - Implement proper error handling
