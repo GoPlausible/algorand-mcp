@@ -520,13 +520,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    }
    \`\`\`
 
-5. Get wallet mnemonic:
-   \`\`\`
-   use_tool: get_wallet_mnemonic
-   parameters: {}
-   \`\`\`
-
-6. Sign the transaction:
+5. Sign the transaction:
    \`\`\`
    use_tool: sign_transaction
    parameters: {
@@ -535,7 +529,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    }
    \`\`\`
 
-7. Submit the transaction:
+6. Submit the transaction:
    \`\`\`
    use_tool: submit_transaction
    parameters: {
@@ -543,7 +537,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    }
    \`\`\`
 
-8. Verify opt-in success:
+7. Verify opt-in success:
    \`\`\`
    use_tool: api_algod_get_account_asset_info
    parameters: {
@@ -591,13 +585,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    }
    \`\`\`
 
-6. Get wallet mnemonic:
-   \`\`\`
-   use_tool: get_wallet_mnemonic
-   parameters: {}
-   \`\`\`
-
-7. Sign the transaction:
+6. Sign the transaction:
    \`\`\`
    use_tool: sign_transaction
    parameters: {
@@ -606,7 +594,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    }
    \`\`\`
 
-8. Submit the transaction:
+7. Submit the transaction:
    \`\`\`
    use_tool: submit_transaction
    parameters: {
@@ -614,7 +602,7 @@ As an LLM agent, here's how to quickly perform basic Algorand operations using d
    }
    \`\`\`
 
-9. Verify transfer success:
+8. Verify transfer success:
    \`\`\`
    use_tool: api_indexer_lookup_transaction_by_id
    parameters: {
