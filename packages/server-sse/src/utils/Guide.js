@@ -6,6 +6,7 @@
 export const guide = `# Algorand Remote MCP Guide for Agents
 
 > **🌐 NETWORK CONFIGURATION**: This system is configured for **Algorand Mainnet**. All examples and asset IDs reference mainnet assets (e.g., USDC ASA ID: 31566704).
+> **🌐 SIGNING TRANSACTIONS**: This system is set to sign transactions on MCP server side not by LLM or agent therefore there is no need to get sensitive data like private key or mnemonic unless explicitly asked by user to use the tools to get those or summoned through an MCP Resource.
 
 ## 🚨 CRITICAL: FIRST STEPS FOR EVERY NEW SESSION
 
