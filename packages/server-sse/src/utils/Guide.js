@@ -407,7 +407,7 @@ Here are frequently used assets on Algorand Mainnet for reference:
    - Parameters: \`{ address: string }\`
 
    - Tool: \`api_nfd_get_nfd\`
-   - Purpose: Get NFD domain info
+   - Purpose: Get NFD address info (use depositAccount for transactions)
    - Parameters:
      \`\`\`
      {
@@ -416,6 +416,11 @@ Here are frequently used assets on Algorand Mainnet for reference:
        includeSales?: boolean
      }
      \`\`\`
+
+      ### Important Note for NFD Transactions
+      - When retrieving NFD data for NFD Address like emg110.algo, transactions should be targeted to depositAccount and not any other field!
+      - Always verify the depositAccount field from the NFD data response for transaction operations.
+
 
 8. Utility Tools
    - Tool: \`validate_address\`
@@ -827,6 +832,7 @@ If operations are not working properly, verify:
    - Verify API endpoints are accessible
    - Check for rate limiting issues
    - Ensure proper parameter formats in API calls
+
 
 ## Security Guidelines
 
