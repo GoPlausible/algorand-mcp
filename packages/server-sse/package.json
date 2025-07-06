@@ -16,6 +16,7 @@
 		"@cloudflare/workers-oauth-provider": "^0.0.5",
 		"agents": "^0.0.95",
 		"hono": "^4.8.0",
+		"algosdk": "^3.3.1",
 		"just-pick": "^4.2.0",
 		"zod": "^3.25.61"
 	},
