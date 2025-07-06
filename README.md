@@ -23,8 +23,8 @@ This repository is a Model Context Protocol (MCP) implementation for Algorand bl
 **📦 NPM:**
 - **[Algorand MCP Server NPM package](https://www.npmjs.com/package/algorand-mcp)** - Algorand MCP server implementation via NPM package installation.
 
-**📦 Smithery:**
-- **[Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp)** - Algorand MCP server implementation via smithery.
+<!-- **📦 Smithery:**
+- **[Algorand MCP Server on Smithery](https://smithery.ai/server/@GoPlausible/algorand-mcp)** - Algorand MCP server implementation via smithery. -->
 
 
 ## Features
