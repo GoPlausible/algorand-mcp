@@ -1,6 +1,6 @@
 {
   "name": "algorand-mcp",
-  "version": "2.7.7",
+  "version": "2.7.8",
   "description": "Algorand Model Context Protocol Implementation",
   "workspaces": [
     "packages/*"
@@ -25,5 +25,9 @@
   "dependencies": {
     "algosdk": "2.9.0",
     "qrcode": "^1.5.4"
-  }
+  },
+  "bin": {
+    "algorand-mcp": "./packages/server/dist/index.js"
+  },
+  "main": "packages/server/dist/index.js"
 }

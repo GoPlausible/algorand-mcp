@@ -100,8 +100,8 @@ And you are done! Now you can open you MCP config and add the server as :
         "NFD_API_KEY": "",
         "TINYMAN_ACTIVE": "false",
         "ULTRADE_ACTIVE": "false",
-        "ULTRADE_API_URL": "https://api.ultrade.io",
         "VESTIGE_ACTIVE": "false",
+        "ULTRADE_API_URL": "https://api.ultrade.io",
         "VESTIGE_API_URL": "https://api.vestigelabs.org",
         "VESTIGE_API_KEY": "",
         "ITEMS_PER_PAGE": "10"
