@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/goplausible-algorand-mcp-badge.png)](https://mseep.ai/app/goplausible-algorand-mcp)
+
 # Algorand MCP Implementation
 <!-- [![smithery badge](https://smithery.ai/badge/@GoPlausible/algorand-mcp)](https://smithery.ai/server/@GoPlausible/algorand-mcp) -->
 [![npm downloads](https://img.shields.io/npm/dm/algorand-mcp.svg)](https://www.npmjs.com/package/algorand-mcp)
