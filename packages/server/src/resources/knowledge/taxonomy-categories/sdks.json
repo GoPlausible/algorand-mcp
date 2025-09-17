@@ -1,85 +1,85 @@
 {
   "name": "Software Development Kits",
-  "description": "Documentation for Algorand SDKs",
-  "path": "SDKs",
+  "description": "Documentation for Algorand sdks",
+  "path": "sdks",
   "subcategories": {
     "javascript": {
       "name": "JavaScript SDK",
       "description": "Documentation for the JavaScript/TypeScript SDK",
-      "path": "SDKs:javascript",
+      "path": "sdks:javascript",
       "documents": [
-        {"name": "README", "path": "SDKs:javascript:README.md"},
-        {"name": "FAQ", "path": "SDKs:javascript:FAQ.md"},
-        {"name": "Modules", "path": "SDKs:javascript:modules.md"}
+        {"name": "README", "path": "sdks:javascript:README.md"},
+        {"name": "FAQ", "path": "sdks:javascript:FAQ.md"},
+        {"name": "Modules", "path": "sdks:javascript:modules.md"}
       ],
       "subcategories": {
         "classes": {
           "name": "Classes",
           "description": "JavaScript SDK class documentation",
-          "path": "SDKs:javascript:classes",
+          "path": "sdks:javascript:classes",
           "documents": [
-            {"name": "ABIAddressType", "path": "SDKs:javascript:classes:ABIAddressType.md"},
-            {"name": "ABIArrayDynamicType", "path": "SDKs:javascript:classes:ABIArrayDynamicType.md"},
-            {"name": "ABIArrayStaticType", "path": "SDKs:javascript:classes:ABIArrayStaticType.md"},
-            {"name": "ABIBoolType", "path": "SDKs:javascript:classes:ABIBoolType.md"},
-            {"name": "ABIByteType", "path": "SDKs:javascript:classes:ABIByteType.md"},
-            {"name": "ABIContract", "path": "SDKs:javascript:classes:ABIContract.md"},
-            {"name": "ABIInterface", "path": "SDKs:javascript:classes:ABIInterface.md"},
-            {"name": "ABIMethod", "path": "SDKs:javascript:classes:ABIMethod.md"},
-            {"name": "ABIStringType", "path": "SDKs:javascript:classes:ABIStringType.md"},
-            {"name": "ABITupleType", "path": "SDKs:javascript:classes:ABITupleType.md"},
-            {"name": "ABIType", "path": "SDKs:javascript:classes:ABIType.md"},
-            {"name": "ABIUfixedType", "path": "SDKs:javascript:classes:ABIUfixedType.md"},
-            {"name": "ABIUintType", "path": "SDKs:javascript:classes:ABIUintType.md"},
-            {"name": "Algodv2", "path": "SDKs:javascript:classes:Algodv2.md"},
-            {"name": "AtomicTransactionComposer", "path": "SDKs:javascript:classes:AtomicTransactionComposer.md"},
-            {"name": "DryrunResult", "path": "SDKs:javascript:classes:DryrunResult.md"},
-            {"name": "Indexer", "path": "SDKs:javascript:classes:Indexer.md"},
-            {"name": "Kmd", "path": "SDKs:javascript:classes:Kmd.md"},
-            {"name": "LogicSig", "path": "SDKs:javascript:classes:LogicSig.md"},
-            {"name": "LogicSigAccount", "path": "SDKs:javascript:classes:LogicSigAccount.md"},
-            {"name": "SourceMap", "path": "SDKs:javascript:classes:SourceMap.md"},
-            {"name": "Transaction", "path": "SDKs:javascript:classes:Transaction.md"}
+            {"name": "ABIAddressType", "path": "sdks:javascript:classes:ABIAddressType.md"},
+            {"name": "ABIArrayDynamicType", "path": "sdks:javascript:classes:ABIArrayDynamicType.md"},
+            {"name": "ABIArrayStaticType", "path": "sdks:javascript:classes:ABIArrayStaticType.md"},
+            {"name": "ABIBoolType", "path": "sdks:javascript:classes:ABIBoolType.md"},
+            {"name": "ABIByteType", "path": "sdks:javascript:classes:ABIByteType.md"},
+            {"name": "ABIContract", "path": "sdks:javascript:classes:ABIContract.md"},
+            {"name": "ABIInterface", "path": "sdks:javascript:classes:ABIInterface.md"},
+            {"name": "ABIMethod", "path": "sdks:javascript:classes:ABIMethod.md"},
+            {"name": "ABIStringType", "path": "sdks:javascript:classes:ABIStringType.md"},
+            {"name": "ABITupleType", "path": "sdks:javascript:classes:ABITupleType.md"},
+            {"name": "ABIType", "path": "sdks:javascript:classes:ABIType.md"},
+            {"name": "ABIUfixedType", "path": "sdks:javascript:classes:ABIUfixedType.md"},
+            {"name": "ABIUintType", "path": "sdks:javascript:classes:ABIUintType.md"},
+            {"name": "Algodv2", "path": "sdks:javascript:classes:Algodv2.md"},
+            {"name": "AtomicTransactionComposer", "path": "sdks:javascript:classes:AtomicTransactionComposer.md"},
+            {"name": "DryrunResult", "path": "sdks:javascript:classes:DryrunResult.md"},
+            {"name": "Indexer", "path": "sdks:javascript:classes:Indexer.md"},
+            {"name": "Kmd", "path": "sdks:javascript:classes:Kmd.md"},
+            {"name": "LogicSig", "path": "sdks:javascript:classes:LogicSig.md"},
+            {"name": "LogicSigAccount", "path": "sdks:javascript:classes:LogicSigAccount.md"},
+            {"name": "SourceMap", "path": "sdks:javascript:classes:SourceMap.md"},
+            {"name": "Transaction", "path": "sdks:javascript:classes:Transaction.md"}
           ]
         },
         "enums": {
           "name": "Enums",
           "description": "JavaScript SDK enum documentation",
-          "path": "SDKs:javascript:enums",
+          "path": "sdks:javascript:enums",
           "documents": [
-            {"name": "ABIReferenceType", "path": "SDKs:javascript:enums:ABIReferenceType.md"},
-            {"name": "ABITransactionType", "path": "SDKs:javascript:enums:ABITransactionType.md"},
-            {"name": "AtomicTransactionComposerStatus", "path": "SDKs:javascript:enums:AtomicTransactionComposerStatus.md"},
-            {"name": "IntDecoding", "path": "SDKs:javascript:enums:IntDecoding.md"},
-            {"name": "OnApplicationComplete", "path": "SDKs:javascript:enums:OnApplicationComplete.md"},
-            {"name": "TransactionType", "path": "SDKs:javascript:enums:TransactionType.md"}
+            {"name": "ABIReferenceType", "path": "sdks:javascript:enums:ABIReferenceType.md"},
+            {"name": "ABITransactionType", "path": "sdks:javascript:enums:ABITransactionType.md"},
+            {"name": "AtomicTransactionComposerStatus", "path": "sdks:javascript:enums:AtomicTransactionComposerStatus.md"},
+            {"name": "IntDecoding", "path": "sdks:javascript:enums:IntDecoding.md"},
+            {"name": "OnApplicationComplete", "path": "sdks:javascript:enums:OnApplicationComplete.md"},
+            {"name": "TransactionType", "path": "sdks:javascript:enums:TransactionType.md"}
           ]
         },
         "interfaces": {
           "name": "Interfaces",
           "description": "JavaScript SDK interface documentation",
-          "path": "SDKs:javascript:interfaces",
+          "path": "sdks:javascript:interfaces",
           "documents": [
-            {"name": "ABIContractNetworkInfo", "path": "SDKs:javascript:interfaces:ABIContractNetworkInfo.md"},
-            {"name": "ABIContractNetworks", "path": "SDKs:javascript:interfaces:ABIContractNetworks.md"},
-            {"name": "ABIContractParams", "path": "SDKs:javascript:interfaces:ABIContractParams.md"},
-            {"name": "ABIInterfaceParams", "path": "SDKs:javascript:interfaces:ABIInterfaceParams.md"},
-            {"name": "ABIMethodArgParams", "path": "SDKs:javascript:interfaces:ABIMethodArgParams.md"},
-            {"name": "ABIMethodParams", "path": "SDKs:javascript:interfaces:ABIMethodParams.md"},
-            {"name": "ABIMethodReturnParams", "path": "SDKs:javascript:interfaces:ABIMethodReturnParams.md"},
-            {"name": "ABIResult", "path": "SDKs:javascript:interfaces:ABIResult.md"},
-            {"name": "Account", "path": "SDKs:javascript:interfaces:Account.md"},
-            {"name": "Address", "path": "SDKs:javascript:interfaces:Address.md"},
-            {"name": "BaseHTTPClient", "path": "SDKs:javascript:interfaces:BaseHTTPClient.md"},
-            {"name": "BaseHTTPClientError", "path": "SDKs:javascript:interfaces:BaseHTTPClientError.md"},
-            {"name": "BaseHTTPClientResponse", "path": "SDKs:javascript:interfaces:BaseHTTPClientResponse.md"},
-            {"name": "BoxReference", "path": "SDKs:javascript:interfaces:BoxReference.md"},
-            {"name": "CustomTokenHeader", "path": "SDKs:javascript:interfaces:CustomTokenHeader.md"},
-            {"name": "MultisigMetadata", "path": "SDKs:javascript:interfaces:MultisigMetadata.md"},
-            {"name": "SignedTransaction", "path": "SDKs:javascript:interfaces:SignedTransaction.md"},
-            {"name": "SuggestedParams", "path": "SDKs:javascript:interfaces:SuggestedParams.md"},
-            {"name": "TransactionParams", "path": "SDKs:javascript:interfaces:TransactionParams.md"},
-            {"name": "TransactionWithSigner", "path": "SDKs:javascript:interfaces:TransactionWithSigner.md"}
+            {"name": "ABIContractNetworkInfo", "path": "sdks:javascript:interfaces:ABIContractNetworkInfo.md"},
+            {"name": "ABIContractNetworks", "path": "sdks:javascript:interfaces:ABIContractNetworks.md"},
+            {"name": "ABIContractParams", "path": "sdks:javascript:interfaces:ABIContractParams.md"},
+            {"name": "ABIInterfaceParams", "path": "sdks:javascript:interfaces:ABIInterfaceParams.md"},
+            {"name": "ABIMethodArgParams", "path": "sdks:javascript:interfaces:ABIMethodArgParams.md"},
+            {"name": "ABIMethodParams", "path": "sdks:javascript:interfaces:ABIMethodParams.md"},
+            {"name": "ABIMethodReturnParams", "path": "sdks:javascript:interfaces:ABIMethodReturnParams.md"},
+            {"name": "ABIResult", "path": "sdks:javascript:interfaces:ABIResult.md"},
+            {"name": "Account", "path": "sdks:javascript:interfaces:Account.md"},
+            {"name": "Address", "path": "sdks:javascript:interfaces:Address.md"},
+            {"name": "BaseHTTPClient", "path": "sdks:javascript:interfaces:BaseHTTPClient.md"},
+            {"name": "BaseHTTPClientError", "path": "sdks:javascript:interfaces:BaseHTTPClientError.md"},
+            {"name": "BaseHTTPClientResponse", "path": "sdks:javascript:interfaces:BaseHTTPClientResponse.md"},
+            {"name": "BoxReference", "path": "sdks:javascript:interfaces:BoxReference.md"},
+            {"name": "CustomTokenHeader", "path": "sdks:javascript:interfaces:CustomTokenHeader.md"},
+            {"name": "MultisigMetadata", "path": "sdks:javascript:interfaces:MultisigMetadata.md"},
+            {"name": "SignedTransaction", "path": "sdks:javascript:interfaces:SignedTransaction.md"},
+            {"name": "SuggestedParams", "path": "sdks:javascript:interfaces:SuggestedParams.md"},
+            {"name": "TransactionParams", "path": "sdks:javascript:interfaces:TransactionParams.md"},
+            {"name": "TransactionWithSigner", "path": "sdks:javascript:interfaces:TransactionWithSigner.md"}
           ]
         }
       }
@@ -87,61 +87,61 @@
     "python": {
       "name": "Python SDK",
       "description": "Documentation for the Python SDK",
-      "path": "SDKs:python",
+      "path": "sdks:python",
       "documents": [
-        {"name": "README", "path": "SDKs:python:README.md"},
-        {"name": "Index", "path": "SDKs:python:index.rst"}
+        {"name": "README", "path": "sdks:python:README.md"},
+        {"name": "Index", "path": "sdks:python:index.rst"}
       ],
       "subcategories": {
         "algosdk": {
           "name": "AlgoSDK",
           "description": "Core Python SDK modules",
-          "path": "SDKs:python:algosdk",
+          "path": "sdks:python:algosdk",
           "documents": [
-            {"name": "Account", "path": "SDKs:python:algosdk:account.rst"},
-            {"name": "Atomic Transaction Composer", "path": "SDKs:python:algosdk:atomic_transaction_composer.rst"},
-            {"name": "Box Reference", "path": "SDKs:python:algosdk:box_reference.rst"},
-            {"name": "Constants", "path": "SDKs:python:algosdk:constants.rst"},
-            {"name": "Dryrun Results", "path": "SDKs:python:algosdk:dryrun_results.rst"},
-            {"name": "Encoding", "path": "SDKs:python:algosdk:encoding.rst"},
-            {"name": "Error", "path": "SDKs:python:algosdk:error.rst"},
-            {"name": "KMD", "path": "SDKs:python:algosdk:kmd.rst"},
-            {"name": "Logic", "path": "SDKs:python:algosdk:logic.rst"},
-            {"name": "Mnemonic", "path": "SDKs:python:algosdk:mnemonic.rst"},
-            {"name": "Source Map", "path": "SDKs:python:algosdk:source_map.rst"},
-            {"name": "Transaction", "path": "SDKs:python:algosdk:transaction.rst"},
-            {"name": "Wallet", "path": "SDKs:python:algosdk:wallet.rst"}
+            {"name": "Account", "path": "sdks:python:algosdk:account.rst"},
+            {"name": "Atomic Transaction Composer", "path": "sdks:python:algosdk:atomic_transaction_composer.rst"},
+            {"name": "Box Reference", "path": "sdks:python:algosdk:box_reference.rst"},
+            {"name": "Constants", "path": "sdks:python:algosdk:constants.rst"},
+            {"name": "Dryrun Results", "path": "sdks:python:algosdk:dryrun_results.rst"},
+            {"name": "Encoding", "path": "sdks:python:algosdk:encoding.rst"},
+            {"name": "Error", "path": "sdks:python:algosdk:error.rst"},
+            {"name": "KMD", "path": "sdks:python:algosdk:kmd.rst"},
+            {"name": "Logic", "path": "sdks:python:algosdk:logic.rst"},
+            {"name": "Mnemonic", "path": "sdks:python:algosdk:mnemonic.rst"},
+            {"name": "Source Map", "path": "sdks:python:algosdk:source_map.rst"},
+            {"name": "Transaction", "path": "sdks:python:algosdk:transaction.rst"},
+            {"name": "Wallet", "path": "sdks:python:algosdk:wallet.rst"}
           ],
           "subcategories": {
             "abi": {
               "name": "ABI",
               "description": "Application Binary Interface modules",
-              "path": "SDKs:python:algosdk:abi",
+              "path": "sdks:python:algosdk:abi",
               "documents": [
-                {"name": "Address Type", "path": "SDKs:python:algosdk:abi:address_type.rst"},
-                {"name": "Array Dynamic Type", "path": "SDKs:python:algosdk:abi:array_dynamic_type.rst"},
-                {"name": "Array Static Type", "path": "SDKs:python:algosdk:abi:array_static_type.rst"},
-                {"name": "Base Type", "path": "SDKs:python:algosdk:abi:base_type.rst"},
-                {"name": "Bool Type", "path": "SDKs:python:algosdk:abi:bool_type.rst"},
-                {"name": "Byte Type", "path": "SDKs:python:algosdk:abi:byte_type.rst"},
-                {"name": "Contract", "path": "SDKs:python:algosdk:abi:contract.rst"},
-                {"name": "Interface", "path": "SDKs:python:algosdk:abi:interface.rst"},
-                {"name": "Method", "path": "SDKs:python:algosdk:abi:method.rst"},
-                {"name": "Reference", "path": "SDKs:python:algosdk:abi:reference.rst"},
-                {"name": "String Type", "path": "SDKs:python:algosdk:abi:string_type.rst"},
-                {"name": "Transaction", "path": "SDKs:python:algosdk:abi:transaction.rst"},
-                {"name": "Tuple Type", "path": "SDKs:python:algosdk:abi:tuple_type.rst"},
-                {"name": "UFixed Type", "path": "SDKs:python:algosdk:abi:ufixed_type.rst"},
-                {"name": "UInt Type", "path": "SDKs:python:algosdk:abi:uint_type.rst"}
+                {"name": "Address Type", "path": "sdks:python:algosdk:abi:address_type.rst"},
+                {"name": "Array Dynamic Type", "path": "sdks:python:algosdk:abi:array_dynamic_type.rst"},
+                {"name": "Array Static Type", "path": "sdks:python:algosdk:abi:array_static_type.rst"},
+                {"name": "Base Type", "path": "sdks:python:algosdk:abi:base_type.rst"},
+                {"name": "Bool Type", "path": "sdks:python:algosdk:abi:bool_type.rst"},
+                {"name": "Byte Type", "path": "sdks:python:algosdk:abi:byte_type.rst"},
+                {"name": "Contract", "path": "sdks:python:algosdk:abi:contract.rst"},
+                {"name": "Interface", "path": "sdks:python:algosdk:abi:interface.rst"},
+                {"name": "Method", "path": "sdks:python:algosdk:abi:method.rst"},
+                {"name": "Reference", "path": "sdks:python:algosdk:abi:reference.rst"},
+                {"name": "String Type", "path": "sdks:python:algosdk:abi:string_type.rst"},
+                {"name": "Transaction", "path": "sdks:python:algosdk:abi:transaction.rst"},
+                {"name": "Tuple Type", "path": "sdks:python:algosdk:abi:tuple_type.rst"},
+                {"name": "UFixed Type", "path": "sdks:python:algosdk:abi:ufixed_type.rst"},
+                {"name": "UInt Type", "path": "sdks:python:algosdk:abi:uint_type.rst"}
               ]
             },
             "v2client": {
               "name": "V2 Client",
               "description": "V2 API client modules",
-              "path": "SDKs:python:algosdk:v2client",
+              "path": "sdks:python:algosdk:v2client",
               "documents": [
-                {"name": "Algod", "path": "SDKs:python:algosdk:v2client:algod.rst"},
-                {"name": "Indexer", "path": "SDKs:python:algosdk:v2client:indexer.rst"}
+                {"name": "Algod", "path": "sdks:python:algosdk:v2client:algod.rst"},
+                {"name": "Indexer", "path": "sdks:python:algosdk:v2client:indexer.rst"}
               ]
             }
           }
