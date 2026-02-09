@@ -33,8 +33,6 @@ class AlgorandMcpServer {
       {
         name,
         version,
-        heartbeatInterval: 15000, // 15 seconds heartbeat interval
-        requestTimeout: 60000,    // 60 seconds request timeout
       },
       {
         capabilities: {

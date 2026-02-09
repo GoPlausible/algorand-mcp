@@ -6,7 +6,6 @@ export const exampleTools: Tool[] = [
   {
     name: 'api_example_get_balance',
     description: 'Get account balance and assets',
-    handler: getBalanceTool,
     inputSchema: getBalanceToolSchema
   }
 ];
