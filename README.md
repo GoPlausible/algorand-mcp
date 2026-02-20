@@ -1,4 +1,4 @@
-# Algorand MCP Implementation
+# Algorand local MCP Implementation
 <!-- [![smithery badge](https://smithery.ai/badge/@GoPlausible/algorand-mcp)](https://smithery.ai/server/@GoPlausible/algorand-mcp) -->
 [![npm downloads](https://img.shields.io/npm/dm/algorand-mcp.svg)](https://www.npmjs.com/package/algorand-mcp)
 [![npm version](https://badge.fury.io/js/algorand-mcp.svg)](https://badge.fury.io/js/algorand-mcp)
@@ -12,7 +12,7 @@
 
 [MCP Github](https://github.com/modelcontextprotocol) contains more information and different tools and specifications plus documentation of MCP.
 
-This repository is a Model Context Protocol (MCP) implementation for Algorand blockchain interactions. The implementation consists of:
+This repository is a local Model Context Protocol (MCP) implementation for Algorand blockchain interactions. The implementation consists of:
 - (PRODUCTION) A server package for blockchain interactions (Node.js only)
 - (WIP) A client package for wallet management and transaction signing (supports both browser and Node.js)
 
