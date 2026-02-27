@@ -1,11 +1,13 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { env } from '../../../env.js';
+import { withCommonParams } from '../../commonParams.js';
+
+const NFD_API_URL = 'https://api.nf.domains';
 
 export const nfdTools = [
   {
     name: 'api_nfd_get_nfd',
     description: 'Get a specific NFD by name or by its application ID',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         nameOrID: {
@@ -27,12 +29,12 @@ export const nfdTools = [
         }
       },
       required: ['nameOrID']
-    }
+    })
   },
   {
     name: 'api_nfd_get_nfds_for_addresses',
     description: 'Get NFDs for specific addresses',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -53,12 +55,12 @@ export const nfdTools = [
         }
       },
       required: ['address']
-    }
+    })
   },
   {
     name: 'api_nfd_get_nfd_activity',
     description: 'Get activity/changes for NFDs',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         name: {
@@ -89,12 +91,12 @@ export const nfdTools = [
         }
       },
       required: ['name']
-    }
+    })
   },
   {
     name: 'api_nfd_get_nfd_analytics',
     description: 'Get analytics data for NFDs',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         name: {
@@ -157,12 +159,12 @@ export const nfdTools = [
           description: 'Sort order'
         }
       }
-    }
+    })
   },
   {
     name: 'api_nfd_browse_nfds',
     description: 'Browse NFDs with various filters',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         name: {
@@ -221,12 +223,12 @@ export const nfdTools = [
           description: 'View of data to return'
         }
       }
-    }
+    })
   },
   {
     name: 'api_nfd_search_nfds',
     description: 'Search NFDs with various filters',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         name: {
@@ -285,7 +287,7 @@ export const nfdTools = [
           description: 'View of data to return'
         }
       }
-    }
+    })
   }
 ];
 
@@ -336,7 +338,7 @@ async function getNFD(
     if (params.poll) searchParams.append('poll', params.poll.toString());
     if (params.nocache) searchParams.append('nocache', params.nocache.toString());
     
-    const response = await fetch(`${env.nfd_api_url}/nfd/${params.nameOrID}?${searchParams}`);
+    const response = await fetch(`${NFD_API_URL}/nfd/${params.nameOrID}?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -365,7 +367,7 @@ async function getNFDsForAddressesV2(
     if (params.limit) searchParams.append('limit', params.limit.toString());
     if (params.view) searchParams.append('view', params.view);
     
-    const response = await fetch(`${env.nfd_api_url}/nfd/v2/address?${searchParams}`);
+    const response = await fetch(`${NFD_API_URL}/nfd/v2/address?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -417,7 +419,7 @@ async function searchNFDsV2(
       }
     });
     
-    const response = await fetch(`${env.nfd_api_url}/nfd/v2/search?${searchParams}`);
+    const response = await fetch(`${NFD_API_URL}/nfd/v2/search?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -469,7 +471,7 @@ async function browseNFDs(
       }
     });
     
-    const response = await fetch(`${env.nfd_api_url}/nfd/browse?${searchParams}`);
+    const response = await fetch(`${NFD_API_URL}/nfd/browse?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -507,7 +509,7 @@ async function getNFDActivity(
     if (params.limit) searchParams.append('limit', params.limit.toString());
     if (params.sort) searchParams.append('sort', params.sort);
     
-    const response = await fetch(`${env.nfd_api_url}/nfd/activity?${searchParams}`);
+    const response = await fetch(`${NFD_API_URL}/nfd/activity?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -580,7 +582,7 @@ async function getNFDAnalytics(
       }
     });
     
-    const response = await fetch(`${env.nfd_api_url}/nfd/analytics?${searchParams}`);
+    const response = await fetch(`${NFD_API_URL}/nfd/analytics?${searchParams}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

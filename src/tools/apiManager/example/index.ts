@@ -1,12 +1,13 @@
 import { McpError, ErrorCode, Tool } from '@modelcontextprotocol/sdk/types.js';
 import { getBalanceTool, getBalanceToolSchema } from './get-balance.js';
+import { withCommonParams } from '../../commonParams.js';
 
 // Define tool configurations
 export const exampleTools: Tool[] = [
   {
     name: 'api_example_get_balance',
     description: 'Get account balance and assets',
-    inputSchema: getBalanceToolSchema
+    inputSchema: withCommonParams(getBalanceToolSchema)
   }
 ];
 

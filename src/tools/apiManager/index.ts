@@ -49,7 +49,7 @@ export async function handleApiManager(name: string, args: any): Promise<any> {
     }
 
     // Process and format the response
-    return ResponseProcessor.processResponse(response, args?.pageToken);
+    return ResponseProcessor.processResponse(response, args?.pageToken, args?.itemsPerPage);
 
   } catch (error) {
     if (error instanceof McpError) {

@@ -1,7 +1,9 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { indexerClient } from '../../../algorand-client.js';
+import { getIndexerClient, extractNetwork } from '../../../algorand-client.js';
+import type { NetworkId } from '../../../algorand-client.js';
 import { ResponseProcessor } from '../../../utils/responseProcessor.js';
-import type { 
+import { withCommonParams } from '../../commonParams.js';
+import type {
   AssetResponse,
   AssetsResponse,
   AssetBalancesResponse,
@@ -12,7 +14,7 @@ export const assetTools = [
   {
     name: 'api_indexer_lookup_asset_by_id',
     description: 'Get asset information and configuration',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         assetId: {
@@ -21,12 +23,12 @@ export const assetTools = [
         }
       },
       required: ['assetId']
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_asset_balances',
     description: 'Get accounts holding this asset and their balances',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         assetId: {
@@ -55,12 +57,12 @@ export const assetTools = [
         }
       },
       required: ['assetId']
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_asset_transactions',
     description: 'Get transactions involving this asset',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         assetId: {
@@ -109,12 +111,12 @@ export const assetTools = [
         }
       },
       required: ['assetId']
-    }
+    })
   },
   {
     name: 'api_indexer_search_for_assets',
     description: 'Search for assets with various criteria',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         limit: {
@@ -142,12 +144,13 @@ export const assetTools = [
           description: 'Token for retrieving the next page of results'
         }
       }
-    }
+    })
   }
 ];
 
-export async function lookupAssetByID(assetId: number): Promise<AssetResponse> {
+export async function lookupAssetByID(assetId: number, network: NetworkId = 'mainnet'): Promise<AssetResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up asset info for ID ${assetId}`);
     const response = await indexerClient.lookupAssetByID(assetId).do() as AssetResponse;
     console.error('Asset response:', JSON.stringify(response, null, 2));
@@ -170,8 +173,9 @@ export async function lookupAssetBalances(assetId: number, params?: {
   currencyLessThan?: number;
   nextToken?: string;
   address?: string;
-}): Promise<AssetBalancesResponse> {
+}, network: NetworkId = 'mainnet'): Promise<AssetBalancesResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up balances for asset ${assetId}`);
     let search = indexerClient.lookupAssetBalances(assetId);
 
@@ -214,8 +218,9 @@ export async function lookupAssetTransactions(assetId: number, params?: {
   excludeCloseTo?: boolean;
   nextToken?: string;
   txid?: string;
-}): Promise<TransactionsResponse> {
+}, network: NetworkId = 'mainnet'): Promise<TransactionsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up transactions for asset ${assetId}`);
     let search = indexerClient.lookupAssetTransactions(assetId);
 
@@ -269,8 +274,9 @@ export async function searchForAssets(params?: {
   unit?: string;
   assetId?: number;
   nextToken?: string;
-}): Promise<AssetsResponse> {
+}, network: NetworkId = 'mainnet'): Promise<AssetsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error('Searching assets with params:', params);
     let search = indexerClient.searchForAssets();
 
@@ -310,25 +316,26 @@ export async function searchForAssets(params?: {
 
 export const handleAssetTools = ResponseProcessor.wrapResourceHandler(async function handleAssetTools(args: any): Promise<any> {
   const name = args.name;
-  
+  const network = extractNetwork(args);
+
   switch (name) {
     case 'api_indexer_lookup_asset_by_id': {
       const { assetId } = args;
-      const info = await lookupAssetByID(assetId);
+      const info = await lookupAssetByID(assetId, network);
       return info.asset;
     }
     case 'api_indexer_lookup_asset_balances': {
       const { assetId, ...params } = args;
-      const balances = await lookupAssetBalances(assetId, params);
+      const balances = await lookupAssetBalances(assetId, params, network);
       return balances.balances;
     }
     case 'api_indexer_lookup_asset_transactions': {
       const { assetId, ...params } = args;
-      const transactions = await lookupAssetTransactions(assetId, params);
+      const transactions = await lookupAssetTransactions(assetId, params, network);
       return transactions.transactions;
     }
     case 'api_indexer_search_for_assets': {
-      const assets = await searchForAssets(args);
+      const assets = await searchForAssets(args, network);
       return assets.assets;
     }
     default:

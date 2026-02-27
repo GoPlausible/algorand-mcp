@@ -1,6 +1,7 @@
 import { Transaction } from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../../../algorand-client.js';
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 import { appTransactionSchemas, appTransactionTools } from './types.js';
 import { makeApplicationCreateTxn, handleCreateTxn } from './createTxn.js';
 import { makeApplicationUpdateTxn, handleUpdateTxn } from './updateTxn.js';
@@ -54,6 +55,8 @@ export class AppTransactionManager {
    * Handle application transaction tools
    */
   static async handleTool(name: string, args: Record<string, unknown>) {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
     const suggestedParams = await algodClient.getTransactionParams().do();
 
     const handler = toolHandlers[name];

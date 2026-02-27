@@ -1,7 +1,9 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { indexerClient } from '../../../algorand-client.js';
+import { getIndexerClient, extractNetwork } from '../../../algorand-client.js';
+import type { NetworkId } from '../../../algorand-client.js';
 import { ResponseProcessor } from '../../../utils/responseProcessor.js';
-import type { 
+import { withCommonParams } from '../../commonParams.js';
+import type {
   ApplicationResponse,
   ApplicationsResponse,
   ApplicationLogsResponse,
@@ -13,7 +15,7 @@ export const applicationTools = [
   {
     name: 'api_indexer_lookup_applications',
     description: 'Get application information from indexer',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         appId: {
@@ -22,12 +24,12 @@ export const applicationTools = [
         }
       },
       required: ['appId']
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_application_logs',
     description: 'Get application log messages',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         appId: {
@@ -60,12 +62,12 @@ export const applicationTools = [
         }
       },
       required: ['appId']
-    }
+    })
   },
   {
     name: 'api_indexer_search_for_applications',
     description: 'Search for applications with various criteria',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         limit: {
@@ -81,12 +83,12 @@ export const applicationTools = [
           description: 'Token for retrieving the next page of results'
         }
       }
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_application_box',
     description: 'Get application box by name',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         appId: {
@@ -99,12 +101,12 @@ export const applicationTools = [
         }
       },
       required: ['appId', 'boxName']
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_application_boxes',
     description: 'Get all application boxes',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         appId: {
@@ -117,12 +119,13 @@ export const applicationTools = [
         }
       },
       required: ['appId']
-    }
+    })
   }
 ];
 
-export async function lookupApplications(appId: number): Promise<ApplicationResponse> {
+export async function lookupApplications(appId: number, network: NetworkId = 'mainnet'): Promise<ApplicationResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up application info for ID ${appId}`);
     const response = await indexerClient.lookupApplications(appId).do() as ApplicationResponse;
     console.error('Application response:', JSON.stringify(response, null, 2));
@@ -146,8 +149,9 @@ export async function lookupApplicationLogs(appId: number, params?: {
   txid?: string;
   sender?: string;
   nextToken?: string;
-}): Promise<ApplicationLogsResponse> {
+}, network: NetworkId = 'mainnet'): Promise<ApplicationLogsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up logs for application ${appId}`);
     let search = indexerClient.lookupApplicationLogs(appId);
 
@@ -189,8 +193,9 @@ export async function searchForApplications(params?: {
   limit?: number;
   creator?: string;
   nextToken?: string;
-}): Promise<ApplicationsResponse> {
+}, network: NetworkId = 'mainnet'): Promise<ApplicationsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error('Searching applications with params:', params);
     let search = indexerClient.searchForApplications();
 
@@ -219,8 +224,9 @@ export async function searchForApplications(params?: {
   }
 }
 
-export async function lookupApplicationBoxByIDandName(appId: number, boxName: string): Promise<Box> {
+export async function lookupApplicationBoxByIDandName(appId: number, boxName: string, network: NetworkId = 'mainnet'): Promise<Box> {
   try {
+    const indexerClient = getIndexerClient(network);
     const encoder = new TextEncoder();
     let boxNameBytes: Uint8Array;
 
@@ -266,8 +272,9 @@ export async function lookupApplicationBoxByIDandName(appId: number, boxName: st
   }
 }
 
-export async function searchForApplicationBoxes(appId: number, maxBoxes?: number): Promise<any> {
+export async function searchForApplicationBoxes(appId: number, maxBoxes?: number, network: NetworkId = 'mainnet'): Promise<any> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Searching boxes for application ${appId}`);
     let search = indexerClient.searchForApplicationBoxes(appId);
     if (maxBoxes !== undefined) {
@@ -290,30 +297,31 @@ export async function searchForApplicationBoxes(appId: number, maxBoxes?: number
 
 export const handleApplicationTools = ResponseProcessor.wrapResourceHandler(async function handleApplicationTools(args: any): Promise<any> {
   const name = args.name;
-  
+  const network = extractNetwork(args);
+
   switch (name) {
     case 'api_indexer_lookup_applications': {
       const { appId } = args;
-      const info = await lookupApplications(appId);
+      const info = await lookupApplications(appId, network);
       return info.application;
     }
     case 'api_indexer_lookup_application_logs': {
       const { appId, ...params } = args;
-      const logs = await lookupApplicationLogs(appId, params);
+      const logs = await lookupApplicationLogs(appId, params, network);
       return logs;
     }
     case 'api_indexer_search_for_applications': {
-      const info = await searchForApplications(args);
+      const info = await searchForApplications(args, network);
       return info.applications;
     }
     case 'api_indexer_lookup_application_box': {
       const { appId, boxName } = args;
-      const box = await lookupApplicationBoxByIDandName(appId, boxName);
+      const box = await lookupApplicationBoxByIDandName(appId, boxName, network);
       return box;
     }
     case 'api_indexer_lookup_application_boxes': {
       const { appId, maxBoxes } = args;
-      const boxes = await searchForApplicationBoxes(appId, maxBoxes);
+      const boxes = await searchForApplicationBoxes(appId, maxBoxes, network);
       return boxes.boxes;
     }
     default:

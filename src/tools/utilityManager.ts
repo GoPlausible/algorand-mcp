@@ -1,5 +1,6 @@
 import algosdk from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { withCommonParams } from './commonParams.js';
 
 // Tool schemas
 export const utilityToolSchemas = {
@@ -81,87 +82,87 @@ export class UtilityManager {
     {
       name: 'ping',
       description: 'Basic protocol utility to verify server connectivity',
-      inputSchema: utilityToolSchemas.ping,
+      inputSchema: withCommonParams(utilityToolSchemas.ping),
     },
     {
       name: 'validate_address',
       description: 'Check if an Algorand address is valid',
-      inputSchema: utilityToolSchemas.validateAddress,
+      inputSchema: withCommonParams(utilityToolSchemas.validateAddress),
     },
     {
       name: 'encode_address',
       description: 'Encode a public key to an Algorand address',
-      inputSchema: utilityToolSchemas.encodeAddress,
+      inputSchema: withCommonParams(utilityToolSchemas.encodeAddress),
     },
     {
       name: 'decode_address',
       description: 'Decode an Algorand address to a public key',
-      inputSchema: utilityToolSchemas.decodeAddress,
+      inputSchema: withCommonParams(utilityToolSchemas.decodeAddress),
     },
     {
       name: 'get_application_address',
       description: 'Get the address for a given application ID',
-      inputSchema: utilityToolSchemas.getApplicationAddress,
+      inputSchema: withCommonParams(utilityToolSchemas.getApplicationAddress),
     },
     {
       name: 'bytes_to_bigint',
       description: 'Convert bytes to a BigInt',
-      inputSchema: utilityToolSchemas.bytesToBigint,
+      inputSchema: withCommonParams(utilityToolSchemas.bytesToBigint),
     },
     {
       name: 'bigint_to_bytes',
       description: 'Convert a BigInt to bytes',
-      inputSchema: utilityToolSchemas.bigintToBytes,
+      inputSchema: withCommonParams(utilityToolSchemas.bigintToBytes),
     },
     {
       name: 'encode_uint64',
       description: 'Encode a uint64 to bytes',
-      inputSchema: utilityToolSchemas.encodeUint64,
+      inputSchema: withCommonParams(utilityToolSchemas.encodeUint64),
     },
     {
       name: 'decode_uint64',
       description: 'Decode bytes to a uint64',
-      inputSchema: utilityToolSchemas.decodeUint64,
+      inputSchema: withCommonParams(utilityToolSchemas.decodeUint64),
     },
     {
       name: 'verify_bytes',
       description: 'Verify a signature against bytes with an Algorand address',
-      inputSchema: utilityToolSchemas.verifyBytes,
+      inputSchema: withCommonParams(utilityToolSchemas.verifyBytes),
     },
     {
       name: 'sign_bytes',
       description: 'Sign bytes with a secret key',
-      inputSchema: {
+      inputSchema: withCommonParams({
         type: 'object',
         properties: {
           bytes: { type: 'string', description: 'Bytes in hexadecimal format to sign' },
           sk: { type: 'string', description: 'Secret key in hexadecimal format to sign the bytes with' }
         },
         required: ['bytes', 'sk']
-      },
+      }),
 
     },
     {
       name: 'encode_obj',
       description: 'Encode an object to msgpack format',
-      inputSchema: {
+      inputSchema: withCommonParams({
         type: 'object',
         properties: {
           obj: { type: 'object', description: 'Object to encode' }
         },
         required: ['obj']
-      },
+      }),
     },
     {
       name: 'decode_obj',
       description: 'Decode msgpack bytes to an object',
-      inputSchema: {
+      inputSchema: withCommonParams({
         type: 'object',
         properties: {
           bytes: { type: 'string', description: 'Base64-encoded msgpack bytes to decode' }
         },
         required: ['bytes']
-      },
+      }),
     }
 
   ];

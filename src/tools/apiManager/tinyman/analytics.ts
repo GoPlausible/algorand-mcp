@@ -1,13 +1,13 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { poolUtils, SupportedNetwork } from '@tinymanorg/tinyman-js-sdk';
-import { algodClient } from '../../../algorand-client.js';
-import { env } from '../../../env.js';
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 
 export const analyticsTools: Tool[] = [
   {
     name: 'api_tinyman_get_pool_analytics',
     description: 'Get analytics for a Tinyman pool',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         asset1Id: {
@@ -26,31 +26,39 @@ export const analyticsTools: Tool[] = [
         }
       },
       required: ['asset1Id', 'asset2Id']
-    }
+    })
   }
 ];
 
 export async function handleAnalyticsTools(args: any): Promise<any> {
-  const { 
-    name, 
-    asset1Id, 
+  const {
+    name,
+    asset1Id,
     asset2Id,
     version = 'v2'
   } = args;
 
+  const network = extractNetwork(args);
+  const algodClient = getAlgodClient(network);
+
+  if (network === 'localnet') {
+    throw new McpError(ErrorCode.InvalidRequest, 'Tinyman is not available on localnet');
+  }
+  const tinymanNetwork = network as SupportedNetwork;
+
   if (name === 'api_tinyman_get_pool_analytics') {
     try {
       // Get pool information first
-      const poolInfo = await (version === 'v2' 
+      const poolInfo = await (version === 'v2'
         ? poolUtils.v2.getPoolInfo({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset1ID: asset1Id,
             asset2ID: asset2Id
           })
         : poolUtils.v1_1.getPoolInfo({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset1ID: asset1Id,
             asset2ID: asset2Id
           }));

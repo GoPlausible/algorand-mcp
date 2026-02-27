@@ -1,6 +1,7 @@
 import algosdk from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../algorand-client.js';
+import { getAlgodClient, extractNetwork, type NetworkId } from '../algorand-client.js';
+import { withCommonParams } from './commonParams.js';
 
 // Tool schemas
 export const accountToolSchemas = {
@@ -66,42 +67,42 @@ export class AccountManager {
     {
       name: 'create_account',
       description: 'Create a new Algorand account',
-      inputSchema: accountToolSchemas.createAccount,
+      inputSchema: withCommonParams(accountToolSchemas.createAccount),
     },
     {
       name: 'rekey_account',
       description: 'Rekey an Algorand account to a new address',
-      inputSchema: accountToolSchemas.rekeyAccount,
+      inputSchema: withCommonParams(accountToolSchemas.rekeyAccount),
     },
     {
       name: 'mnemonic_to_mdk',
       description: 'Convert a mnemonic to a master derivation key',
-      inputSchema: accountToolSchemas.mnemonicToMdk,
+      inputSchema: withCommonParams(accountToolSchemas.mnemonicToMdk),
     },
     {
       name: 'mdk_to_mnemonic',
       description: 'Convert a master derivation key to a mnemonic',
-      inputSchema: accountToolSchemas.mdkToMnemonic,
+      inputSchema: withCommonParams(accountToolSchemas.mdkToMnemonic),
     },
     {
       name: 'secret_key_to_mnemonic',
       description: 'Convert a secret key to a mnemonic',
-      inputSchema: accountToolSchemas.secretKeyToMnemonic,
+      inputSchema: withCommonParams(accountToolSchemas.secretKeyToMnemonic),
     },
     {
       name: 'mnemonic_to_secret_key',
       description: 'Convert a mnemonic to a secret key',
-      inputSchema: accountToolSchemas.mnemonicToSecretKey,
+      inputSchema: withCommonParams(accountToolSchemas.mnemonicToSecretKey),
     },
     {
       name: 'seed_from_mnemonic',
       description: 'Generate a seed from a mnemonic',
-      inputSchema: accountToolSchemas.seedFromMnemonic,
+      inputSchema: withCommonParams(accountToolSchemas.seedFromMnemonic),
     },
     {
       name: 'mnemonic_from_seed',
       description: 'Generate a mnemonic from a seed',
-      inputSchema: accountToolSchemas.mnemonicFromSeed,
+      inputSchema: withCommonParams(accountToolSchemas.mnemonicFromSeed),
     }
   ];
 
@@ -126,9 +127,11 @@ export class AccountManager {
             'Invalid rekey account parameters'
           );
         }
+        const network = extractNetwork(args);
         const rekeyTxn = await AccountManager.createRekeyTransaction(
           args.sourceAddress,
-          args.targetAddress
+          args.targetAddress,
+          network
         );
         return {
           content: [{
@@ -259,8 +262,9 @@ export class AccountManager {
    * @param toAddress The address to rekey to
    * @returns The rekey transaction object
    */
-  static async createRekeyTransaction(fromAddress: string, toAddress: string): Promise<algosdk.Transaction> {
+  static async createRekeyTransaction(fromAddress: string, toAddress: string, network?: NetworkId): Promise<algosdk.Transaction> {
     try {
+      const algodClient = getAlgodClient(network);
       const suggestedParams = await algodClient.getTransactionParams().do();
 
       return algosdk.makePaymentTxnWithSuggestedParamsFromObject({

@@ -1,13 +1,13 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { Bootstrap, SupportedNetwork } from '@tinymanorg/tinyman-js-sdk';
-import { algodClient } from '../../../algorand-client.js';
-import { env } from '../../../env.js';
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 
 export const bootstrapTools: Tool[] = [
   {
     name: 'api_tinyman_get_pool_creation_quote',
     description: 'Get quote for creating a new Tinyman pool',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         asset1Id: {
@@ -30,25 +30,33 @@ export const bootstrapTools: Tool[] = [
         }
       },
       required: ['asset1Id', 'asset2Id', 'initiatorAddr']
-    }
+    })
   }
 ];
 
 export async function handleBootstrapTools(args: any): Promise<any> {
-  const { 
-    name, 
-    asset1Id, 
+  const {
+    name,
+    asset1Id,
     asset2Id,
     initiatorAddr,
     version = 'v2'
   } = args;
+
+  const network = extractNetwork(args);
+  const algodClient = getAlgodClient(network);
+
+  if (network === 'localnet') {
+    throw new McpError(ErrorCode.InvalidRequest, 'Tinyman is not available on localnet');
+  }
+  const tinymanNetwork = network as SupportedNetwork;
 
   if (name === 'api_tinyman_get_pool_creation_quote') {
     try {
       const quote = await (version === 'v2'
         ? Bootstrap.v2.generateTxns({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset_1: {
               id: asset1Id.toString(),
               unit_name: ''
@@ -61,7 +69,7 @@ export async function handleBootstrapTools(args: any): Promise<any> {
           })
         : Bootstrap.v1_1.generateTxns({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset_1: {
               id: asset1Id.toString(),
               unit_name: ''

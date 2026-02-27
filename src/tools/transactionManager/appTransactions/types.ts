@@ -1,4 +1,5 @@
 import { SuggestedParams, OnApplicationComplete, BoxReference } from 'algosdk';
+import { withCommonParams } from '../../commonParams.js';
 
 // Base transaction parameters interface
 export interface BaseAppTxnParams {
@@ -323,36 +324,36 @@ export const appTransactionTools = [
   {
     name: 'make_app_create_txn',
     description: 'Create an application creation transaction',
-    inputSchema: appTransactionSchemas.makeAppCreateTxn,
+    inputSchema: withCommonParams(appTransactionSchemas.makeAppCreateTxn),
   },
   {
     name: 'make_app_update_txn',
     description: 'Create an application update transaction',
-    inputSchema: appTransactionSchemas.makeAppUpdateTxn,
+    inputSchema: withCommonParams(appTransactionSchemas.makeAppUpdateTxn),
   },
   {
     name: 'make_app_delete_txn',
     description: 'Create an application delete transaction',
-    inputSchema: appTransactionSchemas.makeAppDeleteTxn,
+    inputSchema: withCommonParams(appTransactionSchemas.makeAppDeleteTxn),
   },
   {
     name: 'make_app_optin_txn',
     description: 'Create an application opt-in transaction',
-    inputSchema: appTransactionSchemas.makeAppOptInTxn,
+    inputSchema: withCommonParams(appTransactionSchemas.makeAppOptInTxn),
   },
   {
     name: 'make_app_closeout_txn',
     description: 'Create an application close out transaction',
-    inputSchema: appTransactionSchemas.makeAppCloseOutTxn,
+    inputSchema: withCommonParams(appTransactionSchemas.makeAppCloseOutTxn),
   },
   {
     name: 'make_app_clear_txn',
     description: 'Create an application clear state transaction',
-    inputSchema: appTransactionSchemas.makeAppClearTxn,
+    inputSchema: withCommonParams(appTransactionSchemas.makeAppClearTxn),
   },
   {
     name: 'make_app_call_txn',
     description: 'Create an application call transaction',
-    inputSchema: appTransactionSchemas.makeAppCallTxn,
+    inputSchema: withCommonParams(appTransactionSchemas.makeAppCallTxn),
   }
 ];

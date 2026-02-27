@@ -1,24 +1,13 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { Swap, poolUtils, SwapType, SupportedNetwork } from '@tinymanorg/tinyman-js-sdk';
-import { algodClient } from '../../../algorand-client.js';
-import { env } from '../../../env.js';
-
-async function getAssetDecimals(assetId: number): Promise<number> {
-  try {
-    if (assetId === 0) return 6; // Algo has 6 decimals
-    const assetInfo = await algodClient.getAssetByID(assetId).do();
-    return assetInfo.params.decimals;
-  } catch (error) {
-    console.error(`Failed to get decimals for asset ${assetId}:`, error);
-    return 6; // Default to 6 decimals if we can't get the info
-  }
-}
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 
 export const swapTools: Tool[] = [
   {
     name: 'api_tinyman_get_swap_quote',
     description: 'Get quote for swapping assets',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         assetIn: {
@@ -46,33 +35,52 @@ export const swapTools: Tool[] = [
         }
       },
       required: ['assetIn', 'assetOut', 'amount', 'mode']
-    }
+    })
   }
 ];
 
 export async function handleSwapTools(args: any): Promise<any> {
-  const { 
-    name, 
-    assetIn, 
-    assetOut, 
+  const {
+    name,
+    assetIn,
+    assetOut,
     amount,
     mode,
     version = 'v2'
   } = args;
 
+  const network = extractNetwork(args);
+  const algodClient = getAlgodClient(network);
+
+  if (network === 'localnet') {
+    throw new McpError(ErrorCode.InvalidRequest, 'Tinyman is not available on localnet');
+  }
+  const tinymanNetwork = network as SupportedNetwork;
+
+  async function getAssetDecimals(assetId: number): Promise<number> {
+    try {
+      if (assetId === 0) return 6; // Algo has 6 decimals
+      const assetInfo = await algodClient.getAssetByID(assetId).do();
+      return assetInfo.params.decimals;
+    } catch (error) {
+      console.error(`Failed to get decimals for asset ${assetId}:`, error);
+      return 6; // Default to 6 decimals if we can't get the info
+    }
+  }
+
   if (name === 'api_tinyman_get_swap_quote') {
     try {
       // Get pool information first
-      const poolInfo = await (version === 'v2' 
+      const poolInfo = await (version === 'v2'
         ? poolUtils.v2.getPoolInfo({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset1ID: assetIn,
             asset2ID: assetOut
           })
         : poolUtils.v1_1.getPoolInfo({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset1ID: assetIn,
             asset2ID: assetOut
           }));
@@ -98,7 +106,7 @@ export async function handleSwapTools(args: any): Promise<any> {
             pool: poolInfo,
             amount: BigInt(amount),
             type: SwapType.FixedInput,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             slippage: 0.01 // 1% slippage
           });
         } else {
@@ -114,7 +122,7 @@ export async function handleSwapTools(args: any): Promise<any> {
             pool: poolInfo,
             amount: BigInt(amount),
             type: SwapType.FixedOutput,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             slippage: 0.01
           });
         }

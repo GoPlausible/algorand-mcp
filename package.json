@@ -1,7 +1,7 @@
 {
   "name": "algorand-mcp",
-  "version": "2.7.9",
-  "description": "Algorand Model Context Protocol Implementation",
+  "version": "2.8.0",
+  "description": "Algorand Model Context Protocol Local Implementation",
   "type": "module",
   "scripts": {
     "build": "tsc && cp -r src/resources/knowledge/taxonomy src/resources/knowledge/taxonomy-categories dist/resources/knowledge/ && chmod +x dist/index.js",

@@ -1,6 +1,8 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { indexerClient } from '../../../algorand-client.js';
+import { getIndexerClient, extractNetwork } from '../../../algorand-client.js';
+import type { NetworkId } from '../../../algorand-client.js';
 import { ResponseProcessor } from '../../../utils/responseProcessor.js';
+import { withCommonParams } from '../../commonParams.js';
 import type {
   AccountResponse,
   AccountsResponse,
@@ -14,7 +16,7 @@ export const accountTools = [
   {
     name: 'api_indexer_lookup_account_by_id',
     description: 'Get account information from indexer',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -23,12 +25,12 @@ export const accountTools = [
         }
       },
       required: ['address']
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_account_assets',
     description: 'Get account assets',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -49,12 +51,12 @@ export const accountTools = [
         }
       },
       required: ['address']
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_account_app_local_states',
     description: 'Get account application local states',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -63,12 +65,12 @@ export const accountTools = [
         }
       },
       required: ['address']
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_account_created_applications',
     description: 'Get applications created by this account',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -77,12 +79,12 @@ export const accountTools = [
         }
       },
       required: ['address']
-    }
+    })
   },
   {
     name: 'api_indexer_search_for_accounts',
     description: 'Search for accounts with various criteria',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         limit: {
@@ -110,12 +112,13 @@ export const accountTools = [
           description: 'Token for retrieving the next page of results'
         }
       }
-    }
+    })
   }
 ];
 
-export async function lookupAccountByID(address: string): Promise<AccountResponse> {
+export async function lookupAccountByID(address: string, network: NetworkId = 'mainnet'): Promise<AccountResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up account info for address ${address}`);
     const response = await indexerClient.lookupAccountByID(address).do() as AccountResponse;
     console.error('Account response:', JSON.stringify(response, null, 2));
@@ -136,8 +139,9 @@ export async function lookupAccountAssets(address: string, params?: {
   limit?: number;
   assetId?: number;
   nextToken?: string;
-}): Promise<AssetHoldingsResponse> {
+}, network: NetworkId = 'mainnet'): Promise<AssetHoldingsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up assets for address ${address}`);
     let search = indexerClient.lookupAccountAssets(address);
 
@@ -166,8 +170,9 @@ export async function lookupAccountAssets(address: string, params?: {
   }
 }
 
-export async function lookupAccountAppLocalStates(address: string): Promise<ApplicationLocalStatesResponse> {
+export async function lookupAccountAppLocalStates(address: string, network: NetworkId = 'mainnet'): Promise<ApplicationLocalStatesResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up app local states for address ${address}`);
     const response = await indexerClient.lookupAccountAppLocalStates(address).do() as ApplicationLocalStatesResponse;
     console.error('App local states response:', JSON.stringify(response, null, 2));
@@ -184,8 +189,9 @@ export async function lookupAccountAppLocalStates(address: string): Promise<Appl
   }
 }
 
-export async function lookupAccountCreatedApplications(address: string): Promise<ApplicationsResponse> {
+export async function lookupAccountCreatedApplications(address: string, network: NetworkId = 'mainnet'): Promise<ApplicationsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up created applications for address ${address}`);
     const response = await indexerClient.lookupAccountCreatedApplications(address).do() as ApplicationsResponse;
     console.error('Created applications response:', JSON.stringify(response, null, 2));
@@ -209,8 +215,9 @@ export async function searchAccounts(params?: {
   currencyGreaterThan?: number;
   currencyLessThan?: number;
   nextToken?: string;
-}): Promise<AccountsResponse> {
+}, network: NetworkId = 'mainnet'): Promise<AccountsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error('Searching accounts with params:', params);
     let search = indexerClient.searchAccounts();
 
@@ -250,30 +257,31 @@ export async function searchAccounts(params?: {
 
 export const handleAccountTools = ResponseProcessor.wrapResourceHandler(async function handleAccountTools(args: any): Promise<any> {
   const name = args.name;
-  
+  const network = extractNetwork(args);
+
   switch (name) {
     case 'api_indexer_lookup_account_by_id': {
       const { address } = args;
-      const info = await lookupAccountByID(address);
+      const info = await lookupAccountByID(address, network);
       return info;
     }
     case 'api_indexer_lookup_account_app_local_states': {
       const { address } = args;
-      const info = await lookupAccountAppLocalStates(address);
+      const info = await lookupAccountAppLocalStates(address, network);
       return info;
     }
     case 'api_indexer_lookup_account_created_applications': {
       const { address } = args;
-      const info = await lookupAccountCreatedApplications(address);
+      const info = await lookupAccountCreatedApplications(address, network);
       return info.applications;
     }
     case 'api_indexer_search_for_accounts': {
-      const info = await searchAccounts(args);
+      const info = await searchAccounts(args, network);
       return info.accounts;
     }
     case 'api_indexer_lookup_account_assets': {
       const { address, ...params } = args;
-      const info = await lookupAccountAssets(address, params);
+      const info = await lookupAccountAssets(address, params, network);
       return info.assets;
     }
     default:

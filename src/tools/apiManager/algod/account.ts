@@ -1,6 +1,7 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../../../algorand-client.js';
-import type { 
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
+import type {
   Account,
   AccountApplicationResponse,
   AccountAssetResponse
@@ -11,7 +12,7 @@ export const accountTools = [
   {
     name: 'api_algod_get_account_info',
     description: 'Get current account balance, assets, and auth address from algod',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -20,12 +21,12 @@ export const accountTools = [
         }
       },
       required: ['address']
-    }
+    })
   },
   {
     name: 'api_algod_get_account_application_info',
     description: 'Get account-specific application information from algod',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -38,12 +39,12 @@ export const accountTools = [
         }
       },
       required: ['address', 'appId']
-    }
+    })
   },
   {
     name: 'api_algod_get_account_asset_info',
     description: 'Get account-specific asset information from algod',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -56,11 +57,11 @@ export const accountTools = [
         }
       },
       required: ['address', 'assetId']
-    }
+    })
   }
 ];
 
-export async function getAccountInfo(address: string): Promise<Account> {
+export async function getAccountInfo(address: string, args: any): Promise<Account> {
   try {
     // Validate address format
     if (!algosdk.isValidAddress(address)) {
@@ -69,6 +70,9 @@ export async function getAccountInfo(address: string): Promise<Account> {
         'Invalid Algorand address format'
       );
     }
+
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
 
     console.error('Fetching account info from algod for address:', address);
     // Get account information from algod
@@ -87,7 +91,7 @@ export async function getAccountInfo(address: string): Promise<Account> {
   }
 }
 
-export async function getAccountApplicationInfo(address: string, appId: number): Promise<AccountApplicationResponse> {
+export async function getAccountApplicationInfo(address: string, appId: number, args: any): Promise<AccountApplicationResponse> {
   try {
     // Validate address format
     if (!algosdk.isValidAddress(address)) {
@@ -96,6 +100,9 @@ export async function getAccountApplicationInfo(address: string, appId: number):
         'Invalid Algorand address format'
       );
     }
+
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
 
     const response = await algodClient.accountApplicationInformation(address, appId).do() as AccountApplicationResponse;
     return response;
@@ -110,7 +117,7 @@ export async function getAccountApplicationInfo(address: string, appId: number):
   }
 }
 
-export async function getAccountAssetInfo(address: string, assetId: number): Promise<AccountAssetResponse> {
+export async function getAccountAssetInfo(address: string, assetId: number, args: any): Promise<AccountAssetResponse> {
   try {
     // Validate address format
     if (!algosdk.isValidAddress(address)) {
@@ -119,6 +126,9 @@ export async function getAccountAssetInfo(address: string, assetId: number): Pro
         'Invalid Algorand address format'
       );
     }
+
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
 
     const response = await algodClient.accountAssetInformation(address, assetId).do() as AccountAssetResponse;
     return response;
@@ -137,17 +147,17 @@ export async function handleAccountTools(name: string, args: any): Promise<any> 
   switch (name) {
     case 'api_algod_get_account_info': {
       const { address } = args;
-      const info = await getAccountInfo(address);
+      const info = await getAccountInfo(address, args);
       return info;
     }
     case 'api_algod_get_account_application_info': {
       const { address, appId } = args;
-      const info = await getAccountApplicationInfo(address, appId);
+      const info = await getAccountApplicationInfo(address, appId, args);
       return info;
     }
     case 'api_algod_get_account_asset_info': {
       const { address, assetId } = args;
-      const info = await getAccountAssetInfo(address, assetId);
+      const info = await getAccountAssetInfo(address, assetId, args);
       return info;
     }
     default:

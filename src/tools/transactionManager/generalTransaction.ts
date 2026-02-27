@@ -2,6 +2,7 @@ import algosdk, {
   Transaction
 } from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { withCommonParams } from '../commonParams.js';
 
 // Tool schemas
 export const generalTransactionSchemas = {
@@ -53,27 +54,27 @@ export const generalTransactionTools = [
   {
     name: 'assign_group_id',
     description: 'Assign a group ID to a list of transactions',
-    inputSchema: generalTransactionSchemas.assignGroupId,
+    inputSchema: withCommonParams(generalTransactionSchemas.assignGroupId),
   },
   {
     name: 'sign_transaction',
     description: 'Sign a transaction with a secret key',
-    inputSchema: generalTransactionSchemas.signTransaction,
+    inputSchema: withCommonParams(generalTransactionSchemas.signTransaction),
   },
   {
     name: 'sign_bytes',
     description: 'Sign arbitrary bytes with a secret key',
-    inputSchema: generalTransactionSchemas.signBytes,
+    inputSchema: withCommonParams(generalTransactionSchemas.signBytes),
   },
   {
     name: 'encode_obj',
     description: 'Encode an object to msgpack format',
-    inputSchema: generalTransactionSchemas.encodeObj,
+    inputSchema: withCommonParams(generalTransactionSchemas.encodeObj),
   },
   {
     name: 'decode_obj',
     description: 'Decode msgpack bytes to an object',
-    inputSchema: generalTransactionSchemas.decodeObj,
+    inputSchema: withCommonParams(generalTransactionSchemas.decodeObj),
   }
 ];
 

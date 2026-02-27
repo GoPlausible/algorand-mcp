@@ -1,4 +1,5 @@
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { withCommonParams } from './commonParams.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
@@ -23,7 +24,7 @@ export class KnowledgeManager {
     {
       name: 'get_knowledge_doc',
       description: 'Get markdown content for specified knowledge documents',
-      inputSchema: knowledgeToolSchemas.getKnowledgeDoc,
+      inputSchema: withCommonParams(knowledgeToolSchemas.getKnowledgeDoc),
     }
   ];
 

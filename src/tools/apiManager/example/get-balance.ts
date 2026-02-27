@@ -1,6 +1,6 @@
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../../../utils/responseProcessor.js';
-import { algodClient } from '../../../algorand-client.js';
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
 
 /**
  * Example tool to demonstrate implementation patterns
@@ -22,7 +22,7 @@ export const getBalanceToolSchema: { type: "object", properties: any, required: 
   required: ['address']
 };
 
-export const getBalanceTool = async (args: { address: string }) => {
+export const getBalanceTool = async (args: { address: string; network?: string }) => {
   try {
     // Input validation
     if (!args.address) {
@@ -38,6 +38,9 @@ export const getBalanceTool = async (args: { address: string }) => {
         'Invalid Algorand address format'
       );
     }
+
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
 
     // Get account information using Algorand client
     const accountInfo = await algodClient.accountInformation(args.address).do();

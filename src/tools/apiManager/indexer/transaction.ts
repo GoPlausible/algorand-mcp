@@ -1,16 +1,18 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { indexerClient } from '../../../algorand-client.js';
+import { getIndexerClient, extractNetwork } from '../../../algorand-client.js';
+import type { NetworkId } from '../../../algorand-client.js';
 import { ResponseProcessor } from '../../../utils/responseProcessor.js';
-import type { 
+import { withCommonParams } from '../../commonParams.js';
+import type {
   TransactionResponse,
-  TransactionsResponse 
+  TransactionsResponse
 } from 'algosdk/dist/types/client/v2/indexer/models/types';
 
 export const transactionTools = [
   {
     name: 'api_indexer_lookup_transaction_by_id',
     description: 'Get transaction information by ID',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         txId: {
@@ -19,12 +21,12 @@ export const transactionTools = [
         }
       },
       required: ['txId']
-    }
+    })
   },
   {
     name: 'api_indexer_lookup_account_transactions',
     description: 'Get account transaction history',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -61,12 +63,12 @@ export const transactionTools = [
         }
       },
       required: ['address']
-    }
+    })
   },
   {
     name: 'api_indexer_search_for_transactions',
     description: 'Search for transactions with various criteria',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         limit: {
@@ -126,12 +128,13 @@ export const transactionTools = [
           description: 'Token for retrieving the next page of results'
         }
       }
-    }
+    })
   }
 ];
 
-export async function lookupTransactionByID(txId: string): Promise<TransactionResponse> {
+export async function lookupTransactionByID(txId: string, network: NetworkId = 'mainnet'): Promise<TransactionResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up transaction with ID ${txId}`);
     const response = await indexerClient.lookupTransactionByID(txId).do() as TransactionResponse;
     // Log only metadata instead of full response
@@ -160,8 +163,9 @@ export async function lookupAccountTransactions(address: string, params?: {
   maxRound?: number;
   txType?: string;
   assetId?: number;
-}): Promise<TransactionsResponse> {
+}, network: NetworkId = 'mainnet'): Promise<TransactionsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error(`Looking up transactions for account ${address}`);
     let search = indexerClient.lookupAccountTransactions(address);
 
@@ -222,8 +226,9 @@ export async function searchForTransactions(params?: {
   currencyLessThan?: number;
   round?: number;
   nextToken?: string;
-}): Promise<TransactionsResponse> {
+}, network: NetworkId = 'mainnet'): Promise<TransactionsResponse> {
   try {
+    const indexerClient = getIndexerClient(network);
     console.error('Searching transactions with params:', params);
     let search = indexerClient.searchForTransactions();
 
@@ -292,20 +297,21 @@ export async function searchForTransactions(params?: {
 
 export const handleTransactionTools = ResponseProcessor.wrapResourceHandler(async function handleTransactionTools(args: any): Promise<any> {
   const name = args.name;
-  
+  const network = extractNetwork(args);
+
   switch (name) {
     case 'api_indexer_lookup_transaction_by_id': {
       const { txId } = args;
-      const info = await lookupTransactionByID(txId);
+      const info = await lookupTransactionByID(txId, network);
       return info.transaction;
     }
     case 'api_indexer_lookup_account_transactions': {
       const { address, ...params } = args;
-      const info = await lookupAccountTransactions(address, params);
+      const info = await lookupAccountTransactions(address, params, network);
       return info.transactions;
     }
     case 'api_indexer_search_for_transactions': {
-      const info = await searchForTransactions(args);
+      const info = await searchForTransactions(args, network);
       return info.transactions;
     }
     default:

@@ -1,5 +1,6 @@
 import * as QRCode from 'qrcode';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { withCommonParams } from './commonParams.js';
 
 interface Arc26ToolInput {
   address: string;
@@ -15,7 +16,7 @@ export class Arc26Manager {
     {
       name: 'generate_algorand_uri',
       description: 'Generate an Algorand URI and QR code according to ARC-26 specification',
-      inputSchema: {
+      inputSchema: withCommonParams({
         type: 'object',
         properties: {
           address: {
@@ -49,7 +50,7 @@ export class Arc26Manager {
           }
         },
         required: ['address']
-      }
+      })
     }
   ];
 

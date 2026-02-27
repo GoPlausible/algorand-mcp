@@ -5,7 +5,8 @@ import algosdk, {
   SuggestedParams
 } from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../../algorand-client.js';
+import { getAlgodClient, extractNetwork } from '../../algorand-client.js';
+import { withCommonParams } from '../commonParams.js';
 
 // Tool schemas
 export const accountTransactionSchemas = {
@@ -66,12 +67,12 @@ export const accountTransactionTools = [
   {
     name: 'make_payment_txn',
     description: 'Create a payment transaction',
-    inputSchema: accountTransactionSchemas.makePaymentTxn,
+    inputSchema: withCommonParams(accountTransactionSchemas.makePaymentTxn),
   },
   {
     name: 'make_keyreg_txn',
     description: 'Create a key registration transaction',
-    inputSchema: accountTransactionSchemas.makeKeyRegTxn,
+    inputSchema: withCommonParams(accountTransactionSchemas.makeKeyRegTxn),
   }
 ];
 
@@ -119,6 +120,8 @@ export class AccountTransactionManager {
 
   // Tool handlers
   static async handleTool(name: string, args: Record<string, unknown>) {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
     const suggestedParams = await algodClient.getTransactionParams().do();
 
     switch (name) {

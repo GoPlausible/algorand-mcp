@@ -8,7 +8,8 @@ import algosdk, {
   SuggestedParams
 } from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../../algorand-client.js';
+import { getAlgodClient, extractNetwork } from '../../algorand-client.js';
+import { withCommonParams } from '../commonParams.js';
 
 // Tool schemas
 export const assetTransactionSchemas = {
@@ -89,27 +90,27 @@ export const assetTransactionTools = [
   {
     name: 'make_asset_create_txn',
     description: 'Create an asset creation transaction',
-    inputSchema: assetTransactionSchemas.makeAssetCreateTxn,
+    inputSchema: withCommonParams(assetTransactionSchemas.makeAssetCreateTxn),
   },
   {
     name: 'make_asset_config_txn',
     description: 'Create an asset configuration transaction',
-    inputSchema: assetTransactionSchemas.makeAssetConfigTxn,
+    inputSchema: withCommonParams(assetTransactionSchemas.makeAssetConfigTxn),
   },
   {
     name: 'make_asset_destroy_txn',
     description: 'Create an asset destroy transaction',
-    inputSchema: assetTransactionSchemas.makeAssetDestroyTxn,
+    inputSchema: withCommonParams(assetTransactionSchemas.makeAssetDestroyTxn),
   },
   {
     name: 'make_asset_freeze_txn',
     description: 'Create an asset freeze transaction',
-    inputSchema: assetTransactionSchemas.makeAssetFreezeTxn,
+    inputSchema: withCommonParams(assetTransactionSchemas.makeAssetFreezeTxn),
   },
   {
     name: 'make_asset_transfer_txn',
     description: 'Create an asset transfer transaction',
-    inputSchema: assetTransactionSchemas.makeAssetTransferTxn,
+    inputSchema: withCommonParams(assetTransactionSchemas.makeAssetTransferTxn),
   }
 ];
 
@@ -202,6 +203,8 @@ export class AssetTransactionManager {
 
   // Tool handlers
   static async handleTool(name: string, args: Record<string, unknown>) {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
     const suggestedParams = await algodClient.getTransactionParams().do();
 
     switch (name) {

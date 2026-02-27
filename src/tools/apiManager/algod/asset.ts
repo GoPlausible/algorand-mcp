@@ -1,12 +1,13 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../../../algorand-client.js';
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 import type { Asset } from 'algosdk/dist/types/client/v2/algod/models/types';
 
 export const assetTools = [
   {
     name: 'api_algod_get_asset_by_id',
     description: 'Get current asset information from algod',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         assetId: {
@@ -15,12 +16,15 @@ export const assetTools = [
         }
       },
       required: ['assetId']
-    }
+    })
   }
 ];
 
-export async function getAssetByID(assetId: number): Promise<Asset> {
+export async function getAssetByID(assetId: number, args: any): Promise<Asset> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error(`Fetching asset info for ID ${assetId}`);
     const response = await algodClient.getAssetByID(assetId).do() as Asset;
     console.error('Asset response:', JSON.stringify(response, null, 2));
@@ -41,7 +45,7 @@ export async function handleAssetTools(name: string, args: any): Promise<any> {
   switch (name) {
     case 'api_algod_get_asset_by_id': {
       const { assetId } = args;
-      const info = await getAssetByID(assetId);
+      const info = await getAssetByID(assetId, args);
       return info;
     }
     default:

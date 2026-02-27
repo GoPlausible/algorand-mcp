@@ -1,6 +1,7 @@
 import { env } from '../../env.js';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import algosdk from 'algosdk';
+import { getAlgodClient } from '../../algorand-client.js';
 
 // Get account from mnemonic
 const getAccountFromMnemonic = () => {
@@ -121,14 +122,7 @@ export const walletResources = {
       case 'algorand://wallet/account':
         try {
           const account = getAccountFromMnemonic();
-          
-          // Get account info from algod
-          const algodClient = new algosdk.Algodv2(
-            env.algorand_token,
-            env.algorand_algod,
-            env.algorand_algod_port
-          );
-
+          const algodClient = getAlgodClient('mainnet');
           const accountInfo = await algodClient.accountInformation(account.addr).do();
 
           return {
@@ -154,15 +148,8 @@ export const walletResources = {
       case 'algorand://wallet/assets':
         try {
           const account = getAccountFromMnemonic();
-          
-          // Get account info from algod
-          const algodClient = new algosdk.Algodv2(
-            env.algorand_token,
-            env.algorand_algod,
-            env.algorand_algod_port
-          );
-
-          const accountInfo = await algodClient.accountInformation(account.addr).do();
+          const algodClient2 = getAlgodClient('mainnet');
+          const accountInfo = await algodClient2.accountInformation(account.addr).do();
 
           return {
             contents: [{

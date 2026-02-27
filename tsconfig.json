@@ -15,5 +15,5 @@
     "baseUrl": "."
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "tests", "**/*.test.ts", "src/tools/apiManager/vestige", "src/tools/apiManager/ultrade"]
 }

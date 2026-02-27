@@ -1,13 +1,13 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { generateOptIntoAssetTxns, generateOptIntoValidatorTxns, generateOptOutOfValidatorTxns, SupportedNetwork } from '@tinymanorg/tinyman-js-sdk';
-import { algodClient } from '../../../algorand-client.js';
-import { env } from '../../../env.js';
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 
 export const optInTools: Tool[] = [
   {
     name: 'api_tinyman_get_asset_optin_quote',
     description: 'Get quote for opting into a Tinyman pool token',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         assetId: {
@@ -20,12 +20,12 @@ export const optInTools: Tool[] = [
         }
       },
       required: ['assetId', 'initiatorAddr']
-    }
+    })
   },
   {
     name: 'api_tinyman_get_validator_optin_quote',
     description: 'Get quote for opting into Tinyman validator app',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         initiatorAddr: {
@@ -40,12 +40,12 @@ export const optInTools: Tool[] = [
         }
       },
       required: ['initiatorAddr']
-    }
+    })
   },
   {
     name: 'api_tinyman_get_validator_optout_quote',
     description: 'Get quote for opting out of Tinyman validator app',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         initiatorAddr: {
@@ -60,16 +60,24 @@ export const optInTools: Tool[] = [
         }
       },
       required: ['initiatorAddr']
-    }
+    })
   }
 ];
 
 export async function handleOptInTools(args: any): Promise<any> {
   const { name, initiatorAddr, version = 'v2' } = args;
 
+  const network = extractNetwork(args);
+  const algodClient = getAlgodClient(network);
+
+  if (network === 'localnet') {
+    throw new McpError(ErrorCode.InvalidRequest, 'Tinyman is not available on localnet');
+  }
+  const tinymanNetwork = network as SupportedNetwork;
+
   try {
     let quote;
-    
+
     if (name === 'api_tinyman_get_asset_optin_quote') {
       const { assetId } = args;
       quote = await generateOptIntoAssetTxns({
@@ -81,7 +89,7 @@ export async function handleOptInTools(args: any): Promise<any> {
     else if (name === 'api_tinyman_get_validator_optin_quote') {
       quote = await generateOptIntoValidatorTxns({
         client: algodClient,
-        network: env.algorand_network as SupportedNetwork,
+        network: tinymanNetwork,
         contractVersion: version,
         initiatorAddr
       });
@@ -89,7 +97,7 @@ export async function handleOptInTools(args: any): Promise<any> {
     else if (name === 'api_tinyman_get_validator_optout_quote') {
       quote = await generateOptOutOfValidatorTxns({
         client: algodClient,
-        network: env.algorand_network as SupportedNetwork,
+        network: tinymanNetwork,
         contractVersion: version,
         initiatorAddr
       });

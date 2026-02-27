@@ -6,8 +6,9 @@ import type {
   SimulateTraceConfig,
   PostTransactionsResponse
 } from 'algosdk/dist/types/client/v2/algod/models/types';
-import { algodClient } from '../algorand-client.js';
+import { getAlgodClient, extractNetwork } from '../algorand-client.js';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { withCommonParams } from './commonParams.js';
 
 // Tool schemas
 export const algodToolSchemas = {
@@ -82,39 +83,42 @@ export class AlgodManager {
     {
       name: 'compile_teal',
       description: 'Compile TEAL source code',
-      inputSchema: algodToolSchemas.compileTeal,
+      inputSchema: withCommonParams(algodToolSchemas.compileTeal),
     },
     {
       name: 'disassemble_teal',
       description: 'Disassemble TEAL bytecode back to source',
-      inputSchema: algodToolSchemas.disassembleTeal,
+      inputSchema: withCommonParams(algodToolSchemas.disassembleTeal),
     },
     {
       name: 'send_raw_transaction',
       description: 'Submit signed transactions to the Algorand network',
-      inputSchema: algodToolSchemas.sendRawTransaction,
+      inputSchema: withCommonParams(algodToolSchemas.sendRawTransaction),
     },
     {
       name: 'simulate_raw_transactions',
       description: 'Simulate raw transactions',
-      inputSchema: algodToolSchemas.simulateRawTransactions,
+      inputSchema: withCommonParams(algodToolSchemas.simulateRawTransactions),
     },
     {
       name: 'simulate_transactions',
       description: 'Simulate transactions with detailed configuration',
-      inputSchema: algodToolSchemas.simulateTransactions,
+      inputSchema: withCommonParams(algodToolSchemas.simulateTransactions),
     }
   ];
 
   // Tool handlers
   static async handleTool(name: string, args: Record<string, unknown>) {
     try {
+      const network = extractNetwork(args);
+      const algodClient = getAlgodClient(network);
+
       switch (name) {
       case 'compile_teal':
         if (!args.source || typeof args.source !== 'string') {
           throw new McpError(ErrorCode.InvalidParams, 'TEAL source code is required');
         }
-        const result = await AlgodManager.compile(args.source);
+        const result = await AlgodManager.compile(args.source, algodClient);
         return {
           content: [{
             type: 'text',
@@ -126,7 +130,7 @@ export class AlgodManager {
         if (!args.bytecode || typeof args.bytecode !== 'string') {
           throw new McpError(ErrorCode.InvalidParams, 'TEAL bytecode is required');
         }
-        const disassembled = await AlgodManager.disassemble(args.bytecode);
+        const disassembled = await AlgodManager.disassemble(args.bytecode, algodClient);
         return {
           content: [{
             type: 'text',
@@ -144,7 +148,7 @@ export class AlgodManager {
           }
           return algosdk.base64ToBytes(txn);
         });
-        const sent = await AlgodManager.sendRawTransaction(txns);
+        const sent = await AlgodManager.sendRawTransaction(txns, algodClient);
         return {
           content: [{
             type: 'text',
@@ -162,7 +166,7 @@ export class AlgodManager {
           }
           return algosdk.base64ToBytes(txn);
         });
-        const simulated = await AlgodManager.simulateRawTransactions(rawTxns);
+        const simulated = await AlgodManager.simulateRawTransactions(rawTxns, algodClient);
         return {
           content: [{
             type: 'text',
@@ -174,7 +178,7 @@ export class AlgodManager {
         if (!args.txnGroups || !Array.isArray(args.txnGroups)) {
           throw new McpError(ErrorCode.InvalidParams, 'Transaction groups array is required');
         }
-        const simulateResult = await AlgodManager.simulateTransactions(args as any);
+        const simulateResult = await AlgodManager.simulateTransactions(args as any, algodClient);
         return {
           content: [{
             type: 'text',
@@ -202,7 +206,7 @@ export class AlgodManager {
     }
   }
 
-  static async compile(source: string | Uint8Array): Promise<CompileResponse> {
+  static async compile(source: string | Uint8Array, algodClient: any): Promise<CompileResponse> {
     try {
       if (typeof source === 'string') {
         source = source.replace(/\r\n/g, '\n');
@@ -222,7 +226,7 @@ export class AlgodManager {
     }
   }
 
-  static async disassemble(bytecode: string | Uint8Array): Promise<DisassembleResponse> {
+  static async disassemble(bytecode: string | Uint8Array, algodClient: any): Promise<DisassembleResponse> {
     try {
       const response = await algodClient.disassemble(bytecode).do() as DisassembleResponse;
       return response;
@@ -235,7 +239,7 @@ export class AlgodManager {
     }
   }
 
-  static async sendRawTransaction(signedTxns: Uint8Array | Uint8Array[]): Promise<PostTransactionsResponse> {
+  static async sendRawTransaction(signedTxns: Uint8Array | Uint8Array[], algodClient: any): Promise<PostTransactionsResponse> {
     try {
       const response = await algodClient.sendRawTransaction(signedTxns).do() as PostTransactionsResponse;
       return response;
@@ -248,7 +252,7 @@ export class AlgodManager {
     }
   }
 
-  static async simulateRawTransactions(txns: Uint8Array | Uint8Array[]): Promise<SimulateResponse> {
+  static async simulateRawTransactions(txns: Uint8Array | Uint8Array[], algodClient: any): Promise<SimulateResponse> {
     try {
       const response = await algodClient.simulateRawTransactions(txns).do() as SimulateResponse;
       return response;
@@ -269,7 +273,7 @@ export class AlgodManager {
     execTraceConfig?: SimulateTraceConfig;
     extraOpcodeBudget?: number;
     round?: number;
-  }): Promise<SimulateResponse> {
+  }, algodClient: any): Promise<SimulateResponse> {
     try {
       const simulateRequest = new modelsv2.SimulateRequest({
         txnGroups: request.txnGroups.map(group =>

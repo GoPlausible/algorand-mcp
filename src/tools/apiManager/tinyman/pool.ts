@@ -1,13 +1,13 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { poolUtils, SupportedNetwork } from '@tinymanorg/tinyman-js-sdk';
-import { algodClient } from '../../../algorand-client.js';
-import { env } from '../../../env.js';
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 
 export const poolTools: Tool[] = [
   {
     name: 'api_tinyman_get_pool',
     description: 'Get Tinyman pool information by asset pair',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         asset1Id: {
@@ -26,31 +26,39 @@ export const poolTools: Tool[] = [
         }
       },
       required: ['asset1Id', 'asset2Id']
-    }
+    })
   }
 ];
 
 export async function handlePoolTools(args: any): Promise<any> {
-  const { 
-    name, 
-    asset1Id, 
+  const {
+    name,
+    asset1Id,
     asset2Id,
     version = 'v2'
   } = args;
 
+  const network = extractNetwork(args);
+  const algodClient = getAlgodClient(network);
+
+  if (network === 'localnet') {
+    throw new McpError(ErrorCode.InvalidRequest, 'Tinyman is not available on localnet');
+  }
+  const tinymanNetwork = network as SupportedNetwork;
+
   if (name === 'api_tinyman_get_pool') {
     try {
       // Get pool information
-      const poolInfo = await (version === 'v2' 
+      const poolInfo = await (version === 'v2'
         ? poolUtils.v2.getPoolInfo({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset1ID: asset1Id,
             asset2ID: asset2Id
           })
         : poolUtils.v1_1.getPoolInfo({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset1ID: asset1Id,
             asset2ID: asset2Id
           }));
@@ -65,12 +73,12 @@ export async function handlePoolTools(args: any): Promise<any> {
         ? poolUtils.v2.getPoolAssets({
             client: algodClient,
             address: poolInfo.account.address().toString(),
-            network: env.algorand_network as SupportedNetwork
+            network: tinymanNetwork
           })
         : poolUtils.v1_1.getPoolAssets({
             client: algodClient,
             address: poolInfo.account.address().toString(),
-            network: env.algorand_network as SupportedNetwork
+            network: tinymanNetwork
           }));
 
       const poolData = {

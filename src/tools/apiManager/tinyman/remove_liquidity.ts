@@ -1,24 +1,13 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { RemoveLiquidity, poolUtils, SupportedNetwork } from '@tinymanorg/tinyman-js-sdk';
-import { algodClient } from '../../../algorand-client.js';
-import { env } from '../../../env.js';
-
-async function getAssetDecimals(assetId: number): Promise<number> {
-  try {
-    if (assetId === 0) return 6; // Algo has 6 decimals
-    const assetInfo = await algodClient.getAssetByID(assetId).do();
-    return assetInfo.params.decimals;
-  } catch (error) {
-    console.error(`Failed to get decimals for asset ${assetId}:`, error);
-    return 6; // Default to 6 decimals if we can't get the info
-  }
-}
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 
 export const removeLiquidityTools: Tool[] = [
   {
     name: 'api_tinyman_get_remove_liquidity_quote',
     description: 'Get quote for removing liquidity from a pool',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         asset1Id: {
@@ -55,14 +44,14 @@ export const removeLiquidityTools: Tool[] = [
         }
       },
       required: ['asset1Id', 'asset2Id', 'poolTokenAmount', 'initiatorAddr']
-    }
+    })
   }
 ];
 
 export async function handleRemoveLiquidityTools(args: any): Promise<any> {
-  const { 
-    name, 
-    asset1Id, 
+  const {
+    name,
+    asset1Id,
     asset2Id,
     poolTokenAmount,
     initiatorAddr,
@@ -71,19 +60,38 @@ export async function handleRemoveLiquidityTools(args: any): Promise<any> {
     version = 'v2'
   } = args;
 
+  const network = extractNetwork(args);
+  const algodClient = getAlgodClient(network);
+
+  if (network === 'localnet') {
+    throw new McpError(ErrorCode.InvalidRequest, 'Tinyman is not available on localnet');
+  }
+  const tinymanNetwork = network as SupportedNetwork;
+
+  async function getAssetDecimals(assetId: number): Promise<number> {
+    try {
+      if (assetId === 0) return 6; // Algo has 6 decimals
+      const assetInfo = await algodClient.getAssetByID(assetId).do();
+      return assetInfo.params.decimals;
+    } catch (error) {
+      console.error(`Failed to get decimals for asset ${assetId}:`, error);
+      return 6; // Default to 6 decimals if we can't get the info
+    }
+  }
+
   if (name === 'api_tinyman_get_remove_liquidity_quote') {
     try {
       // Get pool information first
-      const poolInfo = await (version === 'v2' 
+      const poolInfo = await (version === 'v2'
         ? poolUtils.v2.getPoolInfo({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset1ID: asset1Id,
             asset2ID: asset2Id
           })
         : poolUtils.v1_1.getPoolInfo({
             client: algodClient,
-            network: env.algorand_network as SupportedNetwork,
+            network: tinymanNetwork,
             asset1ID: asset1Id,
             asset2ID: asset2Id
           }));

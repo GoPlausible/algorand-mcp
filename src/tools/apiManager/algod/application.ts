@@ -1,6 +1,7 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../../../algorand-client.js';
-import type { 
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
+import type {
   Application,
   Box,
   BoxesResponse
@@ -11,7 +12,7 @@ export const applicationTools = [
   {
     name: 'api_algod_get_application_by_id',
     description: 'Get application information',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         appId: {
@@ -20,12 +21,12 @@ export const applicationTools = [
         }
       },
       required: ['appId']
-    }
+    })
   },
   {
     name: 'api_algod_get_application_box',
     description: 'Get application box by name',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         appId: {
@@ -38,12 +39,12 @@ export const applicationTools = [
         }
       },
       required: ['appId', 'boxName']
-    }
+    })
   },
   {
     name: 'api_algod_get_application_boxes',
     description: 'Get all application boxes',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         appId: {
@@ -56,12 +57,15 @@ export const applicationTools = [
         }
       },
       required: ['appId']
-    }
+    })
   }
 ];
 
-export async function getApplicationByID(appId: number): Promise<any> {
+export async function getApplicationByID(appId: number, args: any): Promise<any> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error(`Fetching application info for ID ${appId}`);
     const response = await algodClient.getApplicationByID(appId).do() as any;
     console.error('Application response:', JSON.stringify(response, null, 2));
@@ -78,8 +82,11 @@ export async function getApplicationByID(appId: number): Promise<any> {
   }
 }
 
-export async function getApplicationBoxByName(appId: number, boxName: string): Promise<Box> {
+export async function getApplicationBoxByName(appId: number, boxName: string, args: any): Promise<Box> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     const encoder = new TextEncoder();
     let boxNameBytes: Uint8Array;
 
@@ -126,8 +133,11 @@ export async function getApplicationBoxByName(appId: number, boxName: string): P
   }
 }
 
-export async function getApplicationBoxes(appId: number, maxBoxes?: number): Promise<any> {
+export async function getApplicationBoxes(appId: number, args: any, maxBoxes?: number): Promise<any> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error(`Fetching boxes for application ${appId}`);
     let search = algodClient.getApplicationBoxes(appId);
     if (maxBoxes !== undefined) {
@@ -155,17 +165,17 @@ export async function handleApplicationTools(name: string, args: any): Promise<a
   switch (name) {
     case 'api_algod_get_application_by_id': {
       const { appId } = args;
-      const info = await getApplicationByID(appId);
+      const info = await getApplicationByID(appId, args);
       return info;
     }
     case 'api_algod_get_application_box': {
       const { appId, boxName } = args;
-      const box = await getApplicationBoxByName(appId, boxName);
+      const box = await getApplicationBoxByName(appId, boxName, args);
       return box;
     }
     case 'api_algod_get_application_boxes': {
       const { appId, maxBoxes } = args;
-      const boxes = await getApplicationBoxes(appId, maxBoxes);
+      const boxes = await getApplicationBoxes(appId, args, maxBoxes);
       return boxes;
     }
     default:

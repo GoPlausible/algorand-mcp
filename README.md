@@ -61,16 +61,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   "mcpServers": {
     "algorand-mcp": {
       "command": "node",
-      "args": ["/absolute/path/to/algorand-mcp/dist/index.js"],
-      "env": {
-        "ALGORAND_NETWORK": "testnet",
-        "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
-        "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
-        "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
-        "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
-        "NFD_API_URL": "https://api.nf.domains",
-        "ITEMS_PER_PAGE": "10"
-      }
+      "args": ["/absolute/path/to/algorand-mcp/dist/index.js"]
     }
   }
 }
@@ -86,16 +77,7 @@ Create `.mcp.json` in your project root (project scope) or configure in `~/.clau
     "algorand-mcp": {
       "type": "stdio",
       "command": "node",
-      "args": ["/absolute/path/to/algorand-mcp/dist/index.js"],
-      "env": {
-        "ALGORAND_NETWORK": "testnet",
-        "ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
-        "ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
-        "ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
-        "ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2",
-        "NFD_API_URL": "https://api.nf.domains",
-        "ITEMS_PER_PAGE": "10"
-      }
+      "args": ["/absolute/path/to/algorand-mcp/dist/index.js"]
     }
   }
 }
@@ -113,76 +95,40 @@ If you installed globally via `npm install -g algorand-mcp`, you can use the bin
 {
   "mcpServers": {
     "algorand-mcp": {
-      "command": "algorand-mcp",
-      "env": {
-        "ALGORAND_NETWORK": "mainnet",
-        "ALGORAND_ALGOD": "https://mainnet-api.algonode.cloud",
-        "ALGORAND_ALGOD_API": "https://mainnet-api.algonode.cloud/v2",
-        "ALGORAND_INDEXER": "https://mainnet-idx.algonode.cloud",
-        "ALGORAND_INDEXER_API": "https://mainnet-idx.algonode.cloud/v2",
-        "NFD_API_URL": "https://api.nf.domains",
-        "ITEMS_PER_PAGE": "10"
-      }
+      "command": "algorand-mcp"
     }
   }
 }
 ```
 
-## Environment Variables
+That's it — **no environment variables are required** for standard use. Network selection, pagination, and node URLs are all handled dynamically.
 
-All configuration is passed via environment variables in your MCP config. No `.env` file is needed.
+## Network Selection
 
-### Required
+Every tool accepts an optional `network` parameter: `"mainnet"` (default), `"testnet"`, or `"localnet"`. Algod and Indexer URLs are built-in for mainnet and testnet via [AlgoNode](https://algonode.io/).
 
-| Variable | Description | Example |
-|---|---|---|
-| `ALGORAND_NETWORK` | Network name | `testnet`, `mainnet` |
-| `ALGORAND_ALGOD` | Algod node base URL | `https://testnet-api.algonode.cloud` |
-| `ALGORAND_ALGOD_API` | Algod API URL (with version) | `https://testnet-api.algonode.cloud/v2` |
-| `ALGORAND_INDEXER` | Indexer base URL | `https://testnet-idx.algonode.cloud` |
-| `ALGORAND_INDEXER_API` | Indexer API URL (with version) | `https://testnet-idx.algonode.cloud/v2` |
-
-### Optional
-
-| Variable | Description | Default |
-|---|---|---|
-| `ALGORAND_TOKEN` | API token for private nodes | `""` |
-| `ALGORAND_ALGOD_PORT` | Custom Algod port | `""` |
-| `ALGORAND_INDEXER_PORT` | Custom Indexer port | `""` |
-| `ALGORAND_AGENT_WALLET` | Agent wallet mnemonic (25 words) | `""` |
-| `NFD_API_URL` | NFDomains API endpoint | `https://api.nf.domains` |
-| `ITEMS_PER_PAGE` | Pagination page size | `5` |
-
-### Network presets
-
-**Testnet** (default):
+Example tool call:
 ```json
-"ALGORAND_ALGOD": "https://testnet-api.algonode.cloud",
-"ALGORAND_ALGOD_API": "https://testnet-api.algonode.cloud/v2",
-"ALGORAND_INDEXER": "https://testnet-idx.algonode.cloud",
-"ALGORAND_INDEXER_API": "https://testnet-idx.algonode.cloud/v2"
+{ "name": "api_algod_get_account_info", "arguments": { "address": "ABC...", "network": "testnet" } }
 ```
 
-**Mainnet**:
-```json
-"ALGORAND_ALGOD": "https://mainnet-api.algonode.cloud",
-"ALGORAND_ALGOD_API": "https://mainnet-api.algonode.cloud/v2",
-"ALGORAND_INDEXER": "https://mainnet-idx.algonode.cloud",
-"ALGORAND_INDEXER_API": "https://mainnet-idx.algonode.cloud/v2"
-```
+If no `network` is provided, tools default to **mainnet**.
 
-**Localnet** (AlgoKit):
-```json
-"ALGORAND_ALGOD": "http://localhost:4001",
-"ALGORAND_ALGOD_API": "http://localhost:4001/v2",
-"ALGORAND_INDEXER": "http://localhost:8980",
-"ALGORAND_INDEXER_API": "http://localhost:8980/v2",
-"ALGORAND_TOKEN": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-```
+## Pagination
 
-### Minimal configuration
+API responses are automatically paginated. Every tool accepts an optional `itemsPerPage` parameter (default: 10). Pass the `pageToken` from a previous response to fetch the next page.
 
-If you only need read-only blockchain access (no wallet, no DeFi integrations):
+## Optional Environment Variables
+
+Environment variables are only needed for special setups. Pass them via the `env` block in your MCP config.
+
+| Variable | Description | Default | When needed |
+|---|---|---|---|
+| `ALGORAND_AGENT_WALLET` | Agent wallet mnemonic (25 words) | `""` | To use wallet resources (`algorand://wallet/*`) |
+| `ALGORAND_TOKEN` | API token for private/authenticated nodes | `""` | Connecting to a private Algod/Indexer node |
+| `ALGORAND_LOCALNET_URL` | Localnet base URL | `""` | Using `network: "localnet"` (e.g. `http://localhost:4001`) |
+
+### Example: with agent wallet
 
 ```json
 {
@@ -191,16 +137,31 @@ If you only need read-only blockchain access (no wallet, no DeFi integrations):
       "command": "node",
       "args": ["/path/to/algorand-mcp/dist/index.js"],
       "env": {
-        "ALGORAND_NETWORK": "mainnet",
-        "ALGORAND_ALGOD": "https://mainnet-api.algonode.cloud",
-        "ALGORAND_ALGOD_API": "https://mainnet-api.algonode.cloud/v2",
-        "ALGORAND_INDEXER": "https://mainnet-idx.algonode.cloud",
-        "ALGORAND_INDEXER_API": "https://mainnet-idx.algonode.cloud/v2"
+        "ALGORAND_AGENT_WALLET": "your twenty five word mnemonic phrase here ..."
       }
     }
   }
 }
 ```
+
+### Example: localnet (AlgoKit)
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "node",
+      "args": ["/path/to/algorand-mcp/dist/index.js"],
+      "env": {
+        "ALGORAND_LOCALNET_URL": "http://localhost:4001",
+        "ALGORAND_TOKEN": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    }
+  }
+}
+```
+
+Then use `"network": "localnet"` in your tool calls.
 
 ## Available Tools
 
@@ -388,13 +349,15 @@ The server exposes MCP resources for direct data access:
 algorand-mcp/
 ├── src/                         # TypeScript source
 │   ├── index.ts                 # Server entry point
-│   ├── env.ts                   # Environment configuration
-│   ├── algorand-client.ts       # Algod/Indexer client setup
+│   ├── networkConfig.ts          # Hardcoded network URLs and client factories
+│   ├── algorand-client.ts       # Re-exports from networkConfig
+│   ├── env.ts                   # Minimal env config (wallet only)
 │   ├── types.ts                 # Shared types (Zod schemas)
 │   ├── resources/               # MCP Resources
 │   │   ├── knowledge/           # Documentation taxonomy
 │   │   └── wallet/              # Wallet resources
 │   ├── tools/                   # MCP Tools
+│   │   ├── commonParams.ts      # Network + pagination schema fragments
 │   │   ├── accountManager.ts    # Account operations
 │   │   ├── utilityManager.ts    # Utility functions
 │   │   ├── algodManager.ts      # TEAL compile, simulate, submit
@@ -410,8 +373,6 @@ algorand-mcp/
 │   │       ├── indexer/         # Indexer API
 │   │       ├── nfd/             # NFDomains
 │   │       ├── tinyman/         # Tinyman AMM
-│   │       ├── vestige/         # Vestige analytics
-│   │       ├── ultrade/         # Ultrade DEX
 │   │       └── example/         # Example tools
 │   └── utils/
 │       └── responseProcessor.ts # Pagination and formatting
@@ -422,7 +383,7 @@ algorand-mcp/
 
 ## Response Format
 
-All tool responses follow the MCP content format. API responses include automatic pagination:
+All tool responses follow the MCP content format. API responses include automatic pagination when datasets exceed `itemsPerPage` (default 10):
 
 ```json
 {
@@ -438,7 +399,7 @@ All tool responses follow the MCP content format. API responses include automati
 }
 ```
 
-Pass `pageToken` from a previous response to fetch the next page.
+Pass `pageToken` from a previous response to fetch the next page. Set `itemsPerPage` on any tool call to control page size.
 
 ## Development
 

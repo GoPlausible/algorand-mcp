@@ -1,5 +1,6 @@
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { algodClient } from '../../../algorand-client.js';
+import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
+import { withCommonParams } from '../../commonParams.js';
 import type {
   PendingTransactionResponse,
   NodeStatusResponse,
@@ -11,7 +12,7 @@ export const transactionTools = [
   {
     name: 'api_algod_get_pending_transaction',
     description: 'Get pending transaction information',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         txId: {
@@ -20,12 +21,12 @@ export const transactionTools = [
         }
       },
       required: ['txId']
-    }
+    })
   },
   {
     name: 'api_algod_get_pending_transactions_by_address',
     description: 'Get pending transactions for an address',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         address: {
@@ -34,12 +35,12 @@ export const transactionTools = [
         }
       },
       required: ['address']
-    }
+    })
   },
   {
     name: 'api_algod_get_pending_transactions',
     description: 'Get all pending transactions',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         maxTxns: {
@@ -47,28 +48,28 @@ export const transactionTools = [
           description: 'Maximum number of transactions to return'
         }
       }
-    }
+    })
   },
   {
     name: 'api_algod_get_transaction_params',
     description: 'Get suggested transaction parameters',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {}
-    }
+    })
   },
   {
     name: 'api_algod_get_node_status',
     description: 'Get current node status',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {}
-    }
+    })
   },
   {
     name: 'api_algod_get_node_status_after_block',
     description: 'Get node status after a specific round',
-    inputSchema: {
+    inputSchema: withCommonParams({
       type: 'object',
       properties: {
         round: {
@@ -77,12 +78,15 @@ export const transactionTools = [
         }
       },
       required: ['round']
-    }
+    })
   }
 ];
 
-export async function getPendingTransaction(txId: string): Promise<PendingTransactionResponse> {
+export async function getPendingTransaction(txId: string, args: any): Promise<PendingTransactionResponse> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error(`Fetching pending transaction info for ID ${txId}`);
     const response = await algodClient.pendingTransactionInformation(txId).do() as PendingTransactionResponse;
     console.error('Pending transaction response:', JSON.stringify(response, null, 2));
@@ -99,8 +103,11 @@ export async function getPendingTransaction(txId: string): Promise<PendingTransa
   }
 }
 
-export async function getPendingTransactionsByAddress(address: string): Promise<PendingTransactionsResponse> {
+export async function getPendingTransactionsByAddress(address: string, args: any): Promise<PendingTransactionsResponse> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error(`Fetching pending transactions for address ${address}`);
     const response = await algodClient.pendingTransactionByAddress(address).do() as PendingTransactionsResponse;
     console.error('Pending transactions response:', JSON.stringify(response, null, 2));
@@ -117,8 +124,11 @@ export async function getPendingTransactionsByAddress(address: string): Promise<
   }
 }
 
-export async function getPendingTransactions(maxTxns?: number): Promise<PendingTransactionsResponse> {
+export async function getPendingTransactions(args: any, maxTxns?: number): Promise<PendingTransactionsResponse> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error('Fetching all pending transactions');
     let search = algodClient.pendingTransactionsInformation();
     if (maxTxns !== undefined) {
@@ -139,8 +149,11 @@ export async function getPendingTransactions(maxTxns?: number): Promise<PendingT
   }
 }
 
-export async function getTransactionParams(): Promise<SuggestedParams> {
+export async function getTransactionParams(args: any): Promise<SuggestedParams> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error('Fetching transaction parameters');
     const response = await algodClient.getTransactionParams().do();
     console.error('Transaction parameters response:', JSON.stringify(response, null, 2));
@@ -157,8 +170,11 @@ export async function getTransactionParams(): Promise<SuggestedParams> {
   }
 }
 
-export async function getNodeStatus(): Promise<NodeStatusResponse> {
+export async function getNodeStatus(args: any): Promise<NodeStatusResponse> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error('Fetching node status');
     const response = await algodClient.status().do() as NodeStatusResponse;
     console.error('Node status response:', JSON.stringify(response, null, 2));
@@ -175,8 +191,11 @@ export async function getNodeStatus(): Promise<NodeStatusResponse> {
   }
 }
 
-export async function getNodeStatusAfterBlock(round: number): Promise<NodeStatusResponse> {
+export async function getNodeStatusAfterBlock(round: number, args: any): Promise<NodeStatusResponse> {
   try {
+    const network = extractNetwork(args);
+    const algodClient = getAlgodClient(network);
+
     console.error(`Fetching node status after round ${round}`);
     const response = await algodClient.statusAfterBlock(round).do() as NodeStatusResponse;
     console.error('Node status response:', JSON.stringify(response, null, 2));
@@ -197,30 +216,30 @@ export async function handleTransactionTools(name: string, args: any): Promise<a
   switch (name) {
     case 'api_algod_get_pending_transaction': {
       const { txId } = args;
-      const info = await getPendingTransaction(txId);
+      const info = await getPendingTransaction(txId, args);
       return info;
     }
     case 'api_algod_get_pending_transactions_by_address': {
       const { address } = args;
-      const info = await getPendingTransactionsByAddress(address);
+      const info = await getPendingTransactionsByAddress(address, args);
       return info;
     }
     case 'api_algod_get_pending_transactions': {
       const { maxTxns } = args;
-      const info = await getPendingTransactions(maxTxns);
+      const info = await getPendingTransactions(args, maxTxns);
       return info;
     }
     case 'api_algod_get_transaction_params': {
-      const params = await getTransactionParams();
+      const params = await getTransactionParams(args);
       return params;
     }
     case 'api_algod_get_node_status': {
-      const nodeStatus = await getNodeStatus();
+      const nodeStatus = await getNodeStatus(args);
       return nodeStatus;
     }
     case 'api_algod_get_node_status_after_block': {
       const { round } = args;
-      const nodeStatus = await getNodeStatusAfterBlock(round);
+      const nodeStatus = await getNodeStatusAfterBlock(round, args);
       return nodeStatus;
     }
     default:
