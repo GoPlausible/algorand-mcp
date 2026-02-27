@@ -1,8 +1,9 @@
 export { AccountManager } from './accountManager.js';
+export { WalletManager } from './walletManager.js';
 export { KnowledgeManager } from './knowledgeManager.js';
 export { arc26Manager } from './arc26Manager.js';
 export { UtilityManager } from './utilityManager.js';
-export { 
+export {
   TransactionManager,
   AccountTransactionManager,
   AssetTransactionManager,

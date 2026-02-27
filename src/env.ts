@@ -1,10 +1,5 @@
-// Minimal environment config — most settings are now per-tool-call args
-// or hardcoded in networkConfig.ts
+// This file is kept for backwards compatibility with vestige/ultrade modules.
+// All configuration is now handled by networkConfig.ts and per-tool-call args.
+// The OS keychain (via @napi-rs/keyring) replaces ALGORAND_AGENT_WALLET.
 
-export const env = {
-  // Agent wallet mnemonic (will move to keychain in a future phase)
-  algorand_agent_wallet: process.env.ALGORAND_AGENT_WALLET || '',
-
-  // NFDomains
-  nfd_api_url: process.env.NFD_API_URL || 'https://api.nf.domains',
-};
+export const env = {};

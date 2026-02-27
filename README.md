@@ -14,6 +14,7 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 
 ## Features
 
+- Secure wallet management via OS keychain — private keys never exposed to agents or LLMs
 - Account creation, key management, and rekeying
 - Transaction building, signing, and submission (payments, assets, applications, key registration)
 - Atomic transaction groups
@@ -23,8 +24,7 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 - Tinyman AMM integration (pools, swaps, liquidity)
 - ARC-26 URI and QR code generation
 - Algorand knowledge base with full developer documentation taxonomy
-- Paginated responses for large datasets
-- Wallet resources for agent-managed accounts
+- Per-tool-call network selection (mainnet, testnet, localnet) and pagination
 
 ## Requirements
 
@@ -118,31 +118,74 @@ If no `network` is provided, tools default to **mainnet**.
 
 API responses are automatically paginated. Every tool accepts an optional `itemsPerPage` parameter (default: 10). Pass the `pageToken` from a previous response to fetch the next page.
 
+## Secure Wallet
+
+### Architecture
+
+The wallet system has two layers of storage, each with a distinct security role:
+
+| Layer | What it stores | Where | Encryption |
+|---|---|---|---|
+| **OS Keychain** | Mnemonics (secret keys) | macOS Keychain / Linux libsecret / Windows Credential Manager | OS-managed, hardware-backed where available |
+| **Embedded SQLite** | Account metadata (nicknames, allowances, spend tracking) | `~/.algorand-mcp/wallet.db` | Plaintext (no secrets) |
+
+**Private key material never appears in tool responses, MCP config files, environment variables, or logs.** The agent only sees addresses, public keys, and signed transaction blobs.
+
+### How it works
+
+```
+  Agent (LLM)                    MCP Server                     Storage
+  ──────────                     ──────────                     ───────
+       │                              │                              │
+       │  wallet_add_account          │                              │
+       │  { nickname: "main" }        │                              │
+       │ ──────────────────────────►  │  generate keypair            │
+       │                              │  store mnemonic ──────────►  │  OS Keychain (encrypted)
+       │                              │  store metadata ──────────►  │  SQLite (nickname, limits)
+       │  ◄─ { address, publicKey }   │                              │
+       │                              │                              │
+       │  wallet_sign_transaction     │                              │
+       │  { transaction: {...} }      │                              │
+       │ ──────────────────────────►  │  check spending limits       │
+       │                              │  retrieve mnemonic ◄──────  │  OS Keychain
+       │                              │  sign in memory              │
+       │  ◄─ { txID, blob }          │  (key discarded)             │
+       │                              │                              │
+```
+
+1. **Account creation** (`wallet_add_account`) — Generates a keypair (or imports a mnemonic), stores the mnemonic in the OS keychain, and stores metadata (nickname, spending limits) in SQLite. Returns **only** address and public key.
+2. **Active account** — One account is active at a time. `wallet_switch_account` changes it by nickname or index. All signing and query tools operate on the active account.
+3. **Transaction signing** (`wallet_sign_transaction`) — Checks per-transaction and daily spending limits, retrieves the key from the keychain, signs in memory, discards the key. Returns only the signed blob.
+4. **Data signing** (`wallet_sign_data`) — Signs arbitrary hex data using raw Ed25519 via the [`@noble/curves`](https://github.com/paulmillr/noble-curves) library (no Algorand SDK prefix). Useful for off-chain authentication.
+5. **Asset opt-in** (`wallet_optin_asset`) — Creates, signs, and submits an opt-in transaction for the active account in one step.
+
+### Spending limits
+
+Each account has two configurable limits (in microAlgos, 0 = unlimited):
+
+- **`allowance`** — Maximum amount per single transaction. Rejects any transaction exceeding this.
+- **`dailyAllowance`** — Maximum total spend per calendar day across all transactions. Automatically resets at midnight. Tracked in SQLite.
+
+### Platform keychain support
+
+The keychain backend is provided by [`@napi-rs/keyring`](https://github.com/nicolo-ribaudo/napi-keyring) (Rust-based, prebuilt binaries):
+
+| Platform | Backend |
+|---|---|
+| macOS | Keychain Services (the system Keychain app) |
+| Linux | libsecret (GNOME Keyring) or KWallet |
+| Windows | Windows Credential Manager |
+
+All credentials are stored under the service name `algorand-mcp`. You can inspect them with your OS keychain app (e.g. Keychain Access on macOS).
+
 ## Optional Environment Variables
 
 Environment variables are only needed for special setups. Pass them via the `env` block in your MCP config.
 
 | Variable | Description | Default | When needed |
 |---|---|---|---|
-| `ALGORAND_AGENT_WALLET` | Agent wallet mnemonic (25 words) | `""` | To use wallet resources (`algorand://wallet/*`) |
 | `ALGORAND_TOKEN` | API token for private/authenticated nodes | `""` | Connecting to a private Algod/Indexer node |
 | `ALGORAND_LOCALNET_URL` | Localnet base URL | `""` | Using `network: "localnet"` (e.g. `http://localhost:4001`) |
-
-### Example: with agent wallet
-
-```json
-{
-  "mcpServers": {
-    "algorand-mcp": {
-      "command": "node",
-      "args": ["/path/to/algorand-mcp/dist/index.js"],
-      "env": {
-        "ALGORAND_AGENT_WALLET": "your twenty five word mnemonic phrase here ..."
-      }
-    }
-  }
-}
-```
 
 ### Example: localnet (AlgoKit)
 
@@ -165,11 +208,28 @@ Then use `"network": "localnet"` in your tool calls.
 
 ## Available Tools
 
+### Wallet Tools (10 tools)
+
+See [Secure Wallet](#secure-wallet) for full architecture details.
+
+| Tool | Description |
+|---|---|
+| `wallet_add_account` | Create or import an account with nickname and spending limits (returns address + public key only) |
+| `wallet_remove_account` | Remove an account from the wallet by nickname or index |
+| `wallet_list_accounts` | List all accounts with nicknames, addresses, and limits |
+| `wallet_switch_account` | Switch the active account by nickname or index |
+| `wallet_get_info` | Get active account info: address, public key, balance, and spending limits |
+| `wallet_get_assets` | Get all asset holdings for the active account |
+| `wallet_sign_transaction` | Sign a single transaction with the active account (enforces spending limits) |
+| `wallet_sign_transaction_group` | Sign a group of transactions with the active account (auto-assigns group ID) |
+| `wallet_sign_data` | Sign arbitrary hex data with raw Ed25519 (noble, no SDK prefix) |
+| `wallet_optin_asset` | Opt the active account into an asset (creates, signs, and submits) |
+
 ### Account Management (8 tools)
 
 | Tool | Description |
 |---|---|
-| `create_account` | Create a new Algorand account |
+| `create_account` | Create a new Algorand account (returns address + mnemonic in the clear) |
 | `rekey_account` | Rekey an account to a new address |
 | `mnemonic_to_mdk` | Convert mnemonic to master derivation key |
 | `mdk_to_mnemonic` | Convert master derivation key to mnemonic |
@@ -304,26 +364,10 @@ Then use `"network": "localnet"` in your tool calls.
 |---|---|
 | `get_knowledge_doc` | Get markdown content for Algorand knowledge documents |
 
-### Example Tools (1 tool)
-
-| Tool | Description |
-|---|---|
-| `api_example_get_balance` | Get account balance and assets |
 
 ## Resources
 
-The server exposes MCP resources for direct data access:
-
-### Wallet Resources (requires `ALGORAND_AGENT_WALLET`)
-
-| URI | Description |
-|---|---|
-| `algorand://wallet/address` | Wallet address |
-| `algorand://wallet/publickey` | Wallet public key |
-| `algorand://wallet/secretkey` | Wallet secret key |
-| `algorand://wallet/mnemonic` | Wallet mnemonic |
-| `algorand://wallet/account` | Account balance and assets |
-| `algorand://wallet/assets` | Asset holdings |
+The server exposes MCP resources for direct data access. Wallet resources are described in the [Secure Wallet](#secure-wallet) section above.
 
 ### Knowledge Resources
 
@@ -351,13 +395,14 @@ algorand-mcp/
 │   ├── index.ts                 # Server entry point
 │   ├── networkConfig.ts          # Hardcoded network URLs and client factories
 │   ├── algorand-client.ts       # Re-exports from networkConfig
-│   ├── env.ts                   # Minimal env config (wallet only)
+│   ├── env.ts                   # Legacy env shim (unused)
 │   ├── types.ts                 # Shared types (Zod schemas)
 │   ├── resources/               # MCP Resources
 │   │   ├── knowledge/           # Documentation taxonomy
 │   │   └── wallet/              # Wallet resources
 │   ├── tools/                   # MCP Tools
 │   │   ├── commonParams.ts      # Network + pagination schema fragments
+│   │   ├── walletManager.ts     # Secure wallet (keychain + SQLite)
 │   │   ├── accountManager.ts    # Account operations
 │   │   ├── utilityManager.ts    # Utility functions
 │   │   ├── algodManager.ts      # TEAL compile, simulate, submit
@@ -421,6 +466,9 @@ npm run clean
 
 - [algosdk](https://github.com/algorand/js-algorand-sdk) v3 — Algorand JavaScript SDK
 - [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk) — MCP TypeScript SDK
+- [@napi-rs/keyring](https://github.com/nicolo-ribaudo/napi-keyring) — Native OS keychain access (macOS Keychain, Linux libsecret, Windows Credential Manager)
+- [sql.js](https://github.com/sql-js/sql.js) — Embedded SQLite (WASM) for wallet metadata persistence
+- [@noble/curves](https://github.com/paulmillr/noble-curves) — Pure JS Ed25519 for raw data signing (`wallet_sign_data`)
 - [@tinymanorg/tinyman-js-sdk](https://github.com/tinymanorg/tinyman-js-sdk) — Tinyman AMM SDK
 - [zod](https://github.com/colinhacks/zod) — Runtime type validation
 - [qrcode](https://github.com/soldair/node-qrcode) — QR code generation for ARC-26

@@ -127,64 +127,36 @@ export class GeneralTransactionManager {
 
       case 'sign_transaction': {
         if (!args.transaction || typeof args.transaction !== 'object' || !args.sk || typeof args.sk !== 'string') {
-          throw new McpError(ErrorCode.InvalidParams, 'Invalid sign transaction parameters');
+          throw new McpError(ErrorCode.InvalidParams, 'Transaction object and sk (secret key hex) are required');
         }
 
         try {
           const transaction = args.transaction as any;
 
-          // Convert base64 fields
           if (transaction.note) {
             transaction.note = algosdk.base64ToBytes(transaction.note);
           }
 
-          // Handle application-specific fields
           if (transaction.type === 'appl') {
-            // Set approval program
             if (transaction.approvalProgram) {
-              const approvalBytes = algosdk.base64ToBytes(transaction.approvalProgram);
-              transaction.appApprovalProgram = new Uint8Array(approvalBytes);
+              transaction.appApprovalProgram = new Uint8Array(algosdk.base64ToBytes(transaction.approvalProgram));
             }
-
-            // Set clear program
             if (transaction.clearProgram) {
-              const clearBytes = algosdk.base64ToBytes(transaction.clearProgram);
-              transaction.appClearProgram = new Uint8Array(clearBytes);
+              transaction.appClearProgram = new Uint8Array(algosdk.base64ToBytes(transaction.clearProgram));
             }
-
-            // Set schema
-
-            if (transaction.numGlobalInts !== undefined) {
-              transaction.appGlobalInts = transaction.numGlobalInts;
-            }
-            if (transaction.numGlobalByteSlices !== undefined) {
-              transaction.appGlobalByteSlices = transaction.numGlobalByteSlices;
-            }
-            if (transaction.numLocalInts !== undefined) {
-              transaction.appLocalInts = transaction.numLocalInts;
-            }
-            if (transaction.numLocalByteSlices !== undefined) {
-              transaction.appLocalByteSlices = transaction.numLocalByteSlices;
-            }
-            if(transaction.onComplete)transaction.appOnComplete = transaction.onComplete;
-
-            // Set optional arrays
+            if (transaction.numGlobalInts !== undefined) transaction.appGlobalInts = transaction.numGlobalInts;
+            if (transaction.numGlobalByteSlices !== undefined) transaction.appGlobalByteSlices = transaction.numGlobalByteSlices;
+            if (transaction.numLocalInts !== undefined) transaction.appLocalInts = transaction.numLocalInts;
+            if (transaction.numLocalByteSlices !== undefined) transaction.appLocalByteSlices = transaction.numLocalByteSlices;
+            if (transaction.onComplete) transaction.appOnComplete = transaction.onComplete;
             if (transaction.appArgs) {
-              transaction.appArgs = transaction.appArgs.map((arg: string) =>
-                algosdk.base64ToBytes(arg)
-              );
+              transaction.appArgs = transaction.appArgs.map((arg: string) => algosdk.base64ToBytes(arg));
             }
-            if (transaction.accounts) {
-              transaction.appAccounts = transaction.accounts;
-            }
-            if (transaction.foreignApps) {
-              transaction.appForeignApps = transaction.foreignApps;
-            }
-            if (transaction.foreignAssets) {
-              transaction.appForeignAssets = transaction.foreignAssets;
-            }
+            if (transaction.accounts) transaction.appAccounts = transaction.accounts;
+            if (transaction.foreignApps) transaction.appForeignApps = transaction.foreignApps;
+            if (transaction.foreignAssets) transaction.appForeignAssets = transaction.foreignAssets;
           }
-          // Convert hex string secret key to Uint8Array
+
           const sk = algosdk.hexToBytes(args.sk);
           const signedTxn = algosdk.signTransaction(new algosdk.Transaction(transaction), sk);
           return {

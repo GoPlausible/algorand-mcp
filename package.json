@@ -30,20 +30,24 @@
     "@types/jest": "29.5.12",
     "@types/node": "^20.0.0",
     "@types/qrcode": "^1.5.5",
+    "@types/sql.js": "^1.4.9",
     "jest": "29.7.0",
     "ts-jest": "29.1.2",
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.27.1",
     "@cf-wasm/photon": "^0.1.31",
     "@juit/qrcode": "^1.0.59",
-    "just-pick": "^4.2.0",
-    "zod": "^3.25.61",
-    "algosdk": "^3.5.2",
-    "qrcode": "^1.5.4",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@napi-rs/keyring": "^1.2.0",
+    "@noble/curves": "^2.0.1",
+    "@tinymanorg/tinyman-js-sdk": "^5.1.2",
     "algo-msgpack-with-bigint": "^2.1.1",
+    "algosdk": "^3.5.2",
     "hi-base32": "^0.5.1",
-    "@tinymanorg/tinyman-js-sdk": "^5.1.2"
+    "just-pick": "^4.2.0",
+    "qrcode": "^1.5.4",
+    "sql.js": "^1.14.0",
+    "zod": "^3.25.61"
   }
 }

@@ -12,6 +12,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import {
   AccountManager,
+  WalletManager,
   UtilityManager,
   TransactionManager,
   AlgodManager,
@@ -102,6 +103,8 @@ class AlgorandMcpServer {
       tools: [
         // Account Management Tools
         ...AccountManager.accountTools,
+        // Wallet Tools
+        ...WalletManager.walletTools,
         // Utility Tools
         ...UtilityManager.utilityTools,
         // Algod Tools
@@ -120,6 +123,11 @@ class AlgorandMcpServer {
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args = {} } = request.params;
+
+      // Handle wallet tools
+      if (name.startsWith('wallet_')) {
+        return WalletManager.handleTool(name, args);
+      }
 
       // Handle account tools
       if (
