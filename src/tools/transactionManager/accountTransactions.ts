@@ -150,7 +150,9 @@ export class AccountTransactionManager {
             firstValid: suggestedParams.firstValid,
             lastValid: suggestedParams.lastValid,
             genesisID: suggestedParams.genesisID,
-            genesisHash: suggestedParams.genesisHash,
+            genesisHash: suggestedParams.genesisHash instanceof Uint8Array
+              ? algosdk.bytesToBase64(suggestedParams.genesisHash)
+              : suggestedParams.genesisHash,
             type: 'pay'
           };
 

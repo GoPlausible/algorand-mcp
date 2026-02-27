@@ -1,12 +1,14 @@
 {
   "name": "algorand-mcp",
-  "version": "2.8.0",
+  "version": "3.0.0",
   "description": "Algorand Model Context Protocol Local Implementation",
   "type": "module",
   "scripts": {
     "build": "tsc && cp -r src/resources/knowledge/taxonomy src/resources/knowledge/taxonomy-categories dist/resources/knowledge/ && chmod +x dist/index.js",
     "clean": "rm -rf dist",
-    "test": "jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' jest --config tests/jest.config.e2e.js",
+    "test:all": "npm test && npm run test:e2e",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run clean && npm run build"
   },
@@ -27,6 +29,7 @@
     "dist/**/*"
   ],
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
     "@types/jest": "29.5.12",
     "@types/node": "^20.0.0",
     "@types/qrcode": "^1.5.5",

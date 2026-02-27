@@ -1,8 +1,9 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
+/** @type {import('jest').Config} */
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
+  rootDir: '..',
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^(\\.{1,2}/.*)\\.ts$': '$1',
@@ -16,19 +17,14 @@ export default {
       {
         useESM: true,
         tsconfig: './tsconfig.test.json',
-        diagnostics: false
+        diagnostics: false,
       },
     ],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  coverageDirectory: 'coverage',
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-    '!src/index.ts',
-  ],
-  testMatch: [
-    '<rootDir>/tests/unit/**/*.test.ts',
-  ],
-  testTimeout: 10_000
+  testMatch: ['<rootDir>/tests/e2e/**/*.e2e.test.ts'],
+  testTimeout: 60_000,
+  maxWorkers: 1,
+  globalSetup: '<rootDir>/tests/e2e/globalSetup.ts',
+  globalTeardown: '<rootDir>/tests/e2e/globalTeardown.ts',
 };

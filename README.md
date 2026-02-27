@@ -393,7 +393,7 @@ The server exposes MCP resources for direct data access. Wallet resources are de
 algorand-mcp/
 ├── src/                         # TypeScript source
 │   ├── index.ts                 # Server entry point
-│   ├── networkConfig.ts          # Hardcoded network URLs and client factories
+│   ├── networkConfig.ts         # Hardcoded network URLs and client factories
 │   ├── algorand-client.ts       # Re-exports from networkConfig
 │   ├── env.ts                   # Legacy env shim (unused)
 │   ├── types.ts                 # Shared types (Zod schemas)
@@ -421,9 +421,22 @@ algorand-mcp/
 │   │       └── example/         # Example tools
 │   └── utils/
 │       └── responseProcessor.ts # Pagination and formatting
+├── tests/                       # Test suite
+│   ├── helpers/                 # Shared test utilities
+│   │   ├── mockFactories.ts     # Mock algod/indexer/keychain factories
+│   │   ├── testConfig.ts        # Category enable/disable logic
+│   │   ├── e2eSetup.ts          # E2E account provisioning + invokeTool()
+│   │   └── testConstants.ts     # Well-known testnet addresses and asset IDs
+│   ├── unit/                    # 11 unit test suites (mocked, fast)
+│   ├── e2e/                     # 11 E2E test suites (live testnet)
+│   │   ├── globalSetup.ts       # Account provisioning + fund-check
+│   │   └── globalTeardown.ts    # Cleanup
+│   └── jest.config.e2e.js       # E2E-specific Jest config
 ├── dist/                        # Compiled output
-├── package.json
-└── tsconfig.json
+├── jest.config.js               # Unit test Jest config
+├── tsconfig.json                # Production TypeScript config
+├── tsconfig.test.json           # Test TypeScript config
+└── package.json
 ```
 
 ## Response Format
@@ -460,6 +473,207 @@ npm run build
 
 # Clean build output
 npm run clean
+```
+
+## Testing
+
+The project has a comprehensive dual-layer test suite: fast **unit tests** (mocked, no network) and real **E2E tests** (live testnet). Both use [Jest 29](https://jestjs.io/) with [ts-jest](https://kulshekhar.github.io/ts-jest/) and ESM support.
+
+### Quick start
+
+```bash
+npm test                    # Unit tests (fast, no network)
+npm run test:e2e            # E2E tests (testnet, generates account + fund link)
+npm run test:all            # Both
+```
+
+### Unit tests
+
+Unit tests cover all 11 tool categories with fully mocked network dependencies. They run in parallel and finish in ~5 seconds. No environment variables or funded accounts are needed.
+
+```bash
+npm test
+```
+
+**Coverage:** 11 suites, 75+ tests covering success paths, error handling, and edge cases for every tool category.
+
+| Suite | What it tests |
+|---|---|
+| `accountManager` | Account creation, mnemonic round-trips, rekey parameter validation |
+| `utilityManager` | Ping, address validation, encode/decode, sign/verify bytes, encode/decode objects |
+| `walletManager` | Full lifecycle: add → list → switch → get info → sign data → remove (mocked keychain + SQLite) |
+| `transactionManager` | Payment, asset, app transaction building; sign_transaction; assign_group_id |
+| `algodManager` | TEAL compile/disassemble, send raw, simulate |
+| `apiAlgod` | All 13 algod API tools with correct mock routing |
+| `apiIndexer` | All 17 indexer API tools with fluent builder mocks |
+| `apiNfd` | NFD get/search/browse with mocked fetch |
+| `apiTinyman` | Tinyman pool/swap with error handling |
+| `arc26Manager` | ARC-26 URI generation and QR code SVG output |
+| `knowledgeManager` | Knowledge document retrieval and missing-doc error handling |
+
+#### How mocking works
+
+Unit tests use `jest.unstable_mockModule()` (ESM-compatible) to intercept imports before they load. The shared [tests/helpers/mockFactories.ts](tests/helpers/mockFactories.ts) provides:
+
+- **`setupNetworkMocks()`** — Replaces `algorand-client.ts` with mock algod/indexer clients that return deterministic responses without any network calls.
+- **`createKeychainMock()`** — Replaces `@napi-rs/keyring` with an in-memory `Map`, so wallet tests work without an OS keychain.
+- **Fluent Proxy mocks** — Algorand's Indexer SDK uses a builder pattern (`.searchForAssets().limit(5).do()`). The mock factory uses ES `Proxy` objects that return themselves for any chained method and resolve when `.do()` is called.
+
+### E2E tests
+
+E2E tests call tool handlers directly against **Algorand testnet** (via [AlgoNode](https://algonode.io/) public nodes). They run serially to avoid rate-limiting.
+
+```bash
+npm run test:e2e
+```
+
+On first run (no mnemonic provided), the test setup:
+1. Generates a new Algorand account
+2. Prints the address and mnemonic
+3. Prints a fund link: https://lora.algokit.io/testnet/fund
+4. Runs all tests (unfunded tests still pass)
+
+To run with a funded account:
+
+```bash
+E2E_MNEMONIC="word1 word2 ... word25" npm run test:e2e
+```
+
+**Coverage:** 11 suites, 35+ tests covering real network interactions.
+
+| Suite | What it tests |
+|---|---|
+| `account` | Account creation, mnemonic-to-key round-trip chain |
+| `utility` | Ping, address validation, encode/decode, sign/verify bytes, encode/decode objects |
+| `wallet` | Full wallet lifecycle: add → list → switch → get info → get assets → sign data → remove |
+| `transaction` | Build payment → sign → verify txID; build asset opt-in; build group with assign_group_id |
+| `algod` | Compile + disassemble TEAL round-trip |
+| `algodApi` | Account info, suggested params, node status, asset info via algod |
+| `indexerApi` | Account lookup, asset/transaction/account search via indexer |
+| `nfd` | Look up "algo.algo", search NFDs, browse NFDs |
+| `tinyman` | Get ALGO/USDC pool |
+| `arc26` | Generate ARC-26 URI, verify format + QR SVG |
+| `knowledge` | Retrieve known knowledge doc content |
+
+### Category activation
+
+E2E tests can be selectively enabled by category or individual tool via environment variables. **By default all categories are enabled.**
+
+#### Enable specific categories
+
+```bash
+E2E_WALLET=1 npm run test:e2e            # Only wallet tests
+E2E_ALGOD=1 E2E_UTILITY=1 npm run test:e2e  # Algod + utility tests
+```
+
+#### Available category flags
+
+| Env var | Category |
+|---|---|
+| `E2E_ALL=1` | All categories (explicit) |
+| `E2E_WALLET=1` | Wallet tools |
+| `E2E_ACCOUNT=1` | Account tools |
+| `E2E_UTILITY=1` | Utility tools |
+| `E2E_TRANSACTION=1` | Transaction tools |
+| `E2E_ALGOD=1` | Algod tools |
+| `E2E_ALGOD_API=1` | Algod API tools |
+| `E2E_INDEXER_API=1` | Indexer API tools |
+| `E2E_NFD=1` | NFDomains tools |
+| `E2E_TINYMAN=1` | Tinyman tools |
+| `E2E_ARC26=1` | ARC-26 tools |
+| `E2E_KNOWLEDGE=1` | Knowledge tools |
+
+**Important:** Setting any individual flag (e.g. `E2E_WALLET=1`) disables all other categories unless `E2E_ALL=1` is also set.
+
+#### Enable specific tools
+
+```bash
+E2E_TOOLS=ping,validate_address npm run test:e2e
+```
+
+The `E2E_TOOLS` variable accepts a comma-separated list of tool names. Only tests for those specific tools will run.
+
+### Test file structure
+
+```
+tests/
+├── helpers/
+│   ├── mockFactories.ts       # Mock algod/indexer/keychain factories
+│   ├── testConfig.ts          # Category enable/disable logic
+│   ├── e2eSetup.ts            # E2E account provisioning + invokeTool()
+│   └── testConstants.ts       # Well-known testnet addresses and asset IDs
+├── unit/                      # 11 unit test files (*.test.ts)
+│   ├── accountManager.test.ts
+│   ├── utilityManager.test.ts
+│   ├── walletManager.test.ts
+│   ├── transactionManager.test.ts
+│   ├── algodManager.test.ts
+│   ├── apiAlgod.test.ts
+│   ├── apiIndexer.test.ts
+│   ├── apiNfd.test.ts
+│   ├── apiTinyman.test.ts
+│   ├── arc26Manager.test.ts
+│   └── knowledgeManager.test.ts
+├── e2e/                       # 11 E2E test files (*.e2e.test.ts)
+│   ├── globalSetup.ts         # Account provisioning + fund-check
+│   ├── globalTeardown.ts      # Cleanup
+│   ├── account.e2e.test.ts
+│   ├── utility.e2e.test.ts
+│   ├── wallet.e2e.test.ts
+│   ├── transaction.e2e.test.ts
+│   ├── algod.e2e.test.ts
+│   ├── algodApi.e2e.test.ts
+│   ├── indexerApi.e2e.test.ts
+│   ├── nfd.e2e.test.ts
+│   ├── tinyman.e2e.test.ts
+│   ├── arc26.e2e.test.ts
+│   └── knowledge.e2e.test.ts
+└── jest.config.e2e.js         # E2E-specific Jest config
+```
+
+### Jest configuration
+
+| Config | Purpose | Key settings |
+|---|---|---|
+| `jest.config.js` (root) | Unit tests | `testTimeout: 10s`, parallel workers, `testMatch: tests/unit/**` |
+| `tests/jest.config.e2e.js` | E2E tests | `testTimeout: 60s`, `maxWorkers: 1` (serial), `globalSetup/globalTeardown` |
+| `tsconfig.test.json` | TypeScript for tests | `rootDir: "."`, includes both `src/` and `tests/` |
+
+### Writing new tests
+
+**Unit test template:**
+
+```typescript
+import { jest } from '@jest/globals';
+import { setupNetworkMocks } from '../helpers/mockFactories.js';
+
+jest.unstable_mockModule('../../src/algorand-client.js', () => setupNetworkMocks());
+
+const { YourManager } = await import('../../src/tools/yourManager.js');
+
+describe('YourManager', () => {
+  it('does something', async () => {
+    const result = await YourManager.handleTool('tool_name', { arg: 'value' });
+    const data = JSON.parse(result.content[0].text);
+    expect(data.field).toBeDefined();
+  });
+});
+```
+
+**E2E test template:**
+
+```typescript
+import { describeIf, testConfig } from '../helpers/testConfig.js';
+import { invokeTool, parseToolResponse } from '../helpers/e2eSetup.js';
+
+describeIf(testConfig.isCategoryEnabled('your-category'))('Your Tools (E2E)', () => {
+  it('does something on testnet', async () => {
+    const data = parseToolResponse(
+      await invokeTool('tool_name', { arg: 'value', network: 'testnet' }),
+    );
+    expect(data.field).toBeDefined();
+  });
+});
 ```
 
 ## Dependencies

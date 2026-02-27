@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+
+// Global BigInt JSON serialization — algosdk v3 returns BigInt for numeric fields
+(BigInt.prototype as any).toJSON = function () { return Number(this); };
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {

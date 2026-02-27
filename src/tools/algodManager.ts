@@ -228,6 +228,10 @@ export class AlgodManager {
 
   static async disassemble(bytecode: string | Uint8Array, algodClient: any): Promise<DisassembleResponse> {
     try {
+      // algosdk v3 disassemble expects Uint8Array, not base64 string
+      if (typeof bytecode === 'string') {
+        bytecode = algosdk.base64ToBytes(bytecode);
+      }
       const response = await algodClient.disassemble(bytecode).do() as DisassembleResponse;
       return response;
     } catch (error) {

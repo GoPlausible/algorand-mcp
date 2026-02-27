@@ -24,7 +24,7 @@ coverage/
 .DS_Store
 
 # IDE
-.vscode/settings.json
+.vscode/
 
 # Package locks (using pnpm)
 package-lock.json
@@ -32,7 +32,4 @@ package-lock.json
 # MCP config (contains local paths)
 .mcp.json
 
-# Legacy directories
-a2*
-memory*
-*rules
+

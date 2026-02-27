@@ -1,3 +1,12 @@
+/**
+ * Global BigInt JSON serialization support.
+ * algosdk v3 returns BigInt for numeric fields; JSON.stringify cannot handle them natively.
+ * This patch ensures all JSON.stringify calls throughout the codebase work with BigInt values.
+ */
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+
 const DEFAULT_ITEMS_PER_PAGE = 10;
 
 export interface PaginationMetadata {
