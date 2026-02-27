@@ -1,14 +1,14 @@
 {
   "name": "algorand-mcp",
-  "version": "2.7.8",
+  "version": "2.7.9",
   "description": "Algorand Model Context Protocol Implementation",
   "workspaces": [
-    "packages/*"
+    "src/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces",
-    "clean": "npm run clean --workspaces"
+    "build": "npm run build",
+    "test": "npm run test",
+    "clean": "npm run clean"
   },
   "keywords": [
     "algorand",
@@ -23,11 +23,19 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "algosdk": "2.9.0",
-    "qrcode": "^1.5.4"
+    "@modelcontextprotocol/sdk": "^1.27.1",
+		"@cf-wasm/photon": "^0.1.31",
+		"@juit/qrcode": "^1.0.59",
+		"just-pick": "^4.2.0",
+		"zod": "^3.25.61",
+		"algosdk": "^3.5.2",
+		"qrcode": "^1.5.4",
+		"algo-msgpack-with-bigint": "^2.1.1",
+		"hi-base32": "^0.5.1",
+		"@tinymanorg/tinyman-js-sdk": "^5.1.2"
   },
   "bin": {
-    "algorand-mcp": "./packages/server/dist/index.js"
+    "algorand-mcp": "./src/dist/index.js"
   },
-  "main": "packages/server/dist/index.js"
+  "main": "src/dist/index.js"
 }
