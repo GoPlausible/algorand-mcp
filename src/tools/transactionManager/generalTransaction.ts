@@ -138,6 +138,12 @@ function toV3TransactionParams(flat: any): any {
 
   if (flat.note) params.note = typeof flat.note === 'string' ? algosdk.base64ToBytes(flat.note) : flat.note;
   if (flat.rekeyTo) params.rekeyTo = flat.rekeyTo;
+  if (flat.lease) params.lease = typeof flat.lease === 'string' ? algosdk.base64ToBytes(flat.lease) : flat.lease;
+
+  // group is set after Transaction construction (mutable field, not a constructor param)
+  if (flat.group) {
+    params._group = typeof flat.group === 'string' ? algosdk.base64ToBytes(flat.group) : flat.group;
+  }
 
   switch (flat.type) {
     case 'pay':
@@ -216,6 +222,20 @@ function toV3TransactionParams(flat: any): any {
   }
 
   return params;
+}
+
+/**
+ * Creates a Transaction from flat JSON, applying the group field if present.
+ */
+function createTransactionFromFlat(flat: any): Transaction {
+  const v3Params = toV3TransactionParams(flat);
+  const groupBytes = v3Params._group;
+  delete v3Params._group;
+  const txn = new algosdk.Transaction(v3Params);
+  if (groupBytes) {
+    txn.group = groupBytes;
+  }
+  return txn;
 }
 
 /**
@@ -355,7 +375,7 @@ export class GeneralTransactionManager {
         // Create all transactions first
         let txns;
         try {
-          txns = args.transactions.map(txn => new algosdk.Transaction(toV3TransactionParams(txn)));
+          txns = args.transactions.map(txn => createTransactionFromFlat(txn));
         } catch (error) {
           throw new McpError(
             ErrorCode.InvalidParams,
@@ -390,10 +410,10 @@ export class GeneralTransactionManager {
 
         try {
           const transaction = args.transaction as any;
-          const v3Params = toV3TransactionParams(transaction);
+          const txn = createTransactionFromFlat(transaction);
 
           const sk = algosdk.hexToBytes(args.sk);
-          const signedTxn = algosdk.signTransaction(new algosdk.Transaction(v3Params), sk);
+          const signedTxn = algosdk.signTransaction(txn, sk);
           return {
             content: [{
               type: 'text',
@@ -420,8 +440,7 @@ export class GeneralTransactionManager {
 
         try {
           const transaction = args.transaction as any;
-          const v3Params = toV3TransactionParams(transaction);
-          const txn = new algosdk.Transaction(v3Params);
+          const txn = createTransactionFromFlat(transaction);
           const encoded = algosdk.encodeUnsignedTransaction(txn);
           return {
             content: [{
