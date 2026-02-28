@@ -170,7 +170,7 @@ export class WalletManager {
   static readonly walletTools = [
     {
       name: 'wallet_add_account',
-      description: 'Create a new Algorand account (or import from mnemonic) and store it securely in the OS keychain with a nickname and spending limits. Returns only address and public key.',
+      description: 'Create a new Algorand account and store it securely in the OS keychain with a nickname and spending limits. Returns only address and public key.',
       inputSchema: withCommonParams(walletToolSchemas.addAccount),
     },
     {
@@ -252,7 +252,7 @@ export class WalletManager {
     if (accounts.length === 0) {
       throw new McpError(
         ErrorCode.InvalidRequest,
-        'No wallet accounts. Use wallet_add_account to create or import one.'
+        'No wallet accounts. Use wallet_add_account to create a new one.'
       );
     }
     let idx = await WalletManager.getActiveIndex();
@@ -413,17 +413,10 @@ export class WalletManager {
           let publicKey: string;
           let mnemonic: string;
 
-          if (args.mnemonic && typeof args.mnemonic === 'string') {
-            const account = algosdk.mnemonicToSecretKey(args.mnemonic);
-            address = account.addr.toString();
-            publicKey = algosdk.bytesToHex(account.addr.publicKey);
-            mnemonic = args.mnemonic;
-          } else {
-            const account = algosdk.generateAccount();
-            address = account.addr.toString();
-            publicKey = algosdk.bytesToHex(account.addr.publicKey);
-            mnemonic = algosdk.secretKeyToMnemonic(account.sk);
-          }
+          const account = algosdk.generateAccount();
+          address = account.addr.toString();
+          publicKey = algosdk.bytesToHex(account.addr.publicKey);
+          mnemonic = algosdk.secretKeyToMnemonic(account.sk);
 
           // Check address uniqueness
           const addrExists = database.exec('SELECT id FROM accounts WHERE address = ?', [address]);

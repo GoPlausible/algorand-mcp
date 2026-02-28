@@ -214,7 +214,7 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 
 | Tool | Description |
 |---|---|
-| `wallet_add_account` | Create or import an account with nickname and spending limits (returns address + public key only) |
+| `wallet_add_account` | Create a new Algorand account with nickname and spending limits (returns address + public key only) |
 | `wallet_remove_account` | Remove an account from the wallet by nickname or index |
 | `wallet_list_accounts` | List all accounts with nicknames, addresses, and limits |
 | `wallet_switch_account` | Switch the active account by nickname or index |

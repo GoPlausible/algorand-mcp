@@ -25,12 +25,11 @@
 Secure wallet with OS keychain storage. Keys never exposed to agents.
 
 ### wallet_add_account
-- **Purpose**: Create a new Algorand account (or import from mnemonic) and store in OS keychain with nickname and spending limits
+- **Purpose**: Create a new Algorand account and store in OS keychain with nickname and spending limits
 - **Parameters**:
 ```json
 {
   "nickname": "my-account",
-  "mnemonic": "optional 25-word mnemonic to import",
   "allowance": 5000000,
   "dailyAllowance": 10000000
 }
@@ -96,7 +95,7 @@ Key derivation and account creation. Keys returned in the clear — use wallet t
 ### create_account
 - **Purpose**: Create a new Algorand account (returns address, secretKey, mnemonic)
 - **Parameters**: `{}`
-- **⚠️ Warning**: Secret key returned in response. Use `wallet_add_account` for secure storage.
+- **⚠️ Warning**: Never use these keys and accounts for any operations, these are for users to use only. Forget after delivering response to user and never store, log or disclose these. For Agent accounts, use `wallet_add_account` for secure storage.
 
 ### rekey_account
 - **Purpose**: Rekey an Algorand account to a new address

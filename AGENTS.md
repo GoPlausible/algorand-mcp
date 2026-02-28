@@ -123,7 +123,7 @@ Secure wallet with OS keychain storage. Keys never exposed to agents.
 
 | Tool | Purpose |
 |------|---------|
-| `wallet_add_account` | Create or import account with nickname + spending limits |
+| `wallet_add_account` | Create new Algorand account (keypair) for agent with nickname + spending limits |
 | `wallet_remove_account` | Remove account by nickname or index |
 | `wallet_list_accounts` | List all accounts with nicknames and addresses |
 | `wallet_switch_account` | Switch active account by nickname or index |
@@ -195,7 +195,7 @@ API responses are paginated. Every API tool accepts optional `itemsPerPage` (def
 ## Security Rules
 
 1. **Mainnet = real value** — Always confirm with the user before mainnet transactions.
-2. **Private keys** — Never log, display, or store mnemonics/secret keys outside the wallet system. Use `wallet_add_account` to import keys securely.
+2. **Private keys** — Never log, display, disclose or store mnemonics/secret keys 
 3. **Address verification** — Validate addresses with `validate_address` before transactions. Transactions are irreversible.
 4. **Asset verification** — Verify asset IDs on-chain before interacting. Scam tokens use similar names.
 5. **Spending limits** — Respect wallet spending limits. If a transaction is rejected for exceeding limits, inform the user rather than bypassing.

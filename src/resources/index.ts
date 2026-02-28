@@ -1,5 +1,4 @@
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
-import { walletResources } from './wallet/index.js';
 import { knowledgeResources } from './knowledge/index.js';
 
 // Resource handler type
@@ -25,7 +24,6 @@ interface ResourceModule {
 
 // Resource modules registry
 const resourceModules: ResourceModule[] = [
-  walletResources,
   knowledgeResources
 ];
 
