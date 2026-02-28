@@ -352,34 +352,125 @@ export class WalletManager {
 
   // ── Transaction Helpers ────────────────────────────────────────────────────
 
-  private static prepareTransaction(txnObj: any): algosdk.Transaction {
-    const transaction = { ...txnObj };
+  /**
+   * Converts flat JSON transaction format (as returned by make_*_txn / assign_group_id)
+   * into an algosdk v3 Transaction object. Handles genesisHash in base64 string,
+   * Uint8Array, or JSON-round-tripped {0:byte,...} object form.
+   */
+  private static prepareTransaction(flat: any): algosdk.Transaction {
+    // If already in v3 format (has suggestedParams), pass through
+    if (flat.suggestedParams) return new algosdk.Transaction(flat);
 
-    if (transaction.note) {
-      transaction.note = algosdk.base64ToBytes(transaction.note);
+    const suggestedParams: any = {
+      fee: flat.fee,
+      firstValid: flat.firstValid,
+      lastValid: flat.lastValid,
+      genesisID: flat.genesisID,
+      flatFee: true,
+    };
+
+    // Handle genesisHash in all possible formats
+    if (typeof flat.genesisHash === 'string') {
+      suggestedParams.genesisHash = algosdk.base64ToBytes(flat.genesisHash);
+    } else if (flat.genesisHash instanceof Uint8Array) {
+      suggestedParams.genesisHash = flat.genesisHash;
+    } else if (typeof flat.genesisHash === 'object' && flat.genesisHash !== null) {
+      const keys = Object.keys(flat.genesisHash).map(Number).sort((a, b) => a - b);
+      suggestedParams.genesisHash = new Uint8Array(keys.map(k => flat.genesisHash[k]));
     }
 
-    if (transaction.type === 'appl') {
-      if (transaction.approvalProgram) {
-        transaction.appApprovalProgram = new Uint8Array(algosdk.base64ToBytes(transaction.approvalProgram));
-      }
-      if (transaction.clearProgram) {
-        transaction.appClearProgram = new Uint8Array(algosdk.base64ToBytes(transaction.clearProgram));
-      }
-      if (transaction.numGlobalInts !== undefined) transaction.appGlobalInts = transaction.numGlobalInts;
-      if (transaction.numGlobalByteSlices !== undefined) transaction.appGlobalByteSlices = transaction.numGlobalByteSlices;
-      if (transaction.numLocalInts !== undefined) transaction.appLocalInts = transaction.numLocalInts;
-      if (transaction.numLocalByteSlices !== undefined) transaction.appLocalByteSlices = transaction.numLocalByteSlices;
-      if (transaction.onComplete) transaction.appOnComplete = transaction.onComplete;
-      if (transaction.appArgs) {
-        transaction.appArgs = transaction.appArgs.map((arg: string) => algosdk.base64ToBytes(arg));
-      }
-      if (transaction.accounts) transaction.appAccounts = transaction.accounts;
-      if (transaction.foreignApps) transaction.appForeignApps = transaction.foreignApps;
-      if (transaction.foreignAssets) transaction.appForeignAssets = transaction.foreignAssets;
+    const params: any = {
+      type: flat.type,
+      sender: flat.sender,
+      suggestedParams,
+    };
+
+    // Note (base64 string → Uint8Array)
+    if (flat.note) params.note = typeof flat.note === 'string' ? algosdk.base64ToBytes(flat.note) : flat.note;
+    if (flat.rekeyTo) params.rekeyTo = flat.rekeyTo;
+
+    // Group ID (preserved from assign_group_id output)
+    if (flat.group) {
+      params.group = typeof flat.group === 'string' ? algosdk.base64ToBytes(flat.group) : flat.group;
     }
 
-    return new algosdk.Transaction(transaction);
+    switch (flat.type) {
+      case 'pay':
+        params.paymentParams = {
+          receiver: flat.receiver,
+          amount: flat.amount ?? 0,
+        };
+        if (flat.closeRemainderTo) params.paymentParams.closeRemainderTo = flat.closeRemainderTo;
+        break;
+      case 'axfer':
+        params.assetTransferParams = {
+          assetIndex: flat.assetIndex,
+          receiver: flat.receiver,
+          amount: flat.amount ?? 0,
+        };
+        if (flat.closeRemainderTo) params.assetTransferParams.closeRemainderTo = flat.closeRemainderTo;
+        break;
+      case 'acfg':
+        params.assetConfigParams = {
+          assetIndex: flat.assetIndex,
+          total: flat.total,
+          decimals: flat.decimals,
+          defaultFrozen: flat.defaultFrozen,
+          unitName: flat.unitName,
+          assetName: flat.assetName,
+          assetURL: flat.assetURL || flat.url,
+          assetMetadataHash: flat.assetMetadataHash,
+          manager: flat.manager,
+          reserve: flat.reserve,
+          freeze: flat.freeze,
+          clawback: flat.clawback,
+        };
+        break;
+      case 'afrz':
+        params.assetFreezeParams = {
+          assetIndex: flat.assetIndex,
+          freezeTarget: flat.freezeTarget || flat.freezeAccount,
+          frozen: flat.frozen ?? flat.assetFrozen,
+        };
+        break;
+      case 'appl':
+        params.appCallParams = {
+          appIndex: flat.appIndex ?? flat.appId ?? 0,
+          onComplete: flat.onComplete ?? flat.appOnComplete ?? 0,
+        };
+        if (flat.approvalProgram || flat.appApprovalProgram) {
+          const prog = flat.approvalProgram || flat.appApprovalProgram;
+          params.appCallParams.approvalProgram = typeof prog === 'string' ? algosdk.base64ToBytes(prog) : prog;
+        }
+        if (flat.clearProgram || flat.appClearProgram) {
+          const prog = flat.clearProgram || flat.appClearProgram;
+          params.appCallParams.clearProgram = typeof prog === 'string' ? algosdk.base64ToBytes(prog) : prog;
+        }
+        if (flat.numGlobalInts !== undefined) params.appCallParams.numGlobalInts = flat.numGlobalInts;
+        if (flat.numGlobalByteSlices !== undefined) params.appCallParams.numGlobalByteSlices = flat.numGlobalByteSlices;
+        if (flat.numLocalInts !== undefined) params.appCallParams.numLocalInts = flat.numLocalInts;
+        if (flat.numLocalByteSlices !== undefined) params.appCallParams.numLocalByteSlices = flat.numLocalByteSlices;
+        if (flat.appArgs) {
+          params.appCallParams.appArgs = flat.appArgs.map((a: string) => typeof a === 'string' ? algosdk.base64ToBytes(a) : a);
+        }
+        if (flat.accounts || flat.appAccounts) params.appCallParams.accounts = flat.accounts || flat.appAccounts;
+        if (flat.foreignApps || flat.appForeignApps) params.appCallParams.foreignApps = flat.foreignApps || flat.appForeignApps;
+        if (flat.foreignAssets || flat.appForeignAssets) params.appCallParams.foreignAssets = flat.foreignAssets || flat.appForeignAssets;
+        break;
+      case 'keyreg':
+        params.keyregParams = {
+          voteKey: flat.voteKey,
+          selectionKey: flat.selectionKey,
+          stateProofKey: flat.stateProofKey,
+          voteFirst: flat.voteFirst,
+          voteLast: flat.voteLast,
+          voteKeyDilution: flat.voteKeyDilution,
+          nonParticipation: flat.nonParticipation ?? false,
+        };
+        break;
+    }
+
+    return new algosdk.Transaction(params);
   }
 
   private static extractTxnAmount(txnObj: any): number {
@@ -391,7 +482,6 @@ export class WalletManager {
   // ── Tool Handler ───────────────────────────────────────────────────────────
 
   static async handleTool(name: string, args: Record<string, unknown>) {
-    console.error(`[WalletManager] handleTool called: name=${name}, args=${JSON.stringify(args)}`);
     try {
       switch (name) {
 

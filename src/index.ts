@@ -127,7 +127,6 @@ class AlgorandMcpServer {
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args = {} } = request.params;
-      console.error(`[MCP CallTool] name=${name}, raw args=${JSON.stringify(args)}, request.params keys=${Object.keys(request.params)}`);
 
       // Handle wallet tools
       if (name.startsWith('wallet_')) {

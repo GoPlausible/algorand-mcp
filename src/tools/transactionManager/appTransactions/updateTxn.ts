@@ -60,7 +60,9 @@ export function handleUpdateTxn(args: Record<string, unknown>, suggestedParams: 
       firstValid: suggestedParams.firstValid,
       lastValid: suggestedParams.lastValid,
       genesisID: suggestedParams.genesisID,
-      genesisHash: suggestedParams.genesisHash,
+      genesisHash: suggestedParams.genesisHash instanceof Uint8Array
+        ? algosdk.bytesToBase64(suggestedParams.genesisHash)
+        : suggestedParams.genesisHash,
       type: 'appl',
       onComplete: 4,
       // Programs are already base64 encoded

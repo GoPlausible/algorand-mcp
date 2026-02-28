@@ -223,7 +223,9 @@ export class AssetTransactionManager {
           firstValid: suggestedParams.firstValid,
           lastValid: suggestedParams.lastValid,
           genesisID: suggestedParams.genesisID,
-          genesisHash: suggestedParams.genesisHash,
+          genesisHash: suggestedParams.genesisHash instanceof Uint8Array
+            ? algosdk.bytesToBase64(suggestedParams.genesisHash)
+            : suggestedParams.genesisHash,
           type: 'acfg'
         };
 
@@ -280,7 +282,9 @@ export class AssetTransactionManager {
           firstValid: suggestedParams.firstValid,
           lastValid: suggestedParams.lastValid,
           genesisID: suggestedParams.genesisID,
-          genesisHash: suggestedParams.genesisHash,
+          genesisHash: suggestedParams.genesisHash instanceof Uint8Array
+            ? algosdk.bytesToBase64(suggestedParams.genesisHash)
+            : suggestedParams.genesisHash,
           type: 'acfg',
           strictEmptyAddressChecking: Boolean(args.strictEmptyAddressChecking)
         };
@@ -325,7 +329,9 @@ export class AssetTransactionManager {
           firstValid: suggestedParams.firstValid,
           lastValid: suggestedParams.lastValid,
           genesisID: suggestedParams.genesisID,
-          genesisHash: suggestedParams.genesisHash,
+          genesisHash: suggestedParams.genesisHash instanceof Uint8Array
+            ? algosdk.bytesToBase64(suggestedParams.genesisHash)
+            : suggestedParams.genesisHash,
           type: 'acfg'
         };
 
@@ -360,7 +366,9 @@ export class AssetTransactionManager {
           firstValid: suggestedParams.firstValid,
           lastValid: suggestedParams.lastValid,
           genesisID: suggestedParams.genesisID,
-          genesisHash: suggestedParams.genesisHash,
+          genesisHash: suggestedParams.genesisHash instanceof Uint8Array
+            ? algosdk.bytesToBase64(suggestedParams.genesisHash)
+            : suggestedParams.genesisHash,
           type: 'afrz'
         };
 
@@ -394,7 +402,9 @@ export class AssetTransactionManager {
           firstValid: suggestedParams.firstValid,
           lastValid: suggestedParams.lastValid,
           genesisID: suggestedParams.genesisID,
-          genesisHash: suggestedParams.genesisHash,
+          genesisHash: suggestedParams.genesisHash instanceof Uint8Array
+            ? algosdk.bytesToBase64(suggestedParams.genesisHash)
+            : suggestedParams.genesisHash,
           type: 'axfer'
         };
 

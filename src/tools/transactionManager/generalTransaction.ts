@@ -193,6 +193,124 @@ function toV3TransactionParams(flat: any): any {
   return params;
 }
 
+/**
+ * Serializes a Transaction object to flat JSON format matching make_*_txn output.
+ * Converts Uint8Arrays to base64 strings for safe JSON serialization.
+ */
+function serializeTransaction(txn: Transaction): Record<string, any> {
+  const result: Record<string, any> = {
+    type: txn.type,
+    sender: txn.sender.toString(),
+    fee: Number(txn.fee),
+    firstValid: Number(txn.firstValid),
+    lastValid: Number(txn.lastValid),
+    genesisID: txn.genesisID,
+    genesisHash: txn.genesisHash ? algosdk.bytesToBase64(txn.genesisHash) : undefined,
+  };
+
+  // Group ID (present after assignGroupID)
+  if (txn.group) {
+    result.group = algosdk.bytesToBase64(txn.group);
+  }
+
+  // Note
+  if (txn.note && txn.note.length > 0) {
+    result.note = algosdk.bytesToBase64(txn.note);
+  }
+
+  // Lease
+  if (txn.lease && txn.lease.length > 0) {
+    result.lease = algosdk.bytesToBase64(txn.lease);
+  }
+
+  // Rekey
+  if (txn.rekeyTo) {
+    result.rekeyTo = txn.rekeyTo.toString();
+  }
+
+  // Payment fields
+  if (txn.type === 'pay' && txn.payment) {
+    result.receiver = txn.payment.receiver.toString();
+    result.amount = Number(txn.payment.amount);
+    if (txn.payment.closeRemainderTo) {
+      result.closeRemainderTo = txn.payment.closeRemainderTo.toString();
+    }
+  }
+
+  // Asset transfer fields
+  if (txn.type === 'axfer' && txn.assetTransfer) {
+    result.assetIndex = Number(txn.assetTransfer.assetIndex);
+    result.receiver = txn.assetTransfer.receiver.toString();
+    result.amount = Number(txn.assetTransfer.amount);
+    if (txn.assetTransfer.closeRemainderTo) {
+      result.closeRemainderTo = txn.assetTransfer.closeRemainderTo.toString();
+    }
+  }
+
+  // Asset config fields
+  if (txn.type === 'acfg' && txn.assetConfig) {
+    const p = txn.assetConfig;
+    if (p.assetIndex) result.assetIndex = Number(p.assetIndex);
+    if (p.total !== undefined) result.total = Number(p.total);
+    if (p.decimals !== undefined) result.decimals = p.decimals;
+    if (p.defaultFrozen !== undefined) result.defaultFrozen = p.defaultFrozen;
+    if (p.unitName) result.unitName = p.unitName;
+    if (p.assetName) result.assetName = p.assetName;
+    if (p.assetURL) result.assetURL = p.assetURL;
+    if (p.assetMetadataHash) result.assetMetadataHash = algosdk.bytesToBase64(p.assetMetadataHash);
+    if (p.manager) result.manager = p.manager.toString();
+    if (p.reserve) result.reserve = p.reserve.toString();
+    if (p.freeze) result.freeze = p.freeze.toString();
+    if (p.clawback) result.clawback = p.clawback.toString();
+  }
+
+  // Asset freeze fields
+  if (txn.type === 'afrz' && txn.assetFreeze) {
+    result.assetIndex = Number(txn.assetFreeze.assetIndex);
+    result.freezeTarget = txn.assetFreeze.freezeAccount.toString();
+    result.frozen = txn.assetFreeze.frozen;
+  }
+
+  // Application call fields
+  if (txn.type === 'appl' && txn.applicationCall) {
+    const p = txn.applicationCall;
+    result.appIndex = Number(p.appIndex ?? 0n);
+    result.onComplete = p.onComplete ?? 0;
+    if (p.approvalProgram && p.approvalProgram.length > 0) result.approvalProgram = algosdk.bytesToBase64(p.approvalProgram);
+    if (p.clearProgram && p.clearProgram.length > 0) result.clearProgram = algosdk.bytesToBase64(p.clearProgram);
+    if (p.numGlobalInts !== undefined) result.numGlobalInts = p.numGlobalInts;
+    if (p.numGlobalByteSlices !== undefined) result.numGlobalByteSlices = p.numGlobalByteSlices;
+    if (p.numLocalInts !== undefined) result.numLocalInts = p.numLocalInts;
+    if (p.numLocalByteSlices !== undefined) result.numLocalByteSlices = p.numLocalByteSlices;
+    if (p.appArgs && p.appArgs.length > 0) {
+      result.appArgs = p.appArgs.map((a: Uint8Array) => algosdk.bytesToBase64(a));
+    }
+    if (p.accounts && p.accounts.length > 0) {
+      result.accounts = p.accounts.map((a: any) => a.toString());
+    }
+    if (p.foreignApps && p.foreignApps.length > 0) {
+      result.foreignApps = p.foreignApps.map((a: bigint) => Number(a));
+    }
+    if (p.foreignAssets && p.foreignAssets.length > 0) {
+      result.foreignAssets = p.foreignAssets.map((a: bigint) => Number(a));
+    }
+  }
+
+  // Key registration fields
+  if (txn.type === 'keyreg' && txn.keyreg) {
+    const p = txn.keyreg;
+    if (p.voteKey) result.voteKey = algosdk.bytesToBase64(p.voteKey);
+    if (p.selectionKey) result.selectionKey = algosdk.bytesToBase64(p.selectionKey);
+    if (p.stateProofKey) result.stateProofKey = algosdk.bytesToBase64(p.stateProofKey);
+    if (p.voteFirst !== undefined) result.voteFirst = Number(p.voteFirst);
+    if (p.voteLast !== undefined) result.voteLast = Number(p.voteLast);
+    if (p.voteKeyDilution !== undefined) result.voteKeyDilution = Number(p.voteKeyDilution);
+    result.nonParticipation = p.nonParticipation ?? false;
+  }
+
+  return result;
+}
+
 export class GeneralTransactionManager {
   // Tool handlers
   static async handleTool(name: string, args: Record<string, unknown>) {
@@ -223,10 +341,13 @@ export class GeneralTransactionManager {
         // Then try to assign group ID
         try {
           const groupedTxns = algosdk.assignGroupID(txns);
+          // Serialize each grouped transaction to flat JSON format
+          // matching the output of make_*_txn tools (base64 strings, not raw Uint8Arrays)
+          const serialized = groupedTxns.map(txn => serializeTransaction(txn));
           return {
             content: [{
               type: 'text',
-              text: JSON.stringify(groupedTxns, null, 2)
+              text: JSON.stringify(serialized, null, 2)
             }]
           };
         } catch (error) {
