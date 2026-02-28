@@ -1,6 +1,6 @@
 import algosdk from 'algosdk';
 import { Entry, findCredentials } from '@napi-rs/keyring';
-import { ed25519 } from '@noble/curves/ed25519';
+import { ed25519 } from '@noble/curves/ed25519.js';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { withCommonParams } from './commonParams.js';
 import { getAlgodClient, extractNetwork, type NetworkId } from '../algorand-client.js';
