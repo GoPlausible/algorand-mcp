@@ -391,6 +391,7 @@ export class WalletManager {
   // ── Tool Handler ───────────────────────────────────────────────────────────
 
   static async handleTool(name: string, args: Record<string, unknown>) {
+    console.error(`[WalletManager] handleTool called: name=${name}, args=${JSON.stringify(args)}`);
     try {
       switch (name) {
 
