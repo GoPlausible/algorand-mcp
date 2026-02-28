@@ -1,5 +1,6 @@
 import algosdk, {
-  Transaction
+  Transaction,
+  decodeSignedTransaction
 } from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { withCommonParams } from '../commonParams.js';
@@ -46,6 +47,20 @@ export const generalTransactionSchemas = {
       bytes: { type: 'string', description: 'Base64-encoded msgpack bytes to be decoded into an object' }
     },
     required: ['bytes']
+  },
+  encodeUnsignedTransaction: {
+    type: 'object',
+    properties: {
+      transaction: { type: 'object', description: 'Transaction object (from make_*_txn or assign_group_id) to encode as unsigned transaction bytes' }
+    },
+    required: ['transaction']
+  },
+  decodeSignedTransaction: {
+    type: 'object',
+    properties: {
+      bytes: { type: 'string', description: 'Base64-encoded signed transaction bytes (blob from sign_transaction or wallet_sign_transaction)' }
+    },
+    required: ['bytes']
   }
 };
 
@@ -75,6 +90,16 @@ export const generalTransactionTools = [
     name: 'decode_obj',
     description: 'Decode msgpack bytes to an object',
     inputSchema: withCommonParams(generalTransactionSchemas.decodeObj),
+  },
+  {
+    name: 'encode_unsigned_transaction',
+    description: 'Encode a transaction object into base64 unsigned transaction bytes (msgpack). Accepts output from make_*_txn or assign_group_id.',
+    inputSchema: withCommonParams(generalTransactionSchemas.encodeUnsignedTransaction),
+  },
+  {
+    name: 'decode_signed_transaction',
+    description: 'Decode base64 signed transaction bytes back into a transaction object with signature details. Accepts the blob from sign_transaction or wallet_sign_transaction.',
+    inputSchema: withCommonParams(generalTransactionSchemas.decodeSignedTransaction),
   }
 ];
 
@@ -387,6 +412,85 @@ export class GeneralTransactionManager {
       }
 
 
+
+      case 'encode_unsigned_transaction': {
+        if (!args.transaction || typeof args.transaction !== 'object') {
+          throw new McpError(ErrorCode.InvalidParams, 'Transaction object is required');
+        }
+
+        try {
+          const transaction = args.transaction as any;
+          const v3Params = toV3TransactionParams(transaction);
+          const txn = new algosdk.Transaction(v3Params);
+          const encoded = algosdk.encodeUnsignedTransaction(txn);
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                txID: txn.txID(),
+                bytes: algosdk.bytesToBase64(encoded)
+              }, null, 2)
+            }]
+          };
+        } catch (error) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `Failed to encode unsigned transaction: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      }
+
+      case 'decode_signed_transaction': {
+        if (!args.bytes || typeof args.bytes !== 'string') {
+          throw new McpError(ErrorCode.InvalidParams, 'Base64-encoded signed transaction bytes are required');
+        }
+
+        try {
+          const rawBytes = algosdk.base64ToBytes(args.bytes);
+          const decoded = decodeSignedTransaction(rawBytes);
+          const txn = decoded.txn;
+
+          const result: Record<string, any> = {
+            txID: txn.txID(),
+            transaction: serializeTransaction(txn),
+          };
+
+          if (decoded.sig) {
+            result.signature = algosdk.bytesToBase64(decoded.sig);
+          }
+          if (decoded.sgnr) {
+            result.authAddr = decoded.sgnr.toString();
+          }
+          if (decoded.msig) {
+            result.multisig = {
+              version: decoded.msig.v,
+              threshold: decoded.msig.thr,
+              subsigs: decoded.msig.subsig?.map((s: any) => ({
+                publicKey: s.pk ? algosdk.bytesToBase64(s.pk) : undefined,
+                signature: s.s ? algosdk.bytesToBase64(s.s) : undefined,
+              })),
+            };
+          }
+          if (decoded.lsig) {
+            result.logicSig = {
+              logic: algosdk.bytesToBase64(decoded.lsig.logic),
+              args: decoded.lsig.args?.map((a: Uint8Array) => algosdk.bytesToBase64(a)),
+            };
+          }
+
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify(result, null, 2)
+            }]
+          };
+        } catch (error) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `Failed to decode signed transaction: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      }
 
       default:
         throw new McpError(

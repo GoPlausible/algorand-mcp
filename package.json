@@ -1,6 +1,6 @@
 {
   "name": "algorand-mcp",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Algorand Model Context Protocol Local Implementation",
   "type": "module",
   "scripts": {

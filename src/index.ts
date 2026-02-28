@@ -179,8 +179,9 @@ class AlgorandMcpServer {
       if (
         name.startsWith('make_') ||
         name === 'assign_group_id' ||
-        name === 'sign_transaction' 
-
+        name === 'sign_transaction' ||
+        name === 'encode_unsigned_transaction' ||
+        name === 'decode_signed_transaction'
       ) {
         return TransactionManager.handleTool(name, args);
       }
