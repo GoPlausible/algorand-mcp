@@ -14,12 +14,14 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 ## Features
 
 - Secure wallet management via OS keychain — private keys never exposed to agents or LLMs
+- Wallet accounts nicknames, allowances, and daily limits for safe spending control
 - Account creation, key management, and rekeying
 - Transaction building, signing, and submission (payments, assets, applications, key registration)
 - Atomic transaction groups
 - TEAL compilation and disassembly
 - Full Algod and Indexer API access
 - NFDomains (NFD) name service integration
+- x402 and AP2 toolins for Algorand
 - Tinyman AMM integration (pools, swaps, liquidity)
 - ARC-26 URI and QR code generation
 - Algorand knowledge base with full developer documentation taxonomy
