@@ -389,9 +389,11 @@ export class WalletManager {
     if (flat.note) params.note = typeof flat.note === 'string' ? algosdk.base64ToBytes(flat.note) : flat.note;
     if (flat.rekeyTo) params.rekeyTo = flat.rekeyTo;
 
-    // Group ID (preserved from assign_group_id output)
+    // Group ID — stored separately, applied after Transaction construction
+    // (group is a mutable field, not a constructor param)
+    let groupBytes: Uint8Array | undefined;
     if (flat.group) {
-      params.group = typeof flat.group === 'string' ? algosdk.base64ToBytes(flat.group) : flat.group;
+      groupBytes = typeof flat.group === 'string' ? algosdk.base64ToBytes(flat.group) : flat.group;
     }
 
     switch (flat.type) {
@@ -470,7 +472,11 @@ export class WalletManager {
         break;
     }
 
-    return new algosdk.Transaction(params);
+    const txn = new algosdk.Transaction(params);
+    if (groupBytes) {
+      txn.group = groupBytes;
+    }
+    return txn;
   }
 
   private static extractTxnAmount(txnObj: any): number {
