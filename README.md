@@ -37,7 +37,7 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 ### From npm
 
 ```bash
-npm install -g algorand-mcp
+npm install -g @goplausible/algorand-mcp
 ```
 
 ### From source
@@ -51,47 +51,35 @@ npm run build
 
 ## MCP Configuration
 
-The server runs over stdio. Add it to your MCP client configuration to start using it.
+The server runs over **stdio**. There are three ways to invoke it — pick whichever suits your setup:
+
+| Method | Command | When to use |
+|---|---|---|
+| **npx** (recommended) | `npx @goplausible/algorand-mcp` | No install needed, always latest version |
+| **Global install** | `algorand-mcp` | After `npm install -g @goplausible/algorand-mcp` |
+| **Absolute path** | `node /path/to/dist/index.js` | Built from source or local clone |
+
+**No environment variables are required** for standard use. Network selection, pagination, and node URLs are all handled dynamically per tool call.
+
+---
 
 ### Claude Desktop
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
+**Using npx:**
 ```json
 {
   "mcpServers": {
     "algorand-mcp": {
-      "command": "node",
-      "args": ["/absolute/path/to/algorand-mcp/dist/index.js"]
+      "command": "npx",
+      "args": ["@goplausible/algorand-mcp"]
     }
   }
 }
 ```
 
-### Claude Code
-
-Create `.mcp.json` in your project root (project scope) or configure in `~/.claude.json` (user scope):
-
-```json
-{
-  "mcpServers": {
-    "algorand-mcp": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["/absolute/path/to/algorand-mcp/dist/index.js"]
-    }
-  }
-}
-```
-
-### Cursor / Windsurf
-
-These editors use the same JSON format as Claude Desktop. Add the server entry to the MCP settings panel or the corresponding config file for your editor.
-
-### Using global npm install
-
-If you installed globally via `npm install -g algorand-mcp`, you can use the binary name directly:
-
+**Using global install:**
 ```json
 {
   "mcpServers": {
@@ -102,7 +90,155 @@ If you installed globally via `npm install -g algorand-mcp`, you can use the bin
 }
 ```
 
-That's it — **no environment variables are required** for standard use. Network selection, pagination, and node URLs are all handled dynamically.
+**Using absolute path:**
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "node",
+      "args": ["/absolute/path/to/algorand-mcp/dist/index.js"]
+    }
+  }
+}
+```
+
+---
+
+### Claude Code
+
+Create `.mcp.json` in your project root (project scope) or `~/.claude.json` (user scope):
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@goplausible/algorand-mcp"]
+    }
+  }
+}
+```
+
+Or add interactively:
+```bash
+claude mcp add algorand-mcp -- npx @goplausible/algorand-mcp
+```
+
+---
+
+### Cursor
+
+Add via **Settings > MCP Servers**, or edit `.cursor/mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "npx",
+      "args": ["@goplausible/algorand-mcp"]
+    }
+  }
+}
+```
+
+---
+
+### Windsurf
+
+Add via **Settings > MCP**, or edit `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "npx",
+      "args": ["@goplausible/algorand-mcp"]
+    }
+  }
+}
+```
+
+---
+
+### VS Code / GitHub Copilot
+
+Edit `.vscode/mcp.json` in your workspace root, or open **Settings > MCP Servers**:
+
+```json
+{
+  "servers": {
+    "algorand-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@goplausible/algorand-mcp"]
+    }
+  }
+}
+```
+
+---
+
+### Cline
+
+Add via the **MCP Servers** panel in the Cline sidebar, or edit `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` (macOS):
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "npx",
+      "args": ["@goplausible/algorand-mcp"],
+      "disabled": false
+    }
+  }
+}
+```
+
+---
+
+### OpenAI Codex CLI
+
+Create `.codex/mcp.json` in your project root or `~/.codex/mcp.json` for global scope:
+
+```json
+{
+  "mcpServers": {
+    "algorand-mcp": {
+      "command": "npx",
+      "args": ["@goplausible/algorand-mcp"]
+    }
+  }
+}
+```
+
+---
+
+### Open Code
+
+Edit `~/.config/opencode/config.json`:
+
+```json
+{
+  "mcp": {
+    "algorand-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@goplausible/algorand-mcp"]
+    }
+  }
+}
+```
+
+---
+
+### Any MCP-compatible client
+
+The server speaks the standard MCP stdio protocol. For any client not listed above, configure it with:
+
+- **Command:** `npx` (or `algorand-mcp` if globally installed, or `node /path/to/dist/index.js`)
+- **Args:** `["@goplausible/algorand-mcp"]` (for npx)
+- **Transport:** `stdio`
 
 ## Network Selection
 
@@ -257,7 +393,7 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 | `encode_obj` | Encode object to msgpack |
 | `decode_obj` | Decode msgpack to object |
 
-### Transaction Tools (16 tools)
+### Transaction Tools (18 tools)
 
 | Tool | Description |
 |---|---|
@@ -277,6 +413,8 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 | `make_app_call_txn` | Create an application call transaction |
 | `assign_group_id` | Assign group ID for atomic transactions |
 | `sign_transaction` | Sign a transaction with a secret key |
+| `encode_unsigned_transaction` | Encode an unsigned transaction to base64 msgpack bytes |
+| `decode_signed_transaction` | Decode a signed transaction blob back to JSON with signature details |
 
 ### Algod Tools (5 tools)
 
