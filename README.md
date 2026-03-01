@@ -63,6 +63,16 @@ The server runs over **stdio**. There are three ways to invoke it — pick which
 
 ---
 
+### OpenClaw
+
+No manual configuration needed — install the [`@goplausible/openclaw-algorand-plugin`](https://www.npmjs.com/package/@goplausible/openclaw-algorand-plugin) npm package and the Algorand MCP server is configured automatically:
+
+```bash
+npm install -g @goplausible/openclaw-algorand-plugin
+```
+
+---
+
 ### Claude Desktop
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
