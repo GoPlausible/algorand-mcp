@@ -4,7 +4,7 @@ This document describes how AI agents should interact with the Algorand blockcha
 
 ## Overview
 
-Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 99 tools across 11 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
+Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 102 tools across 12 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
 
 **Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using OS keychain-stored keys, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
 
@@ -175,6 +175,21 @@ Algorand Name Service (`.algo` names).
 Decentralized exchange operations.
 
 `api_tinyman_get_pool`, `api_tinyman_get_pool_analytics`, `api_tinyman_get_pool_creation_quote`, `api_tinyman_get_liquidity_quote`, `api_tinyman_get_remove_liquidity_quote`, `api_tinyman_get_swap_quote`, `api_tinyman_get_asset_optin_quote`, `api_tinyman_get_validator_optin_quote`, `api_tinyman_get_validator_optout_quote`
+
+### Haystack Router (3 tools)
+DEX aggregator for optimal swap routing across Tinyman V2, Pact, Folks, and LST protocols (tALGO, xALGO). Finds best prices across multiple DEXes and executes atomically.
+
+| Tool | Purpose |
+|------|---------|
+| `api_haystack_get_swap_quote` | Get optimized swap quote with routing, pricing, and price impact |
+| `api_haystack_execute_swap` | All-in-one swap: quote → sign (via wallet) → submit → confirm |
+| `api_haystack_needs_optin` | Check if address needs asset opt-in before swapping |
+
+**Swap workflow:**
+1. `wallet_get_info` — check balance
+2. `api_haystack_needs_optin` — check opt-in (if swapping to an ASA)
+3. `api_haystack_get_swap_quote` — preview quote, show user
+4. `api_haystack_execute_swap` — execute after user confirms
 
 ### ARC-26 URI (1 tool)
 Generate Algorand payment URIs and QR codes per the ARC-26 specification.
