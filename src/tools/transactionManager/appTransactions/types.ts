@@ -98,7 +98,9 @@ export const appTransactionSchemas = {
         items: { type: 'integer' },
         optional: true,
         description: 'IDs of assets that may be accessed (max 8 assets)'
-      }
+      },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'approvalProgram', 'clearProgram', 'numGlobalByteSlices', 'numGlobalInts', 'numLocalByteSlices', 'numLocalInts']
   },
@@ -136,7 +138,9 @@ export const appTransactionSchemas = {
         optional: true,
         description: 'IDs of assets that may be accessed (max 8 assets)'
       },
-      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' }
+      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'appIndex', 'approvalProgram', 'clearProgram']
   },
@@ -172,7 +176,9 @@ export const appTransactionSchemas = {
         optional: true,
         description: 'IDs of assets that may be accessed (max 8 assets)'
       },
-      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' }
+      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'appIndex']
   },
@@ -208,7 +214,9 @@ export const appTransactionSchemas = {
         optional: true,
         description: 'IDs of assets that may be accessed (max 8 assets)'
       },
-      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' }
+      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'appIndex']
   },
@@ -244,7 +252,9 @@ export const appTransactionSchemas = {
         optional: true,
         description: 'IDs of assets that may be accessed (max 8 assets)'
       },
-      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' }
+      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'appIndex']
   },
@@ -280,7 +290,9 @@ export const appTransactionSchemas = {
         optional: true,
         description: 'IDs of assets that may be accessed (max 8 assets)'
       },
-      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' }
+      onComplete: { type: 'integer', optional: true, description: 'Application call completion behavior (0=NoOp, 1=OptIn, 2=CloseOut, 3=ClearState, 4=UpdateApplication, 5=DeleteApplication)' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'appIndex']
   },
@@ -313,7 +325,9 @@ export const appTransactionSchemas = {
         optional: true,
         description: 'IDs of assets that may be accessed (max 8 assets)'
       },
-      note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' }
+      note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'appIndex']
   }

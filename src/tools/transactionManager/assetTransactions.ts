@@ -29,7 +29,9 @@ export const assetTransactionSchemas = {
       freeze: { type: 'string', optional: true, description: 'Address that can freeze/unfreeze holder accounts' },
       clawback: { type: 'string', optional: true, description: 'Address that can revoke the asset from holders' },
       note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' },
-      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' }
+      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'total', 'decimals', 'defaultFrozen']
   },
@@ -44,7 +46,9 @@ export const assetTransactionSchemas = {
       clawback: { type: 'string', optional: true, description: 'New address that can revoke the asset from holders' },
       strictEmptyAddressChecking: { type: 'boolean', description: 'Whether to error if any provided address is empty' },
       note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' },
-      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' }
+      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'assetIndex', 'strictEmptyAddressChecking']
   },
@@ -54,7 +58,9 @@ export const assetTransactionSchemas = {
       from: { type: 'string', description: 'Sender address in standard Algorand format (58 characters)' },
       assetIndex: { type: 'integer', description: 'Index of the asset to destroy' },
       note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' },
-      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' }
+      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'assetIndex']
   },
@@ -66,7 +72,9 @@ export const assetTransactionSchemas = {
       freezeTarget: { type: 'string', description: 'Address of the account whose asset is being frozen/unfrozen' },
       freezeState: { type: 'boolean', description: 'True to freeze the asset, false to unfreeze' },
       note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' },
-      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' }
+      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'assetIndex', 'freezeTarget', 'freezeState']
   },
@@ -79,7 +87,9 @@ export const assetTransactionSchemas = {
       amount: { type: 'integer', description: 'Amount of asset base units to transfer' },
       note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' },
       closeRemainderTo: { type: 'string', optional: true, description: 'Address to send remaining asset balance to (close asset holding)' },
-      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' }
+      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'to', 'assetIndex', 'amount']
   }
@@ -207,6 +217,14 @@ export class AssetTransactionManager {
     const algodClient = getAlgodClient(network);
     const suggestedParams = await algodClient.getTransactionParams().do();
 
+    // Apply fee overrides if provided
+    if (typeof args.fee === 'number') {
+      suggestedParams.fee = BigInt(args.fee);
+    }
+    if (args.flatFee === true) {
+      suggestedParams.flatFee = true;
+    }
+
     switch (name) {
       case 'make_asset_create_txn':
         if (!args.from || typeof args.total !== 'number' || typeof args.decimals !== 'number' ||
@@ -226,7 +244,8 @@ export class AssetTransactionManager {
           genesisHash: suggestedParams.genesisHash instanceof Uint8Array
             ? algosdk.bytesToBase64(suggestedParams.genesisHash)
             : suggestedParams.genesisHash,
-          type: 'acfg'
+          type: 'acfg',
+          flatFee: suggestedParams.flatFee || false
         };
 
         // Handle optional fields
@@ -286,7 +305,8 @@ export class AssetTransactionManager {
             ? algosdk.bytesToBase64(suggestedParams.genesisHash)
             : suggestedParams.genesisHash,
           type: 'acfg',
-          strictEmptyAddressChecking: Boolean(args.strictEmptyAddressChecking)
+          strictEmptyAddressChecking: Boolean(args.strictEmptyAddressChecking),
+          flatFee: suggestedParams.flatFee || false
         };
 
         // Handle optional fields
@@ -332,7 +352,8 @@ export class AssetTransactionManager {
           genesisHash: suggestedParams.genesisHash instanceof Uint8Array
             ? algosdk.bytesToBase64(suggestedParams.genesisHash)
             : suggestedParams.genesisHash,
-          type: 'acfg'
+          type: 'acfg',
+          flatFee: suggestedParams.flatFee || false
         };
 
         // Handle optional fields
@@ -369,7 +390,8 @@ export class AssetTransactionManager {
           genesisHash: suggestedParams.genesisHash instanceof Uint8Array
             ? algosdk.bytesToBase64(suggestedParams.genesisHash)
             : suggestedParams.genesisHash,
-          type: 'afrz'
+          type: 'afrz',
+          flatFee: suggestedParams.flatFee || false
         };
 
         // Handle optional fields
@@ -405,7 +427,8 @@ export class AssetTransactionManager {
           genesisHash: suggestedParams.genesisHash instanceof Uint8Array
             ? algosdk.bytesToBase64(suggestedParams.genesisHash)
             : suggestedParams.genesisHash,
-          type: 'axfer'
+          type: 'axfer',
+          flatFee: suggestedParams.flatFee || false
         };
 
         // Handle optional fields

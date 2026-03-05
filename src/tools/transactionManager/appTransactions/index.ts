@@ -59,6 +59,14 @@ export class AppTransactionManager {
     const algodClient = getAlgodClient(network);
     const suggestedParams = await algodClient.getTransactionParams().do();
 
+    // Apply fee overrides if provided
+    if (typeof args.fee === 'number') {
+      suggestedParams.fee = BigInt(args.fee);
+    }
+    if (args.flatFee === true) {
+      suggestedParams.flatFee = true;
+    }
+
     const handler = toolHandlers[name];
     if (!handler) {
       throw new McpError(
@@ -68,10 +76,13 @@ export class AppTransactionManager {
     }
 
     try {
+      const result = handler(args, suggestedParams);
+      // Include flatFee in response
+      result.flatFee = suggestedParams.flatFee || false;
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify(handler(args, suggestedParams), null, 2),
+          text: JSON.stringify(result, null, 2),
         }],
       };
     } catch (error) {

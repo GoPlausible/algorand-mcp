@@ -40,6 +40,16 @@ export const accountTransactionSchemas = {
         type: 'string',
         optional: true,
         description: 'Optional rekey to address in standard Algorand format'
+      },
+      fee: {
+        type: 'integer',
+        optional: true,
+        description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network'
+      },
+      flatFee: {
+        type: 'boolean',
+        optional: true,
+        description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte'
       }
     },
     required: ['from', 'to', 'amount']
@@ -56,7 +66,9 @@ export const accountTransactionSchemas = {
       voteKeyDilution: { type: 'integer', description: 'Dilution for the 2-level participation key' },
       nonParticipation: { type: 'boolean', optional: true, description: 'Mark account as nonparticipating for rewards' },
       note: { type: 'string', optional: true, description: 'Transaction note field (up to 1000 bytes)' },
-      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' }
+      rekeyTo: { type: 'string', optional: true, description: 'Address to rekey the sender account to' },
+      fee: { type: 'integer', optional: true, description: 'Transaction fee in microAlgos. If not set, uses suggested fee from the network' },
+      flatFee: { type: 'boolean', optional: true, description: 'If true, fee is used as-is (flat fee). If false (default), fee is per-byte' }
     },
     required: ['from', 'voteKey', 'selectionKey', 'stateProofKey', 'voteFirst', 'voteLast', 'voteKeyDilution']
   }
@@ -124,6 +136,14 @@ export class AccountTransactionManager {
     const algodClient = getAlgodClient(network);
     const suggestedParams = await algodClient.getTransactionParams().do();
 
+    // Apply fee overrides if provided
+    if (typeof args.fee === 'number') {
+      suggestedParams.fee = BigInt(args.fee);
+    }
+    if (args.flatFee === true) {
+      suggestedParams.flatFee = true;
+    }
+
     switch (name) {
       case 'make_payment_txn':
         if (!args.from || !args.to || typeof args.amount !== 'number') {
@@ -153,7 +173,8 @@ export class AccountTransactionManager {
             genesisHash: suggestedParams.genesisHash instanceof Uint8Array
               ? algosdk.bytesToBase64(suggestedParams.genesisHash)
               : suggestedParams.genesisHash,
-            type: 'pay'
+            type: 'pay',
+            flatFee: suggestedParams.flatFee || false
           };
 
           // Add note if provided
