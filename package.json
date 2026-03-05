@@ -1,6 +1,6 @@
 {
   "name": "@goplausible/algorand-mcp",
-  "version": "3.0.7",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },
@@ -48,6 +48,7 @@
     "@napi-rs/keyring": "^1.2.0",
     "@noble/curves": "^2.0.1",
     "@tinymanorg/tinyman-js-sdk": "^5.1.2",
+    "@txnlab/haystack-router":"^2.0.5",
     "algo-msgpack-with-bigint": "^2.1.1",
     "algosdk": "^3.5.2",
     "hi-base32": "^0.5.1",

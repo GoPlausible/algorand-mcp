@@ -5,6 +5,7 @@ import { nfdTools, handleNFDTools } from './nfd/index.js';
 import { tinymanTools, handleTinymanTools } from './tinyman/index.js';
 // import { ultradeTools, handleUltradeTools } from './ultrade/index.js';
 import { exampleTools, handleExampleTools } from './example/index.js';
+import { haystackTools, handleHaystackTools } from './hayrouter/index.js';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../../utils/responseProcessor.js';
 
@@ -14,6 +15,7 @@ export const apiManager = [
   ...indexerTools,
   ...nfdTools,
   ...tinymanTools,
+  ...haystackTools,
   ...exampleTools
 ];
 
@@ -37,6 +39,10 @@ export async function handleApiManager(name: string, args: any): Promise<any> {
     // Algod tools
     else if (name.startsWith('api_algod_')) {
       response = await handleAlgodTools(name, args);
+    }
+    // Haystack Router tools
+    else if (name.startsWith('api_haystack_')) {
+      response = await handleHaystackTools(name, args);
     }
     else if (name.startsWith('api_example_')) {
       response = await handleExampleTools(name, args);

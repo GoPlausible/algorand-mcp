@@ -74,7 +74,7 @@ function persistDb(): void {
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-interface AccountRow {
+export interface AccountRow {
   id: number;
   address: string;
   public_key: string;
@@ -888,5 +888,27 @@ export class WalletManager {
     } catch {
       return null;
     }
+  }
+
+  // ── Public accessors for external tool integration (e.g., haystack-router) ──
+
+  /** Get active account details (address, nickname, spending limits). */
+  static async getActiveWalletAccount(): Promise<AccountRow> {
+    return WalletManager.getActiveAccount();
+  }
+
+  /** Get active account's secret key from OS keychain. */
+  static async getActiveWalletSecretKey(): Promise<Uint8Array> {
+    return WalletManager.getActiveSecretKey();
+  }
+
+  /** Check if transaction amount is within spending limits. Throws on violation. */
+  static checkWalletSpendingLimits(account: AccountRow, amountMicroAlgos: number): void {
+    return WalletManager.checkSpendingLimits(account, amountMicroAlgos);
+  }
+
+  /** Record a spend against the account's daily allowance tracker. */
+  static async recordWalletSpend(address: string, amountMicroAlgos: number): Promise<void> {
+    return WalletManager.recordSpend(address, amountMicroAlgos);
   }
 }
