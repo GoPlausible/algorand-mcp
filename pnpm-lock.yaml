@@ -26,6 +26,9 @@ importers:
       '@tinymanorg/tinyman-js-sdk':
         specifier: ^5.1.2
         version: 5.1.4
+      '@txnlab/haystack-router':
+        specifier: ^2.0.5
+        version: 2.0.5(algosdk@3.5.2)
       algo-msgpack-with-bigint:
         specifier: ^2.1.1
         version: 2.1.1
@@ -508,6 +511,12 @@ packages:
 
   '@tinymanorg/tinyman-js-sdk@5.1.4':
     resolution: {integrity: sha512-y+703fChqR8G1gcHXCCekXJEXhtncTiRys2Z9lQp206YGefG7hvraii4R6w8+QV41xZsizWlp4vE01KO5gMTgA==}
+
+  '@txnlab/haystack-router@2.0.5':
+    resolution: {integrity: sha512-2d7nmf3Jfc2RyceewRsXhBB7pWN4+Zoj5Lw5iVCRmntCPL25oJb2hkv2xkkaoPcjMxFoqzP4qC+fp1eyRbFvZA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      algosdk: ^3.0.0
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2420,6 +2429,10 @@ snapshots:
       base64-js: 1.5.1
       multiformats: 13.4.2
       uuid: 10.0.0
+
+  '@txnlab/haystack-router@2.0.5(algosdk@3.5.2)':
+    dependencies:
+      algosdk: 3.5.2
 
   '@types/babel__core@7.20.5':
     dependencies:
