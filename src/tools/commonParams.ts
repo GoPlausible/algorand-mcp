@@ -3,8 +3,8 @@
 export const networkParam = {
   network: {
     type: 'string',
-    enum: ['mainnet', 'testnet', 'localnet'],
-    description: 'Algorand network to use (default: mainnet)',
+    enum: ['mainnet', 'testnet', 'localnet', 'voi-mainnet'],
+    description: 'Network to use (default: mainnet). Use voi-mainnet for Voi blockchain.',
   },
 };
 

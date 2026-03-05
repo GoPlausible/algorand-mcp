@@ -6,7 +6,7 @@ This document describes how AI agents should interact with the Algorand blockcha
 
 Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 107 tools across 13 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
 
-**Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using OS keychain-stored keys, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
+**Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using OS keychain-stored keys, and the agent provides the `network` parameter (`mainnet`, `testnet`, `localnet`, or `voi-mainnet`) on each tool call.
 
 ## Session Start
 
@@ -25,8 +25,11 @@ Every tool that interacts with the blockchain accepts a `network` parameter:
 | `mainnet` | Algorand mainnet (default if omitted) — **real value, exercise caution** |
 | `testnet` | Algorand testnet — safe for development and testing |
 | `localnet` | Local development network (requires `ALGORAND_LOCALNET_URL` env var) |
+| `voi-mainnet` | Voi mainnet — **real value, exercise caution**. Algorand-compatible chain via [Nodely](https://nodely.io) |
 
 Always confirm with the user which network to use before transactions. Default to `testnet` during development.
+
+> **Voi note**: Third-party Algorand services (Tinyman, Haystack, NFD, Pera) are **not available** on `voi-mainnet`. Only core algod/indexer tools work with Voi.
 
 ## Amounts and Decimals
 
