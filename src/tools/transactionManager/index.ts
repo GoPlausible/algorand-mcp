@@ -33,9 +33,6 @@ export class TransactionManager {
     // General transactions
     if (name === 'assign_group_id' ||
         name === 'sign_transaction' ||
-        name === 'sign_bytes' ||
-        name === 'encode_obj' ||
-        name === 'decode_obj' ||
         name === 'encode_unsigned_transaction' ||
         name === 'decode_signed_transaction') {
       return GeneralTransactionManager.handleTool(name, args);

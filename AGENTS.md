@@ -4,7 +4,7 @@ This document describes how AI agents should interact with the Algorand blockcha
 
 ## Overview
 
-Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 105 tools across 13 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
+Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 107 tools across 13 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
 
 **Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using OS keychain-stored keys, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
 
@@ -144,10 +144,10 @@ Address validation, encoding, signing, and server health.
 
 `ping`, `validate_address`, `encode_address`, `decode_address`, `get_application_address`, `bytes_to_bigint`, `bigint_to_bytes`, `encode_uint64`, `decode_uint64`, `verify_bytes`, `sign_bytes`, `encode_obj`, `decode_obj`
 
-### Transaction Building (16 tools)
+### Transaction Building (18 tools)
 Build unsigned transaction objects. Must be signed before submission.
 
-`make_payment_txn`, `make_keyreg_txn`, `make_asset_create_txn`, `make_asset_config_txn`, `make_asset_destroy_txn`, `make_asset_freeze_txn`, `make_asset_transfer_txn`, `make_app_create_txn`, `make_app_update_txn`, `make_app_delete_txn`, `make_app_optin_txn`, `make_app_closeout_txn`, `make_app_clear_txn`, `make_app_call_txn`, `assign_group_id`, `sign_transaction`
+`make_payment_txn`, `make_keyreg_txn`, `make_asset_create_txn`, `make_asset_config_txn`, `make_asset_destroy_txn`, `make_asset_freeze_txn`, `make_asset_transfer_txn`, `make_app_create_txn`, `make_app_update_txn`, `make_app_delete_txn`, `make_app_optin_txn`, `make_app_closeout_txn`, `make_app_clear_txn`, `make_app_call_txn`, `assign_group_id`, `sign_transaction`, `encode_unsigned_transaction`, `decode_signed_transaction`
 
 ### Algod (5 tools)
 TEAL compilation, transaction simulation, and submission.

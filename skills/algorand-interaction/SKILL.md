@@ -13,7 +13,7 @@ Interact with Algorand blockchain through the local Algorand MCP server. This se
 - **OS keychain wallet** — secret keys stored securely via `@napi-rs/keyring`, never in logs or responses
 - **Multi-network** — supports `mainnet`, `testnet`, and `localnet`
 - **Spending limits** — per-transaction (`allowance`) and daily (`dailyAllowance`) limits enforced by wallet
-- **105 tools** across 13 categories
+- **107 tools** across 13 categories
 
 ## Session Start Checklist
 
@@ -125,7 +125,7 @@ For atomic (all-or-nothing) multi-transaction groups:
 
 **Utility** (13): `ping`, `validate_address`, `encode_address`, `decode_address`, `get_application_address`, `bytes_to_bigint`, `bigint_to_bytes`, `encode_uint64`, `decode_uint64`, `verify_bytes`, `sign_bytes`, `encode_obj`, `decode_obj`
 
-**Transaction Building** (16): `make_payment_txn`, `make_keyreg_txn`, `make_asset_create_txn`, `make_asset_config_txn`, `make_asset_destroy_txn`, `make_asset_freeze_txn`, `make_asset_transfer_txn`, `make_app_create_txn`, `make_app_update_txn`, `make_app_delete_txn`, `make_app_optin_txn`, `make_app_closeout_txn`, `make_app_clear_txn`, `make_app_call_txn`, `assign_group_id`, `sign_transaction`
+**Transaction Building** (18): `make_payment_txn`, `make_keyreg_txn`, `make_asset_create_txn`, `make_asset_config_txn`, `make_asset_destroy_txn`, `make_asset_freeze_txn`, `make_asset_transfer_txn`, `make_app_create_txn`, `make_app_update_txn`, `make_app_delete_txn`, `make_app_optin_txn`, `make_app_closeout_txn`, `make_app_clear_txn`, `make_app_call_txn`, `assign_group_id`, `sign_transaction`, `encode_unsigned_transaction`, `decode_signed_transaction`
 
 **Algod** (5): `compile_teal`, `disassemble_teal`, `send_raw_transaction`, `simulate_raw_transactions`, `simulate_transactions`
 

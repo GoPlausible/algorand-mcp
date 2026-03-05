@@ -26,28 +26,6 @@ export const generalTransactionSchemas = {
     },
     required: ['transaction', 'sk']
   },
-  signBytes: {
-    type: 'object',
-    properties: {
-      bytes: { type: 'string', description: 'Base64-encoded bytes to be signed' },
-      sk: { type: 'string', description: 'Secret key in hexadecimal format to sign the bytes with' }
-    },
-    required: ['bytes', 'sk']
-  },
-  encodeObj: {
-    type: 'object',
-    properties: {
-      obj: { type: 'object', description: 'Object to be encoded into msgpack format' }
-    },
-    required: ['obj']
-  },
-  decodeObj: {
-    type: 'object',
-    properties: {
-      bytes: { type: 'string', description: 'Base64-encoded msgpack bytes to be decoded into an object' }
-    },
-    required: ['bytes']
-  },
   encodeUnsignedTransaction: {
     type: 'object',
     properties: {
@@ -75,21 +53,6 @@ export const generalTransactionTools = [
     name: 'sign_transaction',
     description: 'Sign a transaction with a secret key',
     inputSchema: withCommonParams(generalTransactionSchemas.signTransaction),
-  },
-  {
-    name: 'sign_bytes',
-    description: 'Sign arbitrary bytes with a secret key',
-    inputSchema: withCommonParams(generalTransactionSchemas.signBytes),
-  },
-  {
-    name: 'encode_obj',
-    description: 'Encode an object to msgpack format',
-    inputSchema: withCommonParams(generalTransactionSchemas.encodeObj),
-  },
-  {
-    name: 'decode_obj',
-    description: 'Decode msgpack bytes to an object',
-    inputSchema: withCommonParams(generalTransactionSchemas.decodeObj),
   },
   {
     name: 'encode_unsigned_transaction',
