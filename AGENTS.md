@@ -4,7 +4,7 @@ This document describes how AI agents should interact with the Algorand blockcha
 
 ## Overview
 
-Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 102 tools across 12 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
+Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 105 tools across 13 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
 
 **Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using OS keychain-stored keys, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
 
@@ -195,6 +195,17 @@ DEX aggregator for optimal swap routing across Tinyman V2, Pact, Folks, and LST 
 Generate Algorand payment URIs and QR codes per the ARC-26 specification.
 
 `generate_algorand_uri`
+
+### Pera Wallet (3 tools)
+Pera Wallet verified asset data. **Mainnet only** — the Pera public API does not support testnet or localnet.
+
+| Tool | Purpose |
+|------|---------|
+| `api_pera_asset_verification_status` | Get verification status of a mainnet asset (verified, trusted, suspicious, unknown) |
+| `api_pera_verified_asset_details` | Get detailed asset info from Pera (name, unit, logo, decimals, verification) |
+| `api_pera_verified_asset_search` | Search Pera verified assets by name, unit name, or keyword |
+
+> Use Pera tools to verify asset legitimacy before interacting with unknown ASAs on mainnet.
 
 ### Knowledge Base (1 tool)
 Access the embedded Algorand developer documentation taxonomy.

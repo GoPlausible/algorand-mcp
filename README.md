@@ -501,6 +501,24 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 | `api_tinyman_get_validator_optin_quote` | Get quote for validator opt-in |
 | `api_tinyman_get_validator_optout_quote` | Get quote for validator opt-out |
 
+### Haystack Router Tools (3 tools)
+
+| Tool | Description |
+|---|---|
+| `api_haystack_get_swap_quote` | Get optimized swap quote with routing across Tinyman V2, Pact, Folks, and LST protocols |
+| `api_haystack_execute_swap` | All-in-one swap: quote → sign (via wallet) → submit → confirm |
+| `api_haystack_needs_optin` | Check if address needs asset opt-in before swapping |
+
+### Pera Wallet Tools (3 tools)
+
+| Tool | Description |
+|---|---|
+| `api_pera_asset_verification_status` | Get verification status of a mainnet asset (verified, trusted, suspicious, unknown) |
+| `api_pera_verified_asset_details` | Get detailed asset info from Pera (name, unit, logo, decimals, verification) |
+| `api_pera_verified_asset_search` | Search Pera verified assets by name, unit name, or keyword |
+
+> Pera Wallet tools are **mainnet only** — the Pera public API does not support testnet or localnet.
+
 ### ARC-26 URI Tools (1 tool)
 
 | Tool | Description |
@@ -567,7 +585,8 @@ algorand-mcp/
 │   │       ├── indexer/         # Indexer API
 │   │       ├── nfd/             # NFDomains
 │   │       ├── tinyman/         # Tinyman AMM
-│   │       └── example/         # Example tools
+│   │       ├── hayrouter/       # Haystack Router DEX aggregator
+│   │       └── pera/            # Pera Wallet verified assets
 │   └── utils/
 │       └── responseProcessor.ts # Pagination and formatting
 ├── tests/                       # Test suite

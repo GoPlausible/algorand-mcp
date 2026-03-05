@@ -4,8 +4,8 @@ import { nfdTools, handleNFDTools } from './nfd/index.js';
 // import { vestigeTools, handleVestigeTools } from './vestige/index.js';
 import { tinymanTools, handleTinymanTools } from './tinyman/index.js';
 // import { ultradeTools, handleUltradeTools } from './ultrade/index.js';
-import { exampleTools, handleExampleTools } from './example/index.js';
 import { haystackTools, handleHaystackTools } from './hayrouter/index.js';
+import { peraTools, handlePeraTools } from './pera/index.js';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../../utils/responseProcessor.js';
 
@@ -16,7 +16,7 @@ export const apiManager = [
   ...nfdTools,
   ...tinymanTools,
   ...haystackTools,
-  ...exampleTools
+  ...peraTools
 ];
 
 // Handle all API tools
@@ -44,8 +44,9 @@ export async function handleApiManager(name: string, args: any): Promise<any> {
     else if (name.startsWith('api_haystack_')) {
       response = await handleHaystackTools(name, args);
     }
-    else if (name.startsWith('api_example_')) {
-      response = await handleExampleTools(name, args);
+    // Pera Wallet tools
+    else if (name.startsWith('api_pera_')) {
+      response = await handlePeraTools(name, args);
     }
     else {
       throw new McpError(

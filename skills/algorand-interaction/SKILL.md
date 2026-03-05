@@ -1,6 +1,6 @@
 ---
 name: algorand-interaction
-description: Interact with Algorand blockchain via the local Algorand MCP server — wallet operations, ALGO/ASA transactions, smart contracts, account info, NFD lookups, atomic groups, Tinyman swaps, TEAL compilation, knowledge base. Use when user asks about Algorand wallet, balances, sending ALGO or tokens, asset opt-in, transactions, NFD names, DEX swaps, smart contracts, or account details.
+description: Interact with Algorand blockchain via the local Algorand MCP server — wallet operations, ALGO/ASA transactions, smart contracts, account info, NFD lookups, atomic groups, Tinyman swaps, Haystack Router DEX aggregation, Pera verified asset data, TEAL compilation, knowledge base. Use when user asks about Algorand wallet, balances, sending ALGO or tokens, asset opt-in, transactions, NFD names, DEX swaps, smart contracts, asset verification, or account details.
 ---
 
 # Algorand MCP Interaction (Local)
@@ -13,7 +13,7 @@ Interact with Algorand blockchain through the local Algorand MCP server. This se
 - **OS keychain wallet** — secret keys stored securely via `@napi-rs/keyring`, never in logs or responses
 - **Multi-network** — supports `mainnet`, `testnet`, and `localnet`
 - **Spending limits** — per-transaction (`allowance`) and daily (`dailyAllowance`) limits enforced by wallet
-- **99 tools** across 11 categories
+- **105 tools** across 13 categories
 
 ## Session Start Checklist
 
@@ -136,6 +136,10 @@ For atomic (all-or-nothing) multi-transaction groups:
 **NFDomains** (6): `api_nfd_get_nfd`, `api_nfd_get_nfds_for_addresses`, `api_nfd_get_nfd_activity`, `api_nfd_get_nfd_analytics`, `api_nfd_browse_nfds`, `api_nfd_search_nfds`
 
 **Tinyman DEX** (9): `api_tinyman_get_pool`, `api_tinyman_get_pool_analytics`, `api_tinyman_get_pool_creation_quote`, `api_tinyman_get_liquidity_quote`, `api_tinyman_get_remove_liquidity_quote`, `api_tinyman_get_swap_quote`, `api_tinyman_get_asset_optin_quote`, `api_tinyman_get_validator_optin_quote`, `api_tinyman_get_validator_optout_quote`
+
+**Haystack Router** (3): `api_haystack_get_swap_quote`, `api_haystack_execute_swap`, `api_haystack_needs_optin`
+
+**Pera Wallet** (3): `api_pera_asset_verification_status`, `api_pera_verified_asset_details`, `api_pera_verified_asset_search` *(mainnet only)*
 
 **ARC-26 URI** (1): `generate_algorand_uri`
 

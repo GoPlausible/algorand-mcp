@@ -387,6 +387,81 @@ api_tinyman_get_pool {
 
 ---
 
+## Haystack Router Swap (DEX Aggregator)
+
+### Step 1: Check wallet balance
+```
+wallet_get_info { "network": "testnet" }
+```
+
+### Step 2: Check if opt-in is needed for output asset
+```
+api_haystack_needs_optin {
+  "address": "[wallet_address]",
+  "assetId": 31566704,
+  "network": "testnet"
+}
+```
+
+### Step 3: Opt in if needed
+```
+wallet_optin_asset { "assetId": 31566704, "network": "testnet" }
+```
+
+### Step 4: Preview the swap quote
+```
+api_haystack_get_swap_quote {
+  "fromASAID": 0,
+  "toASAID": 31566704,
+  "amount": 1000000,
+  "address": "[wallet_address]",
+  "network": "testnet"
+}
+```
+
+### Step 5: Execute (after user confirms)
+```
+api_haystack_execute_swap {
+  "fromASAID": 0,
+  "toASAID": 31566704,
+  "amount": 1000000,
+  "slippage": 1,
+  "network": "testnet"
+}
+```
+
+> Haystack routes across Tinyman V2, Pact, Folks, and LST protocols to find the best price.
+
+---
+
+## Pera Wallet Asset Verification (Mainnet Only)
+
+### Check if an asset is verified
+```
+api_pera_asset_verification_status {
+  "assetId": 31566704
+}
+```
+
+### Get detailed asset info from Pera
+```
+api_pera_verified_asset_details {
+  "assetId": 31566704
+}
+```
+
+### Search for verified assets
+```
+api_pera_verified_asset_search {
+  "query": "USDC",
+  "verifiedOnly": true
+}
+```
+
+> Pera tools are **mainnet only**. Use them to verify asset legitimacy before interacting with unknown ASAs.
+
+---
+
 ## Using the Knowledge Base
 
 ### Get a specific document

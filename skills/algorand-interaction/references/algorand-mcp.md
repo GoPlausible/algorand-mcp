@@ -15,8 +15,10 @@
 7. [Indexer API Tools](#indexer-api-tools)
 8. [NFDomains API Tools](#nfdomains-api-tools)
 9. [Tinyman DEX API Tools](#tinyman-dex-api-tools)
-10. [ARC-26 URI Tools](#arc-26-uri-tools)
-11. [Knowledge Base Tools](#knowledge-base-tools)
+10. [Haystack Router Tools](#haystack-router-tools)
+11. [Pera Wallet Tools](#pera-wallet-tools)
+12. [ARC-26 URI Tools](#arc-26-uri-tools)
+13. [Knowledge Base Tools](#knowledge-base-tools)
 
 ---
 
@@ -680,6 +682,74 @@ Decentralized exchange operations on Tinyman AMM.
 ### api_tinyman_get_validator_optout_quote
 - **Purpose**: Get a quote for opting out of the Tinyman validator
 - **Parameters**: Validator opt-out parameters
+
+---
+
+## Haystack Router Tools
+
+DEX aggregator for optimal swap routing across Tinyman V2, Pact, Folks, and LST protocols.
+
+### api_haystack_get_swap_quote
+- **Purpose**: Get optimized swap quote with routing, pricing, and price impact
+- **Parameters**:
+```json
+{
+  "fromASAID": 0,
+  "toASAID": 31566704,
+  "amount": 1000000,
+  "address": "ALGO_ADDRESS",
+  "network": "testnet"
+}
+```
+- **Returns**: Quote with output amount, price impact, route details
+
+### api_haystack_execute_swap
+- **Purpose**: All-in-one swap: quote → sign (via wallet) → submit → confirm
+- **Parameters**:
+```json
+{
+  "fromASAID": 0,
+  "toASAID": 31566704,
+  "amount": 1000000,
+  "slippage": 1,
+  "note": "optional note",
+  "network": "testnet"
+}
+```
+- **Returns**: `{ confirmedRound, txIds, summary }`
+
+### api_haystack_needs_optin
+- **Purpose**: Check if an address needs to opt into an asset before swapping
+- **Parameters**: `{ "address": "ALGO_ADDRESS", "assetId": 31566704, "network": "testnet" }`
+- **Returns**: `{ needsOptIn: boolean }`
+
+---
+
+## Pera Wallet Tools
+
+Pera Wallet verified asset data. **Mainnet only** — the Pera public API does not support testnet or localnet.
+
+### api_pera_asset_verification_status
+- **Purpose**: Get the verification status of a mainnet asset
+- **Parameters**: `{ "assetId": 31566704 }`
+- **Returns**: `{ assetId, verification_tier }` — tier is `verified`, `trusted`, `suspicious`, or `unknown`
+- **Use**: Verify asset legitimacy before interacting with unknown ASAs
+
+### api_pera_verified_asset_details
+- **Purpose**: Get detailed asset information from Pera
+- **Parameters**: `{ "assetId": 31566704 }`
+- **Returns**: Full asset details including name, unit name, logo, decimals, total supply, verification tier
+
+### api_pera_verified_asset_search
+- **Purpose**: Search Pera verified assets by name, unit name, or keyword
+- **Parameters**:
+```json
+{
+  "query": "USDC",
+  "verifiedOnly": true
+}
+```
+- **Returns**: Array of matching assets with ID, name, unit name, decimals, verification tier, and logo
 
 ---
 
