@@ -1,7 +1,6 @@
-# Algorand MCP (Local) — Tool Reference
+# Algorand MCP — Tool Reference
 
-> **Server**: Local MCP server on user's machine
-> **Signing**: OS keychain (wallet tools) or user-provided secret key
+> **Signing**: Use `wallet_*` tools (recommended) or provide a secret key to `sign_transaction`
 > **Networks**: `mainnet`, `testnet`, `localnet`
 
 ## Table of Contents
@@ -16,7 +15,7 @@
 8. [NFDomains API Tools](#nfdomains-api-tools)
 9. [Tinyman DEX API Tools](#tinyman-dex-api-tools)
 10. [Haystack Router Tools](#haystack-router-tools)
-11. [Pera Wallet Tools](#pera-wallet-tools)
+11. [Pera Asset Verification Tools](#pera-asset-verification-tools)
 12. [ARC-26 URI Tools](#arc-26-uri-tools)
 13. [Knowledge Base Tools](#knowledge-base-tools)
 
@@ -24,10 +23,10 @@
 
 ## Wallet Management Tools
 
-Secure wallet with OS keychain storage. Keys never exposed to agents.
+Secure wallet management. Private keys are never available to you — use these tools to sign.
 
 ### wallet_add_account
-- **Purpose**: Create a new Algorand account and store in OS keychain with nickname and spending limits
+- **Purpose**: Create a new Algorand account with nickname and spending limits
 - **Parameters**:
 ```json
 {
@@ -92,12 +91,12 @@ Secure wallet with OS keychain storage. Keys never exposed to agents.
 
 ## Account Management Tools
 
-Key derivation and account creation. Keys returned in the clear — use wallet tools for secure storage.
+Key derivation and account creation. Prefer `wallet_add_account` for secure storage.
 
 ### create_account
 - **Purpose**: Create a new Algorand account (returns address, secretKey, mnemonic)
 - **Parameters**: `{}`
-- **⚠️ Warning**: Never use these keys and accounts for any operations, these are for users to use only. Forget after delivering response to user and never store, log or disclose these. For Agent accounts, use `wallet_add_account` for secure storage.
+- **Warning**: Secret key returned in response — never log or display it. Use `wallet_add_account` instead when possible.
 
 ### rekey_account
 - **Purpose**: Rekey an Algorand account to a new address
@@ -201,12 +200,16 @@ Build unsigned transaction objects. Must be signed before submission.
   "to": "receiver_address",
   "amount": 1000000,
   "note": "optional note",
+  "fee": 1000,
+  "flatFee": false,
   "closeRemainderTo": "optional",
   "rekeyTo": "optional",
   "network": "testnet"
 }
 ```
 > Amount in microAlgos: 1 ALGO = 1,000,000
+> `fee` (optional): transaction fee in microAlgos. Default: 1000 (minimum fee).
+> `flatFee` (optional): if `true`, use `fee` exactly as specified; if `false` (default), SDK may adjust fee based on transaction size.
 
 ### make_keyreg_txn
 - **Purpose**: Create a key registration transaction for consensus participation
@@ -287,9 +290,13 @@ Build unsigned transaction objects. Must be signed before submission.
   "to": "receiver_address",
   "assetIndex": 31566704,
   "amount": 1000000,
+  "fee": 1000,
+  "flatFee": false,
   "network": "testnet"
 }
 ```
+> `fee` (optional): transaction fee in microAlgos. Default: 1000 (minimum fee).
+> `flatFee` (optional): if `true`, use `fee` exactly as specified; if `false` (default), SDK may adjust fee based on transaction size.
 
 ### make_app_create_txn
 - **Purpose**: Deploy a smart contract
@@ -563,7 +570,7 @@ Algorand Name Service (`.algo` names).
   "network": "mainnet"
 }
 ```
-- **⚠️ CRITICAL**: Use `depositAccount` for transactions, NOT other address fields!
+- **CRITICAL**: Use `depositAccount` for transactions, NOT other address fields!
 
 ### api_nfd_get_nfds_for_addresses
 - **Purpose**: Get NFDs owned by specific addresses
@@ -687,10 +694,10 @@ Decentralized exchange operations on Tinyman AMM.
 
 ## Haystack Router Tools
 
-DEX aggregator for optimal swap routing across Tinyman V2, Pact, Folks, and LST protocols.
+DEX aggregator for best-price swaps across multiple Algorand DEXes (Tinyman, Pact, Folks) and LST protocols (tALGO, xALGO). For detailed workflows, load the `haystack-router-interaction` skill.
 
 ### api_haystack_get_swap_quote
-- **Purpose**: Get optimized swap quote with routing, pricing, and price impact
+- **Purpose**: Get a best-price swap quote aggregated across multiple DEXes
 - **Parameters**:
 ```json
 {
@@ -698,50 +705,66 @@ DEX aggregator for optimal swap routing across Tinyman V2, Pact, Folks, and LST 
   "toASAID": 31566704,
   "amount": 1000000,
   "address": "ALGO_ADDRESS",
+  "type": "fixed-input",
   "network": "testnet"
 }
 ```
-- **Returns**: Quote with output amount, price impact, route details
+- **Returns**: Expected output, USD values, price impact, route details, protocol fees, required opt-ins
+> **CRITICAL — `type` determines swap direction:**
+> - `"fixed-input"` (default): `amount` = exact input user **spends**. Output varies. Use for "sell/swap/use X".
+> - `"fixed-output"`: `amount` = exact output user **receives**. Input varies. Use for "buy X".
+> - **"Buy 10 ALGO with USDC"** → `type: "fixed-output"`, `amount: 10000000`, `fromASAID: USDC`, `toASAID: ALGO`
+> - **"Swap 10 ALGO to USDC"** → `type: "fixed-input"`, `amount: 10000000`, `fromASAID: ALGO`, `toASAID: USDC`
+> All amounts in base units (microAlgos / smallest ASA unit)
 
 ### api_haystack_execute_swap
-- **Purpose**: All-in-one swap: quote → sign (via wallet) → submit → confirm
+- **Purpose**: All-in-one swap execution — gets quote, signs via wallet, submits, and confirms
 - **Parameters**:
 ```json
 {
   "fromASAID": 0,
   "toASAID": 31566704,
   "amount": 1000000,
-  "slippage": 1,
-  "note": "optional note",
+  "type": "fixed-input",
+  "slippage": 0.5,
   "network": "testnet"
 }
 ```
-- **Returns**: `{ confirmedRound, txIds, summary }`
+- **Returns**: Status, confirmed round, transaction IDs, signer, quote details, swap summary
+> `type`: Same rules as `api_haystack_get_swap_quote` — "buy X" = `"fixed-output"`, "sell/swap X" = `"fixed-input"`
 
 ### api_haystack_needs_optin
-- **Purpose**: Check if an address needs to opt into an asset before swapping
-- **Parameters**: `{ "address": "ALGO_ADDRESS", "assetId": 31566704, "network": "testnet" }`
+- **Purpose**: Check if an address needs to opt-in to an asset before swapping
+- **Parameters**:
+```json
+{
+  "address": "ALGO_ADDRESS",
+  "assetId": 31566704,
+  "network": "testnet"
+}
+```
 - **Returns**: `{ needsOptIn: boolean }`
 
 ---
 
-## Pera Wallet Tools
+## Pera Asset Verification Tools
 
-Pera Wallet verified asset data. **Mainnet only** — the Pera public API does not support testnet or localnet.
+Verify asset legitimacy and get detailed asset information from Pera Wallet's mainnet database. Use these to protect users from scam tokens.
 
 ### api_pera_asset_verification_status
-- **Purpose**: Get the verification status of a mainnet asset
+- **Purpose**: Check the verification tier of a mainnet asset (verified, trusted, suspicious, unverified)
 - **Parameters**: `{ "assetId": 31566704 }`
-- **Returns**: `{ assetId, verification_tier }` — tier is `verified`, `trusted`, `suspicious`, or `unknown`
-- **Use**: Verify asset legitimacy before interacting with unknown ASAs
+- **Returns**: `{ asset_id, verification_tier, explorer_url }`
+> Tiers: `verified` (highest), `trusted`, `suspicious` (warn user), `unverified` (unknown)
+> Mainnet only — uses Pera Wallet's verification database
 
 ### api_pera_verified_asset_details
-- **Purpose**: Get detailed asset information from Pera
+- **Purpose**: Get detailed asset info including name, decimals, total supply, USD value, logo, verification tier, and collectible status
 - **Parameters**: `{ "assetId": 31566704 }`
-- **Returns**: Full asset details including name, unit name, logo, decimals, total supply, verification tier
+- **Returns**: Full asset details from Pera Wallet database
 
 ### api_pera_verified_asset_search
-- **Purpose**: Search Pera verified assets by name, unit name, or keyword
+- **Purpose**: Search assets by name, unit name, or keyword with optional verification filter
 - **Parameters**:
 ```json
 {
@@ -749,7 +772,8 @@ Pera Wallet verified asset data. **Mainnet only** — the Pera public API does n
   "verifiedOnly": true
 }
 ```
-- **Returns**: Array of matching assets with ID, name, unit name, decimals, verification tier, and logo
+- **Returns**: Array of matching assets with `{ asset_id, name, unit_name, decimals, verification_tier, usd_value, logo, creator_address, is_deleted }`
+> Set `verifiedOnly: true` to only return `verified` or `trusted` assets
 
 ---
 

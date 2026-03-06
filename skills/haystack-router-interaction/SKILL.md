@@ -20,7 +20,7 @@ Three dedicated Algorand MCP tools provide full Haystack Router functionality. T
 Get an optimized swap quote without executing. Use to preview pricing, route, and price impact before confirming with user.
 
 ```
-→ api_haystack_get_swap_quote {
+-> api_haystack_get_swap_quote {
     fromASAID: 0,             // Input asset (0 = ALGO)
     toASAID: 31566704,        // Output asset (USDC)
     amount: 1000000,          // 1 ALGO in base units
@@ -37,10 +37,10 @@ Returns: expectedOutput, inputAmount, usdIn, usdOut, userPriceImpact,
 
 ### `api_haystack_execute_swap`
 
-All-in-one swap: quote → sign (via wallet) → submit → confirm. Uses the active wallet account for signing. Enforces wallet spending limits.
+All-in-one swap: quote -> sign (via wallet) -> submit -> confirm. Uses the active wallet account for signing. Enforces wallet spending limits.
 
 ```
-→ api_haystack_execute_swap {
+-> api_haystack_execute_swap {
     fromASAID: 0,             // Input asset
     toASAID: 31566704,        // Output asset
     amount: 1000000,          // Amount in base units
@@ -61,7 +61,7 @@ Returns: status, confirmedRound, txIds, signer, nickname, quote details,
 Check if an address needs to opt into an asset before swapping.
 
 ```
-→ api_haystack_needs_optin {
+-> api_haystack_needs_optin {
     address: "<address>",
     assetId: 31566704,
     network: "mainnet"
@@ -74,19 +74,19 @@ Returns: { address, assetId, needsOptIn: true/false, network }
 
 ```
 Step 1: Check wallet
-  → wallet_get_info { network }
+  -> wallet_get_info { network }
 
 Step 2: Check opt-in (if swapping to an ASA)
-  → api_haystack_needs_optin { address, assetId, network }
-  → If needed: wallet_optin_asset { assetId, network }
+  -> api_haystack_needs_optin { address, assetId, network }
+  -> If needed: wallet_optin_asset { assetId, network }
 
 Step 3: Preview quote (recommended — show user before executing)
-  → api_haystack_get_swap_quote { fromASAID, toASAID, amount, address, network }
-  → Present to user: expected output, USD values, route, price impact
+  -> api_haystack_get_swap_quote { fromASAID, toASAID, amount, address, network }
+  -> Present to user: expected output, USD values, route, price impact
 
-Step 4: User confirms → Execute
-  → api_haystack_execute_swap { fromASAID, toASAID, amount, slippage, network }
-  → Returns confirmed result with summary
+Step 4: User confirms -> Execute
+  -> api_haystack_execute_swap { fromASAID, toASAID, amount, slippage, network }
+  -> Returns confirmed result with summary
 ```
 
 **Key rules:**
@@ -95,6 +95,33 @@ Step 4: User confirms → Execute
 - The execute tool handles signing via the active wallet — no manual signing needed
 - Default to testnet during development; confirm before mainnet
 - Quotes are time-sensitive — execute promptly after user confirms
+
+## CRITICAL: Swap Direction Rules
+
+The `type` parameter determines whether the `amount` is the exact input or the exact output. **Getting this wrong means the user spends or receives the wrong amount.**
+
+### How to parse user intent
+
+| User says | Means | `type` | `amount` is | `fromASAID` | `toASAID` |
+|-----------|-------|--------|-------------|-------------|-----------|
+| "Buy 10 ALGO with USDC" | Want exactly 10 ALGO out | `"fixed-output"` | 10000000 (the ALGO) | USDC | ALGO |
+| "Buy 10 USDC with ALGO" | Want exactly 10 USDC out | `"fixed-output"` | 10000000 (the USDC) | ALGO | USDC |
+| "Sell 10 ALGO for USDC" | Spend exactly 10 ALGO | `"fixed-input"` | 10000000 (the ALGO) | ALGO | USDC |
+| "Swap 10 ALGO to USDC" | Spend exactly 10 ALGO | `"fixed-input"` | 10000000 (the ALGO) | ALGO | USDC |
+| "Use 10 ALGO to buy USDC" | Spend exactly 10 ALGO | `"fixed-input"` | 10000000 (the ALGO) | ALGO | USDC |
+| "Buy USDC for 10 ALGO" | Spend exactly 10 ALGO | `"fixed-input"` | 10000000 (the ALGO) | ALGO | USDC |
+| "Get me 5 USDC" | Want exactly 5 USDC out | `"fixed-output"` | 5000000 (the USDC) | (ask user) | USDC |
+
+**Rules:**
+1. **"Buy X of Y"** -> user wants exactly X of Y as output -> `type: "fixed-output"`, `amount` = X in base units, `toASAID` = Y
+2. **"Sell/swap/convert X of Y"** -> user wants to spend exactly X of Y as input -> `type: "fixed-input"`, `amount` = X in base units, `fromASAID` = Y
+3. **"Buy Y for/with X of Z"** -> user specifies exact input spend -> `type: "fixed-input"`, `amount` = X in base units, `fromASAID` = Z
+4. **If ambiguous, ASK the user** — never guess. Wrong direction = wrong amount spent/received.
+
+### fixed-input vs fixed-output behavior
+
+- **`fixed-input`**: The `amount` field is the **exact input** the user will spend. The output varies based on market price. User knows exactly what they pay.
+- **`fixed-output`**: The `amount` field is the **exact output** the user will receive. The input varies based on market price. User knows exactly what they get.
 
 ## Key Concepts
 

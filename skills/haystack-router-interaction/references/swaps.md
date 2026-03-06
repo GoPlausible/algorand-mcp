@@ -5,7 +5,7 @@ The `api_haystack_execute_swap` tool handles the entire swap lifecycle: quoting,
 ## Quick Swap (Single Tool)
 
 ```
-→ api_haystack_execute_swap {
+-> api_haystack_execute_swap {
     fromASAID: 0,             // ALGO
     toASAID: 31566704,        // USDC
     amount: 1000000,          // 1 ALGO in base units
@@ -29,27 +29,54 @@ For best UX, preview the quote before executing:
 
 ```
 1. Check wallet state
-   → wallet_get_info { network: "mainnet" }
-   → Note the address and ALGO balance
+   -> wallet_get_info { network: "mainnet" }
+   -> Note the address and ALGO balance
 
 2. Check output asset opt-in (skip for ALGO)
-   → api_haystack_needs_optin { address, assetId: 31566704, network: "mainnet" }
-   → If needsOptIn is true:
-     → wallet_optin_asset { assetId: 31566704, network: "mainnet" }
+   -> api_haystack_needs_optin { address, assetId: 31566704, network: "mainnet" }
+   -> If needsOptIn is true:
+     -> wallet_optin_asset { assetId: 31566704, network: "mainnet" }
 
 3. Preview quote (show user before executing)
-   → api_haystack_get_swap_quote {
+   -> api_haystack_get_swap_quote {
        fromASAID: 0, toASAID: 31566704, amount: 1000000,
        address: "<wallet_address>", network: "mainnet"
      }
-   → Present to user: expected output, USD values, route, price impact
+   -> Present to user: expected output, USD values, route, price impact
 
-4. User confirms → Execute (all-in-one)
-   → api_haystack_execute_swap {
+4. User confirms -> Execute (all-in-one)
+   -> api_haystack_execute_swap {
        fromASAID: 0, toASAID: 31566704, amount: 1000000,
        slippage: 1, network: "mainnet"
      }
-   → Returns confirmed result with exact summary
+   -> Returns confirmed result with exact summary
+```
+
+## CRITICAL: Swap Direction (`type` parameter)
+
+The `type` parameter on both `api_haystack_get_swap_quote` and `api_haystack_execute_swap` controls whether `amount` is exact input or exact output. **Wrong direction = wrong amount spent/received.**
+
+- **`"fixed-input"`** (default): `amount` = exact input the user **spends**. Output varies.
+  - "Sell 10 ALGO", "Swap 10 ALGO to USDC", "Use 10 ALGO to buy USDC", "Buy USDC for 10 ALGO"
+- **`"fixed-output"`**: `amount` = exact output the user **receives**. Input varies.
+  - "Buy 10 ALGO", "Buy 10 USDC with ALGO", "Get me exactly 5 USDC"
+
+**Rule: "Buy X of Y" = fixed-output. "Sell/swap/use X of Y" = fixed-input. If ambiguous, ask.**
+
+```
+// "Sell 10 ALGO for USDC" — user spends exactly 10 ALGO
+-> api_haystack_execute_swap {
+    fromASAID: 0, toASAID: 31566704,
+    amount: 10000000, type: "fixed-input",
+    slippage: 1, network: "mainnet"
+  }
+
+// "Buy 10 USDC with ALGO" — user receives exactly 10 USDC
+-> api_haystack_execute_swap {
+    fromASAID: 0, toASAID: 31566704,
+    amount: 10000000, type: "fixed-output",
+    slippage: 1, network: "mainnet"
+  }
 ```
 
 ## Important Rules
@@ -60,14 +87,15 @@ For best UX, preview the quote before executing:
 - **Check opt-in for ASAs** — Use `api_haystack_needs_optin` + `wallet_optin_asset` if needed
 - **Default to testnet** — Unless user explicitly requests mainnet
 - **Handle quote staleness** — Quotes are time-sensitive; execute promptly after user confirms
+- **Set `type` correctly** — Parse user intent for fixed-input vs fixed-output (see above)
 
 ## Slippage Guidance
 
 | Pair Type         | Recommended Slippage |
 | ----------------- | -------------------- |
-| Stable pairs      | 0.5–1%               |
-| Volatile pairs    | 1–3%                 |
-| Low liquidity     | 3–5%                 |
+| Stable pairs      | 0.5-1%               |
+| Volatile pairs    | 1-3%                 |
+| Low liquidity     | 3-5%                 |
 
 Slippage is verified on the **final output** of the swap, not individual hops.
 

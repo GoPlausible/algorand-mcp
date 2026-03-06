@@ -1,28 +1,46 @@
 ---
 name: algorand-interaction
-description: Interact with Algorand blockchain via the local Algorand MCP server — wallet operations, ALGO/ASA transactions, smart contracts, account info, NFD lookups, atomic groups, Tinyman swaps, Haystack Router DEX aggregation, Pera verified asset data, TEAL compilation, knowledge base. Use when user asks about Algorand wallet, balances, sending ALGO or tokens, asset opt-in, transactions, NFD names, DEX swaps, smart contracts, asset verification, or account details.
+description: Interact with Algorand blockchain via the Algorand MCP server — wallet operations, ALGO/ASA transactions, smart contracts, account info, NFD lookups, atomic groups, Tinyman swaps, Haystack Router best-price swaps, Pera asset verification, TEAL compilation, knowledge base. Use when user asks about Algorand wallet, balances, sending ALGO or tokens, asset opt-in, transactions, NFD names, DEX swaps, DEX aggregation, best-price routing, asset verification, smart contracts, or account details.
 ---
 
-# Algorand MCP Interaction (Local)
+# Algorand MCP Interaction
 
-Interact with Algorand blockchain through the local Algorand MCP server. This server runs on the user's machine — private keys are stored in the **OS keychain** and never exposed to the agent.
+Interact with Algorand blockchain through the Algorand MCP server (107 tools across 13 categories).
 
 ## Key Characteristics
 
-- **Local server** — runs on user's machine, not remote
-- **OS keychain wallet** — secret keys stored securely via `@napi-rs/keyring`, never in logs or responses
+- **Secure signing** — use `wallet_*` tools to sign; private keys are never available to you
 - **Multi-network** — supports `mainnet`, `testnet`, and `localnet`
 - **Spending limits** — per-transaction (`allowance`) and daily (`dailyAllowance`) limits enforced by wallet
-- **107 tools** across 13 categories
+
+## Calling MCP Tools
+
+MCP tools are **deferred** — you MUST use `ToolSearch` to load them before calling:
+
+```
+ToolSearch("+algorand wallet")                                    # Search by keyword — loads matching tools
+ToolSearch("select:mcp__algorand-mcp__wallet_get_info")           # Load a specific tool by full name
+```
+
+Once loaded, call them normally:
+```
+mcp__algorand-mcp__wallet_get_info { "network": "testnet" }
+mcp__algorand-mcp__make_payment_txn { "from": "ADDR", "to": "ADDR", "amount": 1000000, "network": "testnet" }
+```
+
+Full tool name pattern: `mcp__algorand-mcp__<tool_name>`. If you get "tool not found", use `ToolSearch("+algorand <keyword>")` to load it first.
 
 ## Session Start Checklist
 
 **At EVERY session start:**
 
-1. **Check wallet**: `wallet_get_info` with target `network` — verify an account exists and is active
-2. **If no accounts**: Guide user to create one with `wallet_add_account` (sets nickname and spending limits)
-3. **If needs funding**: Generate ARC-26 QR with `generate_algorand_uri` or direct to testnet faucet: https://lora.algokit.io/testnet/fund
-4. **Confirm network**: Always confirm which network (`mainnet`, `testnet`, `localnet`) before transactions
+1. **Load tools first**: Call `ToolSearch("+algorand wallet")` to load wallet tools — MCP tools are deferred and MUST be loaded via ToolSearch before use
+2. **Check wallet**: `mcp__algorand-mcp__wallet_get_info` with target `network` — verify an account exists and is active
+3. **If no accounts**: Guide user to create one with `wallet_add_account` (load via ToolSearch first)
+4. **If needs funding**: Generate ARC-26 QR with `generate_algorand_uri` or direct to testnet faucet: https://lora.algokit.io/testnet/fund
+5. **If needs USDC funding**: Generate ARC-26 QR with `generate_algorand_uri` or direct to testnet faucet: https://faucet.circle.com/
+6. **Confirm network**: Always confirm which network (`mainnet`, `testnet`, `localnet`) before transactions
+7. **Load additional tools as needed**: Use `ToolSearch("+algorand <keyword>")` to load tools for the task at hand
 
 ## Network Selection
 
@@ -44,7 +62,7 @@ Before ANY transaction:
 2. **Asset Opt-In**: Verify with `api_algod_get_account_asset_info` before ASA transfers
 3. **Fees**: Every txn costs 0.001 ALGO (1,000 microAlgos) minimum
 4. **Balance Check**: Fetch current balance with `wallet_get_info` or `api_algod_get_account_info`
-5. **Spending Limits**: Wallet enforces per-transaction and daily limits
+5. **Spending Limits**: Wallet enforces per-transaction (`allowance`) and daily (`dailyAllowance`) limits. Setting either to `0` means **unlimited**
 6. **Order**: Fund account with ALGO first, then asset transactions
 
 ## Common Mainnet Assets
@@ -57,7 +75,7 @@ Before ANY transaction:
 | goETH | 386192725 | 8 |
 | goBTC | 386195940 | 8 |
 
-> Always verify asset IDs on-chain — scam tokens use similar names.
+> Always verify asset IDs on-chain — scam tokens use similar names. Use `api_pera_asset_verification_status` to check verification tier before transacting unknown assets.
 
 ## Amounts and Decimals
 
@@ -117,6 +135,28 @@ For atomic (all-or-nothing) multi-transaction groups:
 | 3 | `wallet_sign_transaction_group` | Sign all transactions in group with wallet |
 | 4 | `send_raw_transaction` | Submit all signed transactions |
 
+## Best-Price Swap via Haystack Router (DEX Aggregator)
+
+Haystack Router aggregates quotes across multiple Algorand DEXes (Tinyman, Pact, Folks) and LST protocols (tALGO, xALGO) to find the optimal swap route.
+
+| Step | Tool | Purpose |
+|------|------|---------|
+| 1 | `wallet_get_info` | Verify active account, check balance |
+| 2 | `api_haystack_needs_optin` | Check if address needs opt-in for the target asset |
+| 3 | `wallet_optin_asset` | Opt-in if needed |
+| 4 | `api_haystack_get_swap_quote` | Preview best-price quote — show user output, USD values, route, price impact |
+| 5 | User confirms | Always confirm before executing |
+| 6 | `api_haystack_execute_swap` | All-in-one: quote + sign via wallet + submit + confirm |
+
+> **CRITICAL — Swap direction (`type` parameter):**
+> - **"Buy 10 ALGO"** → user wants exactly 10 ALGO **out** → `type: "fixed-output"`, `amount` = 10000000
+> - **"Sell/swap 10 ALGO"** → user spends exactly 10 ALGO → `type: "fixed-input"`, `amount` = 10000000
+> - **"Buy USDC for 10 ALGO"** → user spends exactly 10 ALGO → `type: "fixed-input"`, `amount` = 10000000
+> - Rule: **"buy X of Y" = fixed-output**. **"sell/swap/use X of Y" = fixed-input**. If ambiguous, ask.
+
+> For detailed Haystack Router workflows (batch swaps, configuration, slippage guidance), load the `haystack-router-interaction` skill.
+> For building swap UIs or integrating the `@txnlab/haystack-router` SDK, load the `haystack-router-development` skill.
+
 ## Tool Categories
 
 **Wallet** (10): `wallet_add_account`, `wallet_remove_account`, `wallet_list_accounts`, `wallet_switch_account`, `wallet_get_info`, `wallet_get_assets`, `wallet_sign_transaction`, `wallet_sign_transaction_group`, `wallet_sign_data`, `wallet_optin_asset`
@@ -125,7 +165,7 @@ For atomic (all-or-nothing) multi-transaction groups:
 
 **Utility** (13): `ping`, `validate_address`, `encode_address`, `decode_address`, `get_application_address`, `bytes_to_bigint`, `bigint_to_bytes`, `encode_uint64`, `decode_uint64`, `verify_bytes`, `sign_bytes`, `encode_obj`, `decode_obj`
 
-**Transaction Building** (18): `make_payment_txn`, `make_keyreg_txn`, `make_asset_create_txn`, `make_asset_config_txn`, `make_asset_destroy_txn`, `make_asset_freeze_txn`, `make_asset_transfer_txn`, `make_app_create_txn`, `make_app_update_txn`, `make_app_delete_txn`, `make_app_optin_txn`, `make_app_closeout_txn`, `make_app_clear_txn`, `make_app_call_txn`, `assign_group_id`, `sign_transaction`, `encode_unsigned_transaction`, `decode_signed_transaction`
+**Transaction** (18): `make_payment_txn`, `make_keyreg_txn`, `make_asset_create_txn`, `make_asset_config_txn`, `make_asset_destroy_txn`, `make_asset_freeze_txn`, `make_asset_transfer_txn`, `make_app_create_txn`, `make_app_update_txn`, `make_app_delete_txn`, `make_app_optin_txn`, `make_app_closeout_txn`, `make_app_clear_txn`, `make_app_call_txn`, `assign_group_id`, `sign_transaction`, `encode_unsigned_transaction`, `decode_signed_transaction`
 
 **Algod** (5): `compile_teal`, `disassemble_teal`, `send_raw_transaction`, `simulate_raw_transactions`, `simulate_transactions`
 
@@ -139,7 +179,7 @@ For atomic (all-or-nothing) multi-transaction groups:
 
 **Haystack Router** (3): `api_haystack_get_swap_quote`, `api_haystack_execute_swap`, `api_haystack_needs_optin`
 
-**Pera Wallet** (3): `api_pera_asset_verification_status`, `api_pera_verified_asset_details`, `api_pera_verified_asset_search` *(mainnet only)*
+**Pera Asset Verification** (3): `api_pera_asset_verification_status`, `api_pera_verified_asset_details`, `api_pera_verified_asset_search`
 
 **ARC-26 URI** (1): `generate_algorand_uri`
 
@@ -149,12 +189,20 @@ For atomic (all-or-nothing) multi-transaction groups:
 
 API responses are paginated. All API tools accept optional `itemsPerPage` (default 10) and `pageToken` parameters. Pass `pageToken` from a previous response to fetch the next page.
 
+## x402 Payment Workflow
+
+**IMPORTANT: Do NOT attempt x402 payments using only this skill.** When you encounter an HTTP 402 response or need to pay for an x402-protected resource, you MUST load the `algorand-x402-payment` skill which contains the complete, authoritative payment flow.
+
+This skill provides the MCP tools needed for x402 (wallet, transactions, signing), but the `algorand-x402-payment` skill has the correct payload format, critical rules, and step-by-step recipe.
+
+For reference examples, see [references/examples-algorand-mcp.md](references/examples-algorand-mcp.md).
+
 ## References
 
 For detailed tool documentation:
 - **Tool Reference**: See [references/algorand-mcp.md](references/algorand-mcp.md)
 
-For workflow examples:
+For workflow examples (including x402 payment):
 - **Examples**: See [references/examples-algorand-mcp.md](references/examples-algorand-mcp.md)
 
 ## NFD Important Note
@@ -164,8 +212,7 @@ When using NFD (`.algo` names), always use the `depositAccount` field from the N
 ## Security
 
 - **Mainnet = real value** — always confirm with user before mainnet transactions
-- Private keys stored in OS keychain (`@napi-rs/keyring`) — never exposed to agents
-- Never log, display, or store mnemonics/secret keys outside the wallet system
+- Never log, display, or store mnemonics or secret keys — use `wallet_*` tools for signing
 - Verify recipient addresses with `validate_address` — transactions are irreversible
 - Verify asset IDs on-chain — scam tokens use similar names
 - Respect wallet spending limits — if rejected, inform user rather than bypassing
@@ -173,6 +220,17 @@ When using NFD (`.algo` names), always use the `depositAccount` field from the N
 ## Links
 
 - GoPlausible: https://goplausible.com
+- Algorand: https://algorand.co
+- Algorand x402: https://x402.goplausible.xyz
+- Algorand x402 test endpoints: https://example.x402.goplausible.xyz/
+- Algorand x402 Facilitator: https://facilitator.goplausible.xyz
 - Testnet Faucet: https://lora.algokit.io/testnet/fund
-- AlgoNode (public nodes): https://algonode.io
-- Algorand Developer Docs: https://developer.algorand.org
+- Testnet USDC Faucet: https://faucet.circle.com/
+- Algorand Developer Docs: https://dev.algorand.co/
+- Algorand Developer Docs Github : https://github.com/algorandfoundation/devportal
+- Algorand Developer Examples Github : https://github.com/algorandfoundation/devportal-code-examples
+- [GoPlausible x402-avm Documentation and Example code](https://github.com/GoPlausible/.github/blob/main/profile/algorand-x402-documentation/README.md)
+- [GoPlausible x402-avm Examples template Projects](https://github.com/GoPlausible/x402-avm/tree/branch-v2-algorand-publish/examples/)
+- [CAIP-2 Specification](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md)
+- [Coinbase x402 Protocol](https://github.com/coinbase/x402)
+- [Haystack Router (TxnLab DEX Aggregator)](https://github.com/TxnLab/haystack-router)

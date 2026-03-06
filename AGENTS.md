@@ -8,13 +8,31 @@ Algorand MCP is a **local** MCP server that runs on the user's machine. It provi
 
 **Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using OS keychain-stored keys, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
 
+## Calling MCP Tools
+
+MCP tools are **deferred** — you MUST use `ToolSearch` to load them before calling:
+
+```
+ToolSearch("+algorand wallet")                                    # Search by keyword — loads matching tools
+ToolSearch("select:mcp__algorand-mcp__wallet_get_info")           # Load a specific tool by full name
+```
+
+Once loaded, call them normally:
+```
+mcp__algorand-mcp__wallet_get_info { "network": "testnet" }
+```
+
+Full tool name pattern: `mcp__algorand-mcp__<tool_name>`. If you get "tool not found", use `ToolSearch("+algorand <keyword>")` to load it first.
+
 ## Session Start
 
 At the beginning of every Algorand session:
 
-1. **Check wallet** — Call `wallet_get_info` with the target network to verify a wallet account exists and is active.
-2. **If no accounts** — Guide the user to create one with `wallet_add_account` (sets nickname and spending limits).
-3. **If account needs funding** — Generate an ARC-26 QR code with `generate_algorand_uri` or direct the user to the testnet faucet: https://lora.algokit.io/testnet/fund
+1. **Load tools** — Call `ToolSearch("+algorand wallet")` to load wallet tools
+2. **Check wallet** — Call `wallet_get_info` with the target network to verify a wallet account exists and is active.
+3. **If no accounts** — Guide the user to create one with `wallet_add_account` (sets nickname and spending limits).
+4. **If account needs funding** — Generate an ARC-26 QR code with `generate_algorand_uri` or direct the user to the testnet faucet: https://lora.algokit.io/testnet/fund
+5. **If account needs USDC funding** — Direct to testnet USDC faucet: https://faucet.circle.com/
 
 ## Network Selection
 
@@ -58,7 +76,7 @@ Before ANY transaction:
 2. **Asset opt-in** — Verify with `api_algod_get_account_asset_info` before ASA transfers. If not opted in, opt-in first.
 3. **Fees** — Every transaction costs 0.001 ALGO (1,000 microAlgos) minimum.
 4. **Balance check** — Fetch current balance with `wallet_get_info` or `api_algod_get_account_info` before signing.
-5. **Spending limits** — The wallet enforces per-transaction (`allowance`) and daily (`dailyAllowance`) spending limits set at account creation.
+5. **Spending limits** — The wallet enforces per-transaction (`allowance`) and daily (`dailyAllowance`) spending limits set at account creation. Setting either to `0` means **unlimited**.
 6. **Order** — Fund the account with ALGO first, then do asset transactions.
 
 ## Transaction Types
@@ -115,6 +133,46 @@ For atomic (all-or-nothing) multi-transaction groups:
 | 2 | `assign_group_id` | Assign group ID to all transactions |
 | 3 | `wallet_sign_transaction_group` | Sign all transactions in group with wallet |
 | 4 | `send_raw_transaction` | Submit all signed transactions |
+
+## Best-Price Swap via Haystack Router (DEX Aggregator)
+
+Haystack Router aggregates quotes across multiple Algorand DEXes (Tinyman V2, Pact, Folks) and LST protocols (tALGO, xALGO) to find the optimal swap route and execute atomically.
+
+| Step | Tool | Purpose |
+|------|------|---------|
+| 1 | `wallet_get_info` | Verify active account, check balance |
+| 2 | `api_haystack_needs_optin` | Check if address needs opt-in for the target asset |
+| 3 | `wallet_optin_asset` | Opt-in if needed |
+| 4 | `api_haystack_get_swap_quote` | Preview best-price quote — show user output, USD values, route, price impact |
+| 5 | User confirms | Always confirm before executing |
+| 6 | `api_haystack_execute_swap` | All-in-one: quote + sign via wallet + submit + confirm |
+
+### CRITICAL: Swap Direction (`type` parameter)
+
+The `type` parameter determines whether `amount` is exact input or exact output. **Getting this wrong means the user spends or receives the wrong amount.**
+
+| User says | `type` | `amount` is | `fromASAID` | `toASAID` |
+|-----------|--------|-------------|-------------|-----------|
+| "Buy 10 ALGO with USDC" | `"fixed-output"` | 10000000 (desired output) | USDC | ALGO |
+| "Buy 10 USDC with ALGO" | `"fixed-output"` | 10000000 (desired output) | ALGO | USDC |
+| "Sell 10 ALGO for USDC" | `"fixed-input"` | 10000000 (exact spend) | ALGO | USDC |
+| "Swap 10 ALGO to USDC" | `"fixed-input"` | 10000000 (exact spend) | ALGO | USDC |
+| "Use 10 ALGO to buy USDC" | `"fixed-input"` | 10000000 (exact spend) | ALGO | USDC |
+| "Buy USDC for 10 ALGO" | `"fixed-input"` | 10000000 (exact spend) | ALGO | USDC |
+| "Get me 5 USDC" | `"fixed-output"` | 5000000 (desired output) | (ask user) | USDC |
+
+**Rules:**
+- **"Buy X of Y"** = fixed-output (exact output). `amount` = X, `toASAID` = Y
+- **"Sell/swap/use X of Y"** = fixed-input (exact input). `amount` = X, `fromASAID` = Y
+- **If ambiguous, ASK the user** — never guess.
+
+### Slippage Guidance
+
+| Pair Type | Recommended Slippage |
+|-----------|---------------------|
+| Stable pairs (ALGO/USDC) | 0.1-0.5% |
+| Volatile pairs | 0.5-1% |
+| Low liquidity | 1-3% |
 
 ## Tool Categories
 
@@ -182,7 +240,7 @@ DEX aggregator for optimal swap routing across Tinyman V2, Pact, Folks, and LST 
 | Tool | Purpose |
 |------|---------|
 | `api_haystack_get_swap_quote` | Get optimized swap quote with routing, pricing, and price impact |
-| `api_haystack_execute_swap` | All-in-one swap: quote → sign (via wallet) → submit → confirm |
+| `api_haystack_execute_swap` | All-in-one swap: quote + sign (via wallet) + submit + confirm |
 | `api_haystack_needs_optin` | Check if address needs asset opt-in before swapping |
 
 **Swap workflow:**
@@ -191,12 +249,7 @@ DEX aggregator for optimal swap routing across Tinyman V2, Pact, Folks, and LST 
 3. `api_haystack_get_swap_quote` — preview quote, show user
 4. `api_haystack_execute_swap` — execute after user confirms
 
-### ARC-26 URI (1 tool)
-Generate Algorand payment URIs and QR codes per the ARC-26 specification.
-
-`generate_algorand_uri`
-
-### Pera Wallet (3 tools)
+### Pera Asset Verification (3 tools)
 Pera Wallet verified asset data. **Mainnet only** — the Pera public API does not support testnet or localnet.
 
 | Tool | Purpose |
@@ -206,6 +259,11 @@ Pera Wallet verified asset data. **Mainnet only** — the Pera public API does n
 | `api_pera_verified_asset_search` | Search Pera verified assets by name, unit name, or keyword |
 
 > Use Pera tools to verify asset legitimacy before interacting with unknown ASAs on mainnet.
+
+### ARC-26 URI (1 tool)
+Generate Algorand payment URIs and QR codes per the ARC-26 specification.
+
+`generate_algorand_uri`
 
 ### Knowledge Base (1 tool)
 Access the embedded Algorand developer documentation taxonomy.
@@ -221,9 +279,9 @@ API responses are paginated. Every API tool accepts optional `itemsPerPage` (def
 ## Security Rules
 
 1. **Mainnet = real value** — Always confirm with the user before mainnet transactions.
-2. **Private keys** — Never log, display, disclose or store mnemonics/secret keys 
+2. **Private keys** — Never log, display, disclose or store mnemonics/secret keys
 3. **Address verification** — Validate addresses with `validate_address` before transactions. Transactions are irreversible.
-4. **Asset verification** — Verify asset IDs on-chain before interacting. Scam tokens use similar names.
+4. **Asset verification** — Verify asset IDs on-chain before interacting. Scam tokens use similar names. Use `api_pera_asset_verification_status` to check verification tier.
 5. **Spending limits** — Respect wallet spending limits. If a transaction is rejected for exceeding limits, inform the user rather than bypassing.
 
 ## Error Handling
@@ -240,6 +298,15 @@ API responses are paginated. Every API tool accepts optional `itemsPerPage` (def
 ## Links
 
 - GoPlausible: https://goplausible.com
+- Algorand: https://algorand.co
+- Algorand x402: https://x402.goplausible.xyz
+- Algorand x402 test endpoints: https://example.x402.goplausible.xyz/
+- Algorand x402 Facilitator: https://facilitator.goplausible.xyz
 - Testnet Faucet: https://lora.algokit.io/testnet/fund
+- Testnet USDC Faucet: https://faucet.circle.com/
 - AlgoNode (public nodes): https://algonode.io
-- Algorand Developer Docs: https://developer.algorand.org
+- Algorand Developer Docs: https://dev.algorand.co/
+- Algorand Developer Docs Github: https://github.com/algorandfoundation/devportal
+- [Haystack Router (TxnLab DEX Aggregator)](https://github.com/TxnLab/haystack-router)
+- [GoPlausible x402-avm Documentation](https://github.com/GoPlausible/.github/blob/main/profile/algorand-x402-documentation/README.md)
+- [Coinbase x402 Protocol](https://github.com/coinbase/x402)
