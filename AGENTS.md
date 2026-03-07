@@ -307,6 +307,5 @@ API responses are paginated. Every API tool accepts optional `itemsPerPage` (def
 - AlgoNode (public nodes): https://algonode.io
 - Algorand Developer Docs: https://dev.algorand.co/
 - Algorand Developer Docs Github: https://github.com/algorandfoundation/devportal
-- [Haystack Router (TxnLab DEX Aggregator)](https://github.com/TxnLab/haystack-router)
 - [GoPlausible x402-avm Documentation](https://github.com/GoPlausible/.github/blob/main/profile/algorand-x402-documentation/README.md)
 - [Coinbase x402 Protocol](https://github.com/coinbase/x402)

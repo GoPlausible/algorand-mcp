@@ -233,4 +233,3 @@ When using NFD (`.algo` names), always use the `depositAccount` field from the N
 - [GoPlausible x402-avm Examples template Projects](https://github.com/GoPlausible/x402-avm/tree/branch-v2-algorand-publish/examples/)
 - [CAIP-2 Specification](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md)
 - [Coinbase x402 Protocol](https://github.com/coinbase/x402)
-- [Haystack Router (TxnLab DEX Aggregator)](https://github.com/TxnLab/haystack-router)
