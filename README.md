@@ -25,7 +25,7 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 - Tinyman AMM integration (pools, swaps, liquidity)
 - ARC-26 URI and QR code generation
 - Algorand knowledge base with full developer documentation taxonomy
-- Per-tool-call network selection (mainnet, testnet, localnet) and pagination
+- Per-tool-call network selection (mainnet, testnet, localnet, voi-mainnet) and pagination
 
 ## Requirements
 
@@ -252,7 +252,7 @@ The server speaks the standard MCP stdio protocol. For any client not listed abo
 
 ## Network Selection
 
-Every tool accepts an optional `network` parameter: `"mainnet"` (default), `"testnet"`, or `"localnet"`. Algod and Indexer URLs are built-in for mainnet and testnet via [AlgoNode](https://algonode.io/).
+Every tool accepts an optional `network` parameter: `"mainnet"` (default), `"testnet"`, `"localnet"`, or `"voi-mainnet"`. Algod and Indexer URLs are built-in for mainnet and testnet via [AlgoNode](https://algonode.io/), and for Voi mainnet via [Nodely](https://nodely.io).
 
 Example tool call:
 ```json
@@ -260,6 +260,8 @@ Example tool call:
 ```
 
 If no `network` is provided, tools default to **mainnet**.
+
+> **Voi**: Use `"voi-mainnet"` to interact with the Voi blockchain. Third-party Algorand services (Tinyman, Haystack, NFD, Pera) are not available on Voi — only core algod/indexer tools are supported.
 
 ## Pagination
 
@@ -333,6 +335,15 @@ Environment variables are only needed for special setups. Pass them via the `env
 |---|---|---|---|
 | `ALGORAND_TOKEN` | API token for private/authenticated nodes | `""` | Connecting to a private Algod/Indexer node |
 | `ALGORAND_LOCALNET_URL` | Localnet base URL | `""` | Using `network: "localnet"` (e.g. `http://localhost:4001`) |
+| `ALGORAND_MAINNET_ALGOD_URL` | Override mainnet algod URL | AlgoNode | Using a private/custom mainnet algod node |
+| `ALGORAND_MAINNET_INDEXER_URL` | Override mainnet indexer URL | AlgoNode | Using a private/custom mainnet indexer node |
+| `ALGORAND_MAINNET_TOKEN` | Override mainnet API token | `ALGORAND_TOKEN` | Mainnet node requires a different token |
+| `ALGORAND_TESTNET_ALGOD_URL` | Override testnet algod URL | AlgoNode | Using a private/custom testnet algod node |
+| `ALGORAND_TESTNET_INDEXER_URL` | Override testnet indexer URL | AlgoNode | Using a private/custom testnet indexer node |
+| `ALGORAND_TESTNET_TOKEN` | Override testnet API token | `ALGORAND_TOKEN` | Testnet node requires a different token |
+| `ALGORAND_VOI_MAINNET_ALGOD_URL` | Override Voi mainnet algod URL | Nodely | Using a private/custom Voi algod node |
+| `ALGORAND_VOI_MAINNET_INDEXER_URL` | Override Voi mainnet indexer URL | Nodely | Using a private/custom Voi indexer node |
+| `ALGORAND_VOI_MAINNET_TOKEN` | Override Voi mainnet API token | `ALGORAND_TOKEN` | Voi node requires a different token |
 
 ### Example: localnet (AlgoKit)
 
