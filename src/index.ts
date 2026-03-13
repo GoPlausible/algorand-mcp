@@ -191,6 +191,11 @@ class AlgorandMcpServer {
         return handleApiManager(name, args);
       }
 
+      // Handle Alpha Arcade tools
+      if (name.startsWith('alpha_')) {
+        return handleApiManager(name, args);
+      }
+
       // Handle ARC-26 tools
       if (name === 'generate_algorand_uri') {
         return arc26Manager.handleTool(name, args);

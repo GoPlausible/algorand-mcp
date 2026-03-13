@@ -6,6 +6,7 @@ import { tinymanTools, handleTinymanTools } from './tinyman/index.js';
 // import { ultradeTools, handleUltradeTools } from './ultrade/index.js';
 import { haystackTools, handleHaystackTools } from './hayrouter/index.js';
 import { peraTools, handlePeraTools } from './pera/index.js';
+import { alphaTools, handleAlphaTools } from './alpha/index.js';
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { ResponseProcessor } from '../../utils/responseProcessor.js';
 
@@ -16,7 +17,8 @@ export const apiManager = [
   ...nfdTools,
   ...tinymanTools,
   ...haystackTools,
-  ...peraTools
+  ...peraTools,
+  ...alphaTools
 ];
 
 // Handle all API tools
@@ -47,6 +49,10 @@ export async function handleApiManager(name: string, args: any): Promise<any> {
     // Pera Wallet tools
     else if (name.startsWith('api_pera_')) {
       response = await handlePeraTools(name, args);
+    }
+    // Alpha Arcade tools
+    else if (name.startsWith('alpha_')) {
+      response = await handleAlphaTools(name, args);
     }
     else {
       throw new McpError(

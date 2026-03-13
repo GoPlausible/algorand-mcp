@@ -1,6 +1,6 @@
 {
   "name": "@goplausible/algorand-mcp",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "publishConfig": {
     "access": "public"
   },
@@ -42,13 +42,14 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@alpha-arcade/sdk": "^0.3.0",
     "@cf-wasm/photon": "^0.1.31",
     "@juit/qrcode": "^1.0.59",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@napi-rs/keyring": "^1.2.0",
     "@noble/curves": "^2.0.1",
     "@tinymanorg/tinyman-js-sdk": "^5.1.2",
-    "@txnlab/haystack-router":"^2.0.5",
+    "@txnlab/haystack-router": "^2.0.5",
     "algo-msgpack-with-bigint": "^2.1.1",
     "algosdk": "^3.5.2",
     "hi-base32": "^0.5.1",

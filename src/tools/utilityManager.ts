@@ -177,7 +177,7 @@ export class UtilityManager {
             type: 'text',
             text: JSON.stringify({
               name: 'Algorand MCP Server',
-              version: '3.7.0',
+              version: '3.8.0',
               builder: 'GoPlausible',
               description: 'A Model Context Protocol (MCP) server providing comprehensive access to the Algorand blockchain. Supports account management, transaction building and signing, smart contract interaction, asset operations, ARC-26 URI generation, and deep integration with Algorand ecosystem services including NFDomains, Tinyman, Vestige, and Ultrade.',
               blockchain: 'Algorand — a carbon-negative, pure proof-of-stake Layer 1 blockchain delivering instant finality, low fees, and advanced smart contract capabilities via AVM (Algorand Virtual Machine).',
@@ -193,6 +193,7 @@ export class UtilityManager {
                 'Tinyman DEX integration',
                 'Vestige analytics integration',
                 'Ultrade orderbook DEX integration',
+                'Alpha Arcade prediction market integration',
               ],
               links: {
                 repository: 'https://github.com/GoPlausible/algorand-mcp',
