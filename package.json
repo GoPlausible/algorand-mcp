@@ -1,6 +1,6 @@
 {
   "name": "@goplausible/algorand-mcp",
-  "version": "3.8.0",
+  "version": "3.9.0",
   "publishConfig": {
     "access": "public"
   },
@@ -42,7 +42,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@alpha-arcade/sdk": "^0.3.0",
+    "@alpha-arcade/sdk": "latest",
     "@cf-wasm/photon": "^0.1.31",
     "@juit/qrcode": "^1.0.59",
     "@modelcontextprotocol/sdk": "^1.27.1",

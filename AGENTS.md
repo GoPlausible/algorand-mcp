@@ -4,7 +4,7 @@ This document describes how AI agents should interact with the Algorand blockcha
 
 ## Overview
 
-Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 107 tools across 13 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
+Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 121 tools across 14 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
 
 **Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using OS keychain-stored keys, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
 
@@ -174,6 +174,29 @@ The `type` parameter determines whether `amount` is exact input or exact output.
 | Volatile pairs | 0.5-1% |
 | Low liquidity | 1-3% |
 
+## Alpha Arcade Prediction Markets
+
+Trade on-chain prediction markets (YES/NO outcomes) denominated in USDC via the Alpha Arcade integration (14 tools). All prices and quantities use **microunits** (1,000,000 = $1.00 or 1 share).
+
+| Step | Tool | Purpose |
+|------|------|---------|
+| 1 | `wallet_get_info` | Verify active account, check ALGO + USDC balance |
+| 2 | `alpha_get_live_markets` | Browse available prediction markets |
+| 3 | `alpha_get_orderbook` | Check liquidity and prices for a specific market |
+| 4 | `alpha_create_market_order` or `alpha_create_limit_order` | Place an order |
+| 5 | `alpha_get_positions` / `alpha_get_open_orders` | Check portfolio |
+
+### Key Points
+
+- **USDC required** — all trades are USDC-denominated (ASA 31566704). Wallet must be opted in.
+- **ALGO collateral** — each order locks ~0.957 ALGO for the on-chain escrow MBR, refunded on cancel/fill.
+- **Market vs limit** — market orders fill immediately (appear in `get_positions`), limit orders sit on the book (appear in `get_open_orders`).
+- **Multi-choice markets** — trade using `options[].marketAppId`, not the parent market ID.
+- **Save `escrowAppId`** — returned by order creation, required for cancel/amend.
+- **Probabilities are microunits** — `yesProb`/`noProb` range 0–1,000,000, NOT percentages. Divide by 1,000,000 for display.
+
+> For detailed Alpha Arcade workflows (orderbook mechanics, split/merge shares, claiming, collateral model, common pitfalls), load the `alpha-arcade-interaction` skill.
+
 ## Tool Categories
 
 ### Wallet (10 tools)
@@ -259,6 +282,26 @@ Pera Wallet verified asset data. **Mainnet only** — the Pera public API does n
 | `api_pera_verified_asset_search` | Search Pera verified assets by name, unit name, or keyword |
 
 > Use Pera tools to verify asset legitimacy before interacting with unknown ASAs on mainnet.
+
+### Alpha Arcade (14 tools)
+On-chain prediction market trading — browse markets, place orders, manage positions, split/merge shares, claim winnings.
+
+| Tool | Purpose |
+|------|---------|
+| `alpha_get_live_markets` | Fetch all live markets with prices, volume, categories |
+| `alpha_get_reward_markets` | Fetch markets with liquidity rewards (requires `ALPHA_API_KEY`) |
+| `alpha_get_market` | Fetch full details for a single market by app ID |
+| `alpha_get_orderbook` | Unified YES-perspective orderbook with spread |
+| `alpha_get_open_orders` | Open orders for a wallet on a specific market |
+| `alpha_get_positions` | YES/NO token positions across all markets |
+| `alpha_create_limit_order` | Place a limit order at a specific price |
+| `alpha_create_market_order` | Place a market order with auto-matching and slippage |
+| `alpha_cancel_order` | Cancel an open order (refunds collateral) |
+| `alpha_amend_order` | Edit an existing unfilled order in-place |
+| `alpha_propose_match` | Propose a match between a maker order and your wallet |
+| `alpha_split_shares` | Split USDC into equal YES + NO tokens |
+| `alpha_merge_shares` | Merge YES + NO tokens back into USDC |
+| `alpha_claim` | Claim USDC from a resolved market |
 
 ### ARC-26 URI (1 tool)
 Generate Algorand payment URIs and QR codes per the ARC-26 specification.

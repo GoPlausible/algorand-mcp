@@ -1,11 +1,11 @@
 ---
 name: algorand-interaction
-description: Interact with Algorand blockchain via the Algorand MCP server — wallet operations, ALGO/ASA transactions, smart contracts, account info, NFD lookups, atomic groups, Tinyman swaps, Haystack Router best-price swaps, Pera asset verification, TEAL compilation, knowledge base. Use when user asks about Algorand wallet, balances, sending ALGO or tokens, asset opt-in, transactions, NFD names, DEX swaps, DEX aggregation, best-price routing, asset verification, smart contracts, or account details.
+description: Interact with Algorand blockchain via the Algorand MCP server — wallet operations, ALGO/ASA transactions, smart contracts, account info, NFD lookups, atomic groups, Tinyman swaps, Haystack Router best-price swaps, Alpha Arcade prediction markets, Pera asset verification, TEAL compilation, knowledge base. Use when user asks about Algorand wallet, balances, sending ALGO or tokens, asset opt-in, transactions, NFD names, DEX swaps, DEX aggregation, best-price routing, prediction markets, Alpha Arcade, asset verification, smart contracts, or account details.
 ---
 
 # Algorand MCP Interaction
 
-Interact with Algorand blockchain through the Algorand MCP server (107 tools across 13 categories).
+Interact with Algorand blockchain through the Algorand MCP server (121 tools across 14 categories).
 
 ## Key Characteristics
 
@@ -157,6 +157,22 @@ Haystack Router aggregates quotes across multiple Algorand DEXes (Tinyman, Pact,
 > For detailed Haystack Router workflows (batch swaps, configuration, slippage guidance), load the `haystack-router-interaction` skill.
 > For building swap UIs or integrating the `@txnlab/haystack-router` SDK, load the `haystack-router-development` skill.
 
+## Alpha Arcade Prediction Markets
+
+Trade on-chain prediction markets (YES/NO outcomes) denominated in USDC via the Alpha Arcade integration (14 tools).
+
+| Step | Tool | Purpose |
+|------|------|---------|
+| 1 | `wallet_get_info` | Verify active account, check ALGO + USDC balance |
+| 2 | `alpha_get_live_markets` | Browse available markets |
+| 3 | `alpha_get_orderbook` | Check liquidity and prices for a market |
+| 4 | `alpha_create_market_order` or `alpha_create_limit_order` | Place an order |
+| 5 | `alpha_get_positions` / `alpha_get_open_orders` | Check portfolio |
+
+All prices and quantities use **microunits** (1,000,000 = $1.00 or 1 share). Orders require both ALGO (~0.957 per escrow) and USDC collateral.
+
+> For detailed Alpha Arcade workflows (orderbook mechanics, multi-choice markets, split/merge shares, claiming, collateral model), load the `alpha-arcade-interaction` skill.
+
 ## Tool Categories
 
 **Wallet** (10): `wallet_add_account`, `wallet_remove_account`, `wallet_list_accounts`, `wallet_switch_account`, `wallet_get_info`, `wallet_get_assets`, `wallet_sign_transaction`, `wallet_sign_transaction_group`, `wallet_sign_data`, `wallet_optin_asset`
@@ -180,6 +196,8 @@ Haystack Router aggregates quotes across multiple Algorand DEXes (Tinyman, Pact,
 **Haystack Router** (3): `api_haystack_get_swap_quote`, `api_haystack_execute_swap`, `api_haystack_needs_optin`
 
 **Pera Asset Verification** (3): `api_pera_asset_verification_status`, `api_pera_verified_asset_details`, `api_pera_verified_asset_search`
+
+**Alpha Arcade** (14): `alpha_get_live_markets`, `alpha_get_reward_markets`, `alpha_get_market`, `alpha_get_orderbook`, `alpha_get_open_orders`, `alpha_get_positions`, `alpha_create_limit_order`, `alpha_create_market_order`, `alpha_cancel_order`, `alpha_amend_order`, `alpha_propose_match`, `alpha_split_shares`, `alpha_merge_shares`, `alpha_claim`
 
 **ARC-26 URI** (1): `generate_algorand_uri`
 
