@@ -23,6 +23,8 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 - NFDomains (NFD) name service integration
 - x402 and AP2 toolins for Algorand
 - Tinyman AMM integration (pools, swaps, liquidity)
+- Haystack Router DEX aggregation (best-price swaps across Tinyman, Pact, Folks)
+- Alpha Arcade prediction market trading (browse markets, orderbooks, limit/market orders, positions, claims)
 - ARC-26 URI and QR code generation
 - Algorand knowledge base with full developer documentation taxonomy
 - Per-tool-call network selection (mainnet, testnet, localnet) and pagination
@@ -333,6 +335,8 @@ Environment variables are only needed for special setups. Pass them via the `env
 |---|---|---|---|
 | `ALGORAND_TOKEN` | API token for private/authenticated nodes | `""` | Connecting to a private Algod/Indexer node |
 | `ALGORAND_LOCALNET_URL` | Localnet base URL | `""` | Using `network: "localnet"` (e.g. `http://localhost:4001`) |
+| `ALPHA_API_KEY` | Alpha Arcade API key | `""` | Accessing reward market data |
+
 
 ### Example: localnet (AlgoKit)
 
@@ -519,6 +523,29 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 
 > Pera Wallet tools are **mainnet only** — the Pera public API does not support testnet or localnet.
 
+### Alpha Arcade Tools (14 tools)
+
+Trade on-chain prediction markets (YES/NO outcomes) denominated in USDC. All prices and quantities use microunits (1,000,000 = $1.00 or 1 share). Read-only tools work without a wallet; trading tools require an active wallet account.
+
+| Tool | Description |
+|---|---|
+| `alpha_get_live_markets` | Fetch all live prediction markets with prices, volume, and categories |
+| `alpha_get_reward_markets` | Fetch markets with liquidity rewards (requires `ALPHA_API_KEY` env var) |
+| `alpha_get_market` | Fetch full details for a single market by app ID |
+| `alpha_get_orderbook` | Unified YES-perspective orderbook with spread calculation |
+| `alpha_get_open_orders` | Open orders for a wallet on a specific market |
+| `alpha_get_positions` | YES/NO token positions across all markets |
+| `alpha_create_limit_order` | Place a limit order at a specific price (locks ~0.957 ALGO collateral) |
+| `alpha_create_market_order` | Place a market order with auto-matching and slippage tolerance |
+| `alpha_cancel_order` | Cancel an open order (refunds USDC/tokens and ALGO collateral) |
+| `alpha_amend_order` | Edit an existing unfilled order in-place (price, quantity, slippage) |
+| `alpha_propose_match` | Propose a match between an existing maker order and your wallet |
+| `alpha_split_shares` | Split USDC into equal YES + NO outcome tokens |
+| `alpha_merge_shares` | Merge equal YES + NO tokens back into USDC |
+| `alpha_claim` | Claim USDC from a resolved market by redeeming winning tokens |
+
+> Optional env var: `ALPHA_API_KEY` — needed for reward market data. `ALPHA_API_BASE_URL` — custom API endpoint (default: `https://platform.alphaarcade.com/api`).
+
 ### ARC-26 URI Tools (1 tool)
 
 | Tool | Description |
@@ -586,7 +613,8 @@ algorand-mcp/
 │   │       ├── nfd/             # NFDomains
 │   │       ├── tinyman/         # Tinyman AMM
 │   │       ├── hayrouter/       # Haystack Router DEX aggregator
-│   │       └── pera/            # Pera Wallet verified assets
+│   │       ├── pera/            # Pera Wallet verified assets
+│   │       └── alpha/           # Alpha Arcade prediction markets
 │   └── utils/
 │       └── responseProcessor.ts # Pagination and formatting
 ├── tests/                       # Test suite
@@ -852,6 +880,7 @@ describeIf(testConfig.isCategoryEnabled('your-category'))('Your Tools (E2E)', ()
 - [sql.js](https://github.com/sql-js/sql.js) — Embedded SQLite (WASM) for wallet metadata persistence
 - [@noble/curves](https://github.com/paulmillr/noble-curves) — Pure JS Ed25519 for raw data signing (`wallet_sign_data`)
 - [@tinymanorg/tinyman-js-sdk](https://github.com/tinymanorg/tinyman-js-sdk) — Tinyman AMM SDK
+- [@alpha-arcade/sdk](https://github.com/pfrfrfr/alpha-js-sdk) — Alpha Arcade prediction market SDK
 - [zod](https://github.com/colinhacks/zod) — Runtime type validation
 - [qrcode](https://github.com/soldair/node-qrcode) — QR code generation for ARC-26
 
