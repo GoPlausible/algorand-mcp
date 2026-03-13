@@ -24,7 +24,7 @@ Alpha Arcade tools are built into the Algorand MCP server. Trading uses the loca
 | `ALPHA_API_KEY` | For reward markets | Alpha Arcade API key |
 | `ALPHA_API_BASE_URL` | No | API base URL (default: https://platform.alphaarcade.com/api) |
 
-Read-only tools work without a wallet. Trading tools require an active wallet account (see `wallet_add_account`).
+Read-only tools work without a wallet. Trading tools require an active wallet account (see `wallet_get_info`).
 
 ## Units & Price Format
 
@@ -171,7 +171,7 @@ If a trade fails with an "overspend" error, the wallet lacks sufficient ALGO or 
 - **Orderbook cross-side**: If you only check YES asks, you miss cheaper liquidity from NO bids. The `get_orderbook` tool handles this automatically.
 - **Save escrowAppId**: It's the only way to cancel or amend your order later.
 - **USDC opt-in**: The wallet must be opted into USDC (ASA 31566704) before trading.
-- **Wallet required for trading**: Read-only tools work without a wallet, but trading tools require an active wallet account via `wallet_add_account`.
+- **Wallet required for trading**: Read-only tools work without a wallet, but trading tools require an active wallet account via `wallet_get_info`.
 - **Mainnet by default**: The server defaults to mainnet. Real money is at stake. Pass `network: "testnet"` for testing.
 
 ## Links
