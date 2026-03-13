@@ -85,8 +85,6 @@ docs_url: https://github.com/GoPlausible/algorand-mcp/blob/main/packages/server/
     - Secret key of the wallet in hex format
   - algorand://wallet/publickey
     - Public key of the wallet in hex format
-  - algorand://wallet/mnemonic
-    - Mnemonic phrase of the wallet
   - algorand://wallet/address
     - Algorand address of the wallet
   - algorand://wallet/account

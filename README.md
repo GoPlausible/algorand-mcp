@@ -302,7 +302,7 @@ The wallet system has two layers of storage, each with a distinct security role:
        │                              │                              │
 ```
 
-1. **Account creation** (`wallet_add_account`) — Generates a keypair (or imports a mnemonic), stores the mnemonic in the OS keychain, and stores metadata (nickname, spending limits) in SQLite. Returns **only** address and public key.
+1. **Account creation** (`wallet_add_account`) — Generates a keypair, stores the mnemonic in the OS keychain, and stores metadata (nickname, spending limits) in SQLite. Returns **only** address and public key.
 2. **Active account** — One account is active at a time. `wallet_switch_account` changes it by nickname or index. All signing and query tools operate on the active account.
 3. **Transaction signing** (`wallet_sign_transaction`) — Checks per-transaction and daily spending limits, retrieves the key from the keychain, signs in memory, discards the key. Returns only the signed blob.
 4. **Data signing** (`wallet_sign_data`) — Signs arbitrary hex data using raw Ed25519 via the [`@noble/curves`](https://github.com/paulmillr/noble-curves) library (no Algorand SDK prefix). Useful for off-chain authentication.
