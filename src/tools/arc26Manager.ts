@@ -105,9 +105,9 @@ export class Arc26Manager {
       uri += '?' + queryParams.join('&');
     }
 
-    // Generate QR code as SVG
+    // Generate QR code as terminal output
     const qrCode = await QRCode.toString(uri, {
-      type: 'svg',
+      type: 'terminal',
       errorCorrectionLevel: 'H',
       margin: 1,
       width: 300
@@ -135,12 +135,7 @@ export class Arc26Manager {
         content: [
           {
             type: "text",
-            text: JSON.stringify({ uri }, null, 2)
-          },
-          {
-            type: "text",
-            text: qrCode,
-            mimeType: "image/svg+xml"
+            text: `${qrCode}\n\n${uri}`
           }
         ]
       };
