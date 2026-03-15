@@ -197,7 +197,7 @@ class AlgorandMcpServer {
       }
 
       // Handle ARC-26 tools
-      if (name === 'generate_algorand_uri') {
+      if (name === 'generate_algorand_qrcode') {
         return arc26Manager.handleTool(name, args);
       }
 

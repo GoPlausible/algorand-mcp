@@ -37,8 +37,8 @@ Full tool name pattern: `mcp__algorand-mcp__<tool_name>`. If you get "tool not f
 1. **Load tools first**: Call `ToolSearch("+algorand wallet")` to load wallet tools — MCP tools are deferred and MUST be loaded via ToolSearch before use
 2. **Check wallet**: `mcp__algorand-mcp__wallet_get_info` with target `network` — verify an account exists and is active
 3. **If no accounts**: Guide user to create one with `wallet_add_account` (load via ToolSearch first)
-4. **If needs funding**: Generate ARC-26 QR with `generate_algorand_uri` or direct to testnet faucet: https://lora.algokit.io/testnet/fund
-5. **If needs USDC funding**: Generate ARC-26 QR with `generate_algorand_uri` or direct to testnet faucet: https://faucet.circle.com/
+4. **If needs funding**: Generate ARC-26 QR with `generate_algorand_qrcode` or direct to testnet faucet: https://lora.algokit.io/testnet/fund
+5. **If needs USDC funding**: Generate ARC-26 QR with `generate_algorand_qrcode` or direct to testnet faucet: https://faucet.circle.com/
 6. **Confirm network**: Always confirm which network (`mainnet`, `testnet`, `localnet`) before transactions
 7. **Load additional tools as needed**: Use `ToolSearch("+algorand <keyword>")` to load tools for the task at hand
 
@@ -199,7 +199,7 @@ All prices and quantities use **microunits** (1,000,000 = $1.00 or 1 share). Ord
 
 **Alpha Arcade** (14): `alpha_get_live_markets`, `alpha_get_reward_markets`, `alpha_get_market`, `alpha_get_orderbook`, `alpha_get_open_orders`, `alpha_get_positions`, `alpha_create_limit_order`, `alpha_create_market_order`, `alpha_cancel_order`, `alpha_amend_order`, `alpha_propose_match`, `alpha_split_shares`, `alpha_merge_shares`, `alpha_claim`
 
-**ARC-26 URI** (1): `generate_algorand_uri`
+**ARC-26 URI** (1): `generate_algorand_qrcode`
 
 **Knowledge Base** (1): `get_knowledge_doc`
 

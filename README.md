@@ -550,7 +550,7 @@ Trade on-chain prediction markets (YES/NO outcomes) denominated in USDC. All pri
 
 | Tool | Description |
 |---|---|
-| `generate_algorand_uri` | Generate Algorand URI and QR code per ARC-26 spec |
+| `generate_algorand_qrcode` | Generate Algorand URI and QR code per ARC-26 spec |
 
 ### Knowledge Tools (1 tool)
 

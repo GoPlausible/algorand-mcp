@@ -65,7 +65,7 @@ const toolCategoryMap: Record<string, ToolCategory> = {
   'api_indexer_': 'indexer-api',
   'api_nfd_': 'nfd',
   'api_tinyman_': 'tinyman',
-  'generate_algorand_uri': 'arc26',
+  'generate_algorand_qrcode': 'arc26',
   'get_knowledge_': 'knowledge',
 };
 

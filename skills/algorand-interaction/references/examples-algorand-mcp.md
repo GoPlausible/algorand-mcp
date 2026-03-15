@@ -23,7 +23,7 @@ wallet_add_account {
 
 ### Step 3: If account needs funding
 ```
-generate_algorand_uri {
+generate_algorand_qrcode {
   "address": "[wallet_address]",
   "amount": 5000000,
   "note": "Fund testnet account"
@@ -33,7 +33,7 @@ Or direct user to: https://lora.algokit.io/testnet/fund
 
 ### Step 4: If account needs USDC funding
 ```
-generate_algorand_uri {
+generate_algorand_qrcode {
   "address": "[wallet_address]",
   "asset": 10458941, // USDC on testnet
   "amount": 1000000, // 1 USDC with 6 decimals
@@ -647,7 +647,7 @@ send_raw_transaction {
 When balance is insufficient, generate an ARC-26 QR code for easy funding:
 
 ```
-generate_algorand_uri {
+generate_algorand_qrcode {
   "address": "[wallet_address]",
   "amount": 5000000,
   "note": "Fund account for transaction"

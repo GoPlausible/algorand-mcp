@@ -2,10 +2,10 @@ import { describeIf, testConfig } from '../helpers/testConfig.js';
 import { getE2EAccount, invokeTool, parseToolResponse } from '../helpers/e2eSetup.js';
 
 describeIf(testConfig.isCategoryEnabled('arc26'))('ARC-26 Tools (E2E)', () => {
-  describe('generate_algorand_uri', () => {
+  describe('generate_algorand_qrcode', () => {
     it('generates a valid algorand:// URI with QR code', async () => {
       const account = getE2EAccount();
-      const result = await invokeTool('generate_algorand_uri', {
+      const result = await invokeTool('generate_algorand_qrcode', {
         address: account.address,
         amount: 1000000,
         label: 'E2E Test',

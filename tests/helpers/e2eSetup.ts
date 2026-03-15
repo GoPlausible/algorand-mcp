@@ -94,7 +94,7 @@ export async function invokeTool(
   }
 
   if (toolName.startsWith('api_')) return handleApiManager(toolName, args);
-  if (toolName === 'generate_algorand_uri') return arc26Manager.handleTool(toolName, args);
+  if (toolName === 'generate_algorand_qrcode') return arc26Manager.handleTool(toolName, args);
   if (toolName.startsWith('get_knowledge_')) return KnowledgeManager.handleTool(toolName, args);
 
   throw new Error(`Unknown tool: ${toolName}`);

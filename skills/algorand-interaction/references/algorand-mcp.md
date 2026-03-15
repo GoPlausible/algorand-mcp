@@ -779,7 +779,7 @@ Verify asset legitimacy and get detailed asset information from Pera Wallet's ma
 
 ## ARC-26 URI Tools
 
-### generate_algorand_uri
+### generate_algorand_qrcode
 - **Purpose**: Generate an Algorand payment URI and QR code per ARC-26 specification
 - **Parameters**:
 ```json

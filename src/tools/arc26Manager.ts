@@ -14,7 +14,7 @@ interface Arc26ToolInput {
 export class Arc26Manager {
   public arc26Tools = [
     {
-      name: 'generate_algorand_uri',
+      name: 'generate_algorand_qrcode',
       description: 'Generate an Algorand URI and QR code according to ARC-26 specification',
       inputSchema: withCommonParams({
         type: 'object',
@@ -59,7 +59,7 @@ export class Arc26Manager {
    * @param params The parameters for constructing the URI
    * @returns Object containing the URI and QR code as base64 data URL
    */
-  async generateUriAndQr(params: Arc26ToolInput): Promise<{ uri: string; qrCode: string }> {
+  async generateUriAndQr(params: Arc26ToolInput): Promise<{ uri: string; qrCodePng: string; qrCodeUtf8: string }> {
     // Validate address format (base32 string)
     if (!params.address || !/^[A-Z2-7]{58}$/.test(params.address)) {
       throw new McpError(ErrorCode.InvalidParams, 'Invalid Algorand address format');
@@ -105,17 +105,24 @@ export class Arc26Manager {
       uri += '?' + queryParams.join('&');
     }
 
-    // Generate QR code as terminal output
-    const qrCode = await QRCode.toString(uri, {
-      type: 'terminal',
+    // Generate QR code as SVG
+    const qrCodeUtf8 = await QRCode.toString(uri, {
+      type: 'utf8',
       errorCorrectionLevel: 'H',
-      margin: 1,
-      width: 300
+      // margin: 1,
+      width: 128
+    });
+    const qrCodePng = await QRCode.toDataURL(uri, {
+      type: 'image/png',
+      errorCorrectionLevel: 'H',
+      // margin: 1,
+      width: 128
     });
 
     return {
       uri,
-      qrCode
+      qrCodePng: qrCodePng,
+      qrCodeUtf8: qrCodeUtf8
     };
   }
 
@@ -129,15 +136,13 @@ export class Arc26Manager {
       note: args.note as string | undefined,
       xnote: args.xnote as string | undefined
     };
-    if (name === 'generate_algorand_uri') {
-      const { uri, qrCode } = await this.generateUriAndQr(toolArgs);
+    if (name === 'generate_algorand_qrcode') {
+      const { uri, qrCodePng, qrCodeUtf8 } = await this.generateUriAndQr(toolArgs);
       return {
-        content: [
-          {
-            type: "text",
-            text: `${qrCode}\n\n${uri}`
-          }
-        ]
+       content: [                                                                                                                                                                                     
+     { type: "text", text: qrCodeUtf8 + "\n\n```json\n" + JSON.stringify({uri}, null, 2) + "\n```" },                                                                                             
+     { type: "image", data: qrCodePng.replace(/^data:image\/png;base64,/, ''), mimeType: "image/png" }                                                                                                                              
+   ] 
       };
     }
 

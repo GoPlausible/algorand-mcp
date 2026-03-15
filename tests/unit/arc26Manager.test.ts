@@ -15,16 +15,16 @@ describe('arc26Manager', () => {
   const account = algosdk.generateAccount();
   const address = account.addr.toString();
 
-  describe('generate_algorand_uri', () => {
+  describe('generate_algorand_qrcode', () => {
     it('generates a valid algorand:// URI', async () => {
-      const result = await arc26Manager.handleTool('generate_algorand_uri', { address });
+      const result = await arc26Manager.handleTool('generate_algorand_qrcode', { address });
       const data = parseResult(result);
       expect(data.text.uri).toMatch(/^algorand:\/\//);
       expect(data.text.uri).toContain(address);
     });
 
     it('includes optional parameters in URI', async () => {
-      const result = await arc26Manager.handleTool('generate_algorand_uri', {
+      const result = await arc26Manager.handleTool('generate_algorand_qrcode', {
         address,
         amount: 1000000,
         label: 'Test Payment',
@@ -37,7 +37,7 @@ describe('arc26Manager', () => {
 
     it('throws for missing address', async () => {
       await expect(
-        arc26Manager.handleTool('generate_algorand_uri', {}),
+        arc26Manager.handleTool('generate_algorand_qrcode', {}),
       ).rejects.toThrow();
     });
   });

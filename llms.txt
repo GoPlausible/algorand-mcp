@@ -75,7 +75,7 @@ docs_url: https://github.com/GoPlausible/algorand-mcp/blob/main/packages/server/
 
 ### ARC-26 Tools
   - /tools/arc26
-    - generate_algorand_uri - Generate Algorand URI
+    - generate_algorand_qrcode - Generate Algorand URI
     - generate_qr_code - Generate QR code for URI
 
 ## Resources
