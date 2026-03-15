@@ -106,12 +106,17 @@ export class Arc26Manager {
     }
 
     // Generate QR code as SVG
-    const qrCodeUtf8 = await QRCode.toString(uri, {
+    const qrCodeUtf8Raw = await QRCode.toString(uri, {
       type: 'utf8',
       errorCorrectionLevel: 'H',
       // margin: 1,
       width: 128
-    });
+    });                                                                                                                          
+                                                                                                                                                                                                  
+   // Invert for better terminal contrast                                                                                                                                                         
+   const qrCodeUtf8 = qrCodeUtf8Raw                                                                                                                                                               
+     .replace(/█/g, '⬜').replace(/ /g, '█').replace(/⬜/g, ' ')                                                                                                                                  
+     .replace(/▀/g, '⬛').replace(/▄/g, '▀').replace(/⬛/g, '▄');     
     const qrCodePng = await QRCode.toDataURL(uri, {
       type: 'image/png',
       errorCorrectionLevel: 'H',
@@ -138,6 +143,7 @@ export class Arc26Manager {
     };
     if (name === 'generate_algorand_qrcode') {
       const { uri, qrCodePng, qrCodeUtf8 } = await this.generateUriAndQr(toolArgs);
+      
       return {
        content: [                                                                                                                                                                                     
      { type: "text", text: qrCodeUtf8 + "\n\n```json\n" + JSON.stringify({uri}, null, 2) + "\n```" },                                                                                             
