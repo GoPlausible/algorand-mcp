@@ -120,7 +120,11 @@ export class Arc26Manager {
     const qrCodePng = await QRCode.toDataURL(uri, {
       type: 'image/png',
       errorCorrectionLevel: 'H',
-      // margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      },
+      margin: 4,
       width: 128
     });
 
