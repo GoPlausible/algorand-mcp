@@ -146,7 +146,7 @@ export class Arc26Manager {
       
       return {
        content: [                                                                                                                                                                                     
-     { type: "text", text: qrCodeUtf8 + "\n\n```json\n" + JSON.stringify({uri}, null, 2) + "\n```" },                                                                                             
+     { type: "text", text: qrCodeUtf8 + "\n\n```\n" + uri + "\n```" },                                                                                             
      { type: "image", data: qrCodePng.replace(/^data:image\/png;base64,/, ''), mimeType: "image/png" }                                                                                                                              
    ] 
       };
