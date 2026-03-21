@@ -59,81 +59,81 @@ export class Arc26Manager {
    * @param params The parameters for constructing the URI
    * @returns Object containing the URI and QR code as base64 data URL
    */
-  async generateUriAndQr(params: Arc26ToolInput): Promise<{ uri: string; qrCodePng: string; qrCodeUtf8: string }> {
-    // Validate address format (base32 string)
-    if (!params.address || !/^[A-Z2-7]{58}$/.test(params.address)) {
-      throw new McpError(ErrorCode.InvalidParams, 'Invalid Algorand address format');
-    }
+  // async generateUriAndQr(params: Arc26ToolInput): Promise<{ uri: string; qrCodePng: string; qrCodeUtf8: string }> {
+  //   // Validate address format (base32 string)
+  //   if (!params.address || !/^[A-Z2-7]{58}$/.test(params.address)) {
+  //     throw new McpError(ErrorCode.InvalidParams, 'Invalid Algorand address format');
+  //   }
 
-    // Start building the URI with the scheme and address
-    let uri = `algorand://${params.address}`;
+  //   // Start building the URI with the scheme and address
+  //   let uri = `algorand://${params.address}`;
 
-    // Build query parameters
-    const queryParams: string[] = [];
+  //   // Build query parameters
+  //   const queryParams: string[] = [];
 
-    // Add optional parameters if provided
-    if (params.label) {
-      queryParams.push(`label=${encodeURIComponent(params.label)}`);
-    }
+  //   // Add optional parameters if provided
+  //   if (params.label) {
+  //     queryParams.push(`label=${encodeURIComponent(params.label)}`);
+  //   }
 
-    if (typeof params.amount === 'number') {
-      if (params.amount < 0) {
-        throw new McpError(ErrorCode.InvalidParams, 'Amount must be non-negative');
-      }
-      // Convert to microAlgos and ensure no decimals
-      const microAlgos = Math.floor(params.amount);
-      queryParams.push(`amount=${microAlgos}`);
-    }
+  //   if (typeof params.amount === 'number') {
+  //     if (params.amount < 0) {
+  //       throw new McpError(ErrorCode.InvalidParams, 'Amount must be non-negative');
+  //     }
+  //     // Convert to microAlgos and ensure no decimals
+  //     const microAlgos = Math.floor(params.amount);
+  //     queryParams.push(`amount=${microAlgos}`);
+  //   }
 
-    if (typeof params.asset === 'number') {
-      if (params.asset < 0) {
-        throw new McpError(ErrorCode.InvalidParams, 'Asset ID must be non-negative');
-      }
-      queryParams.push(`asset=${params.asset}`);
-    }
+  //   if (typeof params.asset === 'number') {
+  //     if (params.asset < 0) {
+  //       throw new McpError(ErrorCode.InvalidParams, 'Asset ID must be non-negative');
+  //     }
+  //     queryParams.push(`asset=${params.asset}`);
+  //   }
 
-    if (params.note) {
-      queryParams.push(`note=${encodeURIComponent(params.note)}`);
-    }
+  //   if (params.note) {
+  //     queryParams.push(`note=${encodeURIComponent(params.note)}`);
+  //   }
 
-    if (params.xnote) {
-      queryParams.push(`xnote=${encodeURIComponent(params.xnote)}`);
-    }
+  //   if (params.xnote) {
+  //     queryParams.push(`xnote=${encodeURIComponent(params.xnote)}`);
+  //   }
 
-    // Add query parameters to URI if any exist
-    if (queryParams.length > 0) {
-      uri += '?' + queryParams.join('&');
-    }
+  //   // Add query parameters to URI if any exist
+  //   if (queryParams.length > 0) {
+  //     uri += '?' + queryParams.join('&');
+  //   }
 
-    // Generate QR code as SVG
-    const qrCodeUtf8Raw = await QRCode.toString(uri, {
-      type: 'utf8',
-      errorCorrectionLevel: 'H',
-      // margin: 1,
-      width: 128
-    });
+  //   // Generate QR code as SVG
+  //   const qrCodeUtf8Raw = await QRCode.toString(uri, {
+  //     type: 'utf8',
+  //     errorCorrectionLevel: 'H',
+  //     // margin: 1,
+  //     width: 128
+  //   });
 
-    // Invert for better terminal contrast                                                                                                                                                         
-    const qrCodeUtf8 = qrCodeUtf8Raw
-      .replace(/█/g, '⬜').replace(/ /g, '█').replace(/⬜/g, ' ')
-      .replace(/▀/g, '⬛').replace(/▄/g, '▀').replace(/⬛/g, '▄');
-    const qrCodePng = await QRCode.toDataURL(uri, {
-      type: 'image/png',
-      errorCorrectionLevel: 'H',
-      color: {
-        dark: '#000000',
-        light: '#FFFFFF'
-      },
-      margin: 4,
-      width: 128
-    });
+  //   // Invert for better terminal contrast                                                                                                                                                         
+  //   const qrCodeUtf8 = qrCodeUtf8Raw
+  //     .replace(/█/g, '⬜').replace(/ /g, '█').replace(/⬜/g, ' ')
+  //     .replace(/▀/g, '⬛').replace(/▄/g, '▀').replace(/⬛/g, '▄');
+  //   const qrCodePng = await QRCode.toDataURL(uri, {
+  //     type: 'image/png',
+  //     errorCorrectionLevel: 'H',
+  //     color: {
+  //       dark: '#000000',
+  //       light: '#FFFFFF'
+  //     },
+  //     margin: 4,
+  //     width: 128
+  //   });
 
-    return {
-      uri,
-      qrCodePng: qrCodePng,
-      qrCodeUtf8: qrCodeUtf8
-    };
-  }
+  //   return {
+  //     uri,
+  //     qrCodePng: qrCodePng,
+  //     qrCodeUtf8: qrCodeUtf8
+  //   };
+  // }
 
   /**
    * Constructs an Algorand URI according to ARC-26 specification and generates a QR code
