@@ -29,6 +29,7 @@ generate_algorand_qrcode {
   "note": "Fund testnet account"
 }
 ```
+Response returns `{ qr, uri, link, expires_in }` — display the `qr` text block, `uri`, and `link` to the user.
 Or direct user to: https://lora.algokit.io/testnet/fund
 
 ### Step 4: If account needs USDC funding
@@ -40,6 +41,7 @@ generate_algorand_qrcode {
   "note": "Fund testnet account with USDC"
 }
 ```
+Response returns `{ qr, uri, link, expires_in }` — display the `qr` text block, `uri`, and `link` to the user.
 Or direct user to: https://faucet.circle.com/
 
 ---
@@ -654,7 +656,13 @@ generate_algorand_qrcode {
 }
 ```
 
-The response includes a URI string and SVG QR code that can be scanned with any Algorand-compatible wallet.
+The response includes:
+- **`qr`**: UTF-8 text QR code (Unicode block characters) — paste directly in a code block
+- **`uri`**: The `algorand://` URI for wallet deep links
+- **`link`**: Shareable URL to the hosted QR code (e.g. `https://qrclaw.goplausible.xyz/q/abc123...`)
+- **`expires_in`**: How long the hosted link remains valid (e.g. `"24h"`)
+
+Display the QR code text block, the URI, and the shareable link to the user.
 
 ---
 

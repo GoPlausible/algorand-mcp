@@ -31,7 +31,7 @@ At the beginning of every Algorand session:
 1. **Load tools** — Call `ToolSearch("+algorand wallet")` to load wallet tools
 2. **Check wallet** — Call `wallet_get_info` with the target network to verify a wallet account exists and is active.
 3. **If no accounts** — Guide the user to create one with `wallet_add_account` (sets nickname and spending limits).
-4. **If account needs funding** — Generate an ARC-26 QR code with `generate_algorand_qrcode` or direct the user to the testnet faucet: https://lora.algokit.io/testnet/fund
+4. **If account needs funding** — Generate an ARC-26 QR code with `generate_algorand_qrcode` (returns `{ qr, uri, link, expires_in }` — display the `qr` text and shareable `link`) or direct the user to the testnet faucet: https://lora.algokit.io/testnet/fund
 5. **If account needs USDC funding** — Direct to testnet USDC faucet: https://faucet.circle.com/
 
 ## Network Selection
@@ -304,7 +304,7 @@ On-chain prediction market trading — browse markets, place orders, manage posi
 | `alpha_claim` | Claim USDC from a resolved market |
 
 ### ARC-26 URI (1 tool)
-Generate Algorand payment URIs and QR codes per the ARC-26 specification.
+Generate Algorand payment URIs and QR codes per the ARC-26 specification via QRClaw service. Returns `{ qr, uri, link, expires_in }` — a UTF-8 text QR code, the `algorand://` URI, a shareable hosted link, and link expiry.
 
 `generate_algorand_qrcode`
 

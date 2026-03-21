@@ -780,7 +780,7 @@ Verify asset legitimacy and get detailed asset information from Pera Wallet's ma
 ## ARC-26 URI Tools
 
 ### generate_algorand_qrcode
-- **Purpose**: Generate an Algorand payment URI and QR code per ARC-26 specification
+- **Purpose**: Generate an Algorand payment URI and QR code per ARC-26 specification via QRClaw service
 - **Parameters**:
 ```json
 {
@@ -792,7 +792,7 @@ Verify asset legitimacy and get detailed asset information from Pera Wallet's ma
   "xnote": "Exclusive note"
 }
 ```
-- **Returns**: URI string + SVG QR code
+- **Returns**: `qr` (UTF-8 text QR code), `uri` (the `algorand://` URI), `link` (shareable hosted QR URL), `expires_in` (link validity period)
 
 ---
 
