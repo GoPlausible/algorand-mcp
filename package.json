@@ -13,6 +13,9 @@
     "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' jest --config tests/jest.config.e2e.js",
     "test:all": "npm test && npm run test:e2e",
     "typecheck": "tsc --noEmit",
+    "tag": "git tag v$npm_package_version && git push origin v$npm_package_version",
+    "retag": "git tag -f v$npm_package_version && git push -f origin v$npm_package_version",
+    "publish:npm": "npm publish",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "keywords": [
