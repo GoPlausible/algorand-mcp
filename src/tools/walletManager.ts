@@ -92,7 +92,6 @@ const walletToolSchemas = {
   addAccount: {
     type: 'object',
     properties: {
-      mnemonic: { type: 'string', description: '25-word mnemonic to import. If omitted, a new account is generated.' },
       nickname: { type: 'string', description: 'Human-readable nickname for this account' },
       allowance: { type: 'number', description: 'Max per-transaction amount in microAlgos (0 = unlimited)' },
       dailyAllowance: { type: 'number', description: 'Max daily spending total in microAlgos (0 = unlimited)' }
