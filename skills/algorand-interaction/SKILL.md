@@ -96,44 +96,17 @@ Always check asset's `decimals` field with `api_algod_get_asset_by_id` before co
 - **appl**: Smart contract calls → `make_app_create_txn`, `make_app_call_txn`, `make_app_update_txn`, `make_app_delete_txn`, `make_app_optin_txn`, `make_app_closeout_txn`, `make_app_clear_txn`
 - **keyreg**: Consensus key registration → `make_keyreg_txn`
 
-## Wallet Transaction Workflow (Recommended)
+## Transaction Workflows
 
-| Step | Tool | Purpose |
-|------|------|---------|
-| 1 | `wallet_get_info` | Verify active account, check balance |
-| 2 | Query tools | Get blockchain data (account info, asset info, etc.) |
-| 3 | `make_*_txn` | Build the transaction |
-| 4 | `wallet_sign_transaction` | Sign with active wallet account (enforces limits) |
-| 5 | `send_raw_transaction` | Submit signed transaction to network |
-| 6 | Query tools | Verify result on-chain |
+All workflows follow: **build → sign → submit → verify**.
 
-### One-Step Asset Opt-In
+| Workflow | Signing | Steps |
+|----------|---------|-------|
+| **Wallet (recommended)** | `wallet_sign_transaction` | `wallet_get_info` → query → `make_*_txn` → sign → `send_raw_transaction` → verify |
+| **External key** | `sign_transaction` (secret key hex) | `make_*_txn` → sign → `send_raw_transaction` |
+| **Atomic group** | `wallet_sign_transaction_group` | `make_*_txn` (multiple) → `assign_group_id` → sign → `send_raw_transaction` |
 
-For asset opt-ins, use the shortcut:
-```
-wallet_optin_asset { assetId: 31566704, network: "testnet" }
-```
-
-## External Key Transaction Workflow
-
-When the user provides their own secret key (not using the wallet):
-
-| Step | Tool | Purpose |
-|------|------|---------|
-| 1 | `make_*_txn` | Build the transaction |
-| 2 | `sign_transaction` | Sign with provided secret key hex |
-| 3 | `send_raw_transaction` | Submit signed transaction |
-
-## Atomic Group Transaction Workflow
-
-For atomic (all-or-nothing) multi-transaction groups:
-
-| Step | Tool | Purpose |
-|------|------|---------|
-| 1 | `make_*_txn` (multiple) | Build each transaction |
-| 2 | `assign_group_id` | Assign group ID to all transactions |
-| 3 | `wallet_sign_transaction_group` | Sign all transactions in group with wallet |
-| 4 | `send_raw_transaction` | Submit all signed transactions |
+**One-step asset opt-in shortcut:** `wallet_optin_asset { assetId: 31566704, network: "testnet" }`
 
 ## Best-Price Swap via Haystack Router (DEX Aggregator)
 
@@ -215,14 +188,6 @@ This skill provides the MCP tools needed for x402 (wallet, transactions, signing
 
 For reference examples, see [references/examples-algorand-mcp.md](references/examples-algorand-mcp.md).
 
-## References
-
-For detailed tool documentation:
-- **Tool Reference**: See [references/algorand-mcp.md](references/algorand-mcp.md)
-
-For workflow examples (including x402 payment):
-- **Examples**: See [references/examples-algorand-mcp.md](references/examples-algorand-mcp.md)
-
 ## NFD Important Note
 
 When using NFD (`.algo` names), always use the `depositAccount` field from the NFD response for transactions, NOT other address fields.
@@ -235,19 +200,15 @@ When using NFD (`.algo` names), always use the `depositAccount` field from the N
 - Verify asset IDs on-chain — scam tokens use similar names
 - Respect wallet spending limits — if rejected, inform user rather than bypassing
 
+## References
+
+- **Tool Reference**: [references/algorand-mcp.md](references/algorand-mcp.md)
+- **Workflow Examples** (including x402 payment): [references/examples-algorand-mcp.md](references/examples-algorand-mcp.md)
+
 ## Links
 
-- GoPlausible: https://goplausible.com
-- Algorand: https://algorand.co
-- Algorand x402: https://x402.goplausible.xyz
-- Algorand x402 test endpoints: https://example.x402.goplausible.xyz/
-- Algorand x402 Facilitator: https://facilitator.goplausible.xyz
-- Testnet Faucet: https://lora.algokit.io/testnet/fund
-- Testnet USDC Faucet: https://faucet.circle.com/
-- Algorand Developer Docs: https://dev.algorand.co/
-- Algorand Developer Docs Github : https://github.com/algorandfoundation/devportal
-- Algorand Developer Examples Github : https://github.com/algorandfoundation/devportal-code-examples
-- [GoPlausible x402-avm Documentation and Example code](https://github.com/GoPlausible/.github/blob/main/profile/algorand-x402-documentation/README.md)
-- [GoPlausible x402-avm Examples template Projects](https://github.com/GoPlausible/x402-avm/tree/branch-v2-algorand-publish/examples/)
-- [CAIP-2 Specification](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md)
-- [Coinbase x402 Protocol](https://github.com/coinbase/x402)
+- [GoPlausible](https://goplausible.com) · [Algorand](https://algorand.co) · [Algorand Developer Docs](https://dev.algorand.co/)
+- Testnet Faucets: [ALGO](https://lora.algokit.io/testnet/fund) · [USDC](https://faucet.circle.com/)
+- x402: [Portal](https://x402.goplausible.xyz) · [Test Endpoints](https://example.x402.goplausible.xyz/) · [Facilitator](https://facilitator.goplausible.xyz) · [Documentation](https://github.com/GoPlausible/.github/blob/main/profile/algorand-x402-documentation/README.md) · [Examples](https://github.com/GoPlausible/x402-avm/tree/branch-v2-algorand-publish/examples/)
+- [Algorand Developer Portal (GitHub)](https://github.com/algorandfoundation/devportal) · [Code Examples](https://github.com/algorandfoundation/devportal-code-examples)
+- [CAIP-2 Specification](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md) · [Coinbase x402 Protocol](https://github.com/coinbase/x402)
