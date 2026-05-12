@@ -11,20 +11,22 @@ import type {
 } from 'algosdk/dist/types/client/v2/indexer/models/types';
 
 export const assetTools = [
-  {
-    name: 'api_indexer_lookup_asset_by_id',
-    description: 'Get asset information and configuration',
-    inputSchema: withCommonParams({
-      type: 'object',
-      properties: {
-        assetId: {
-          type: 'integer',
-          description: 'Asset ID'
-        }
-      },
-      required: ['assetId']
-    })
-  },
+  // Disabled: redundant with api_algod_get_asset_by_id (live algod variant covers the same query).
+  // See .notes/redundant-tools-report.md §1.
+  // {
+  //   name: 'api_indexer_lookup_asset_by_id',
+  //   description: 'Get asset information and configuration',
+  //   inputSchema: withCommonParams({
+  //     type: 'object',
+  //     properties: {
+  //       assetId: {
+  //         type: 'integer',
+  //         description: 'Asset ID'
+  //       }
+  //     },
+  //     required: ['assetId']
+  //   })
+  // },
   {
     name: 'api_indexer_lookup_asset_balances',
     description: 'Get accounts holding this asset and their balances',
@@ -319,11 +321,12 @@ export const handleAssetTools = ResponseProcessor.wrapResourceHandler(async func
   const network = extractNetwork(args);
 
   switch (name) {
-    case 'api_indexer_lookup_asset_by_id': {
-      const { assetId } = args;
-      const info = await lookupAssetByID(assetId, network);
-      return info.asset;
-    }
+    // Disabled: redundant with api_algod_get_asset_by_id. See .notes/redundant-tools-report.md §1.
+    // case 'api_indexer_lookup_asset_by_id': {
+    //   const { assetId } = args;
+    //   const info = await lookupAssetByID(assetId, network);
+    //   return info.asset;
+    // }
     case 'api_indexer_lookup_asset_balances': {
       const { assetId, ...params } = args;
       const balances = await lookupAssetBalances(assetId, params, network);

@@ -3,16 +3,19 @@ import { invokeTool, parseToolResponse } from '../helpers/e2eSetup.js';
 import { TESTNET } from '../helpers/testConstants.js';
 
 describeIf(testConfig.isCategoryEnabled('indexer-api'))('Indexer API Tools (E2E)', () => {
-  describe('api_indexer_lookup_account_by_id', () => {
-    it('looks up a known testnet account', async () => {
-      const result = await invokeTool('api_indexer_lookup_account_by_id', {
-        address: TESTNET.KNOWN_ADDRESS,
-        network: 'testnet',
-      });
-      expect(result).toBeDefined();
-      expect(result.content).toBeDefined();
-    });
-  });
+  // Disabled: api_indexer_lookup_account_by_id was removed as redundant with
+  // api_algod_get_account_info. See .notes/redundant-tools-report.md §1 and
+  // algodApi.e2e.test.ts for live-network coverage.
+  // describe('api_indexer_lookup_account_by_id', () => {
+  //   it('looks up a known testnet account', async () => {
+  //     const result = await invokeTool('api_indexer_lookup_account_by_id', {
+  //       address: TESTNET.KNOWN_ADDRESS,
+  //       network: 'testnet',
+  //     });
+  //     expect(result).toBeDefined();
+  //     expect(result.content).toBeDefined();
+  //   });
+  // });
 
   describe('api_indexer_search_for_assets', () => {
     it('searches for assets with a limit', async () => {

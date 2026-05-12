@@ -369,8 +369,8 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 | `wallet_remove_account` | Remove an account from the wallet by nickname or index |
 | `wallet_list_accounts` | List all accounts with nicknames, addresses, and limits |
 | `wallet_switch_account` | Switch the active account by nickname or index |
-| `wallet_get_info` | Get active account info: address, public key, balance, and spending limits |
-| `wallet_get_assets` | Get all asset holdings for the active account |
+| `wallet_get_info` | Get info for the **active account this MCP server owns** (keychain-backed): address, public key, balance, opted-in counts, plus wallet-only fields (allowance, daily allowance, daily spent). For arbitrary on-chain accounts use `api_algod_get_account_info`. |
+| `wallet_get_assets` | Get all ASA holdings for the **active account this MCP server owns**. For arbitrary on-chain accounts use `api_algod_get_account_info` or `api_algod_get_account_asset_info`. |
 | `wallet_sign_transaction` | Sign a single transaction with the active account (enforces spending limits) |
 | `wallet_sign_transaction_group` | Sign a group of transactions with the active account (auto-assigns group ID) |
 | `wallet_sign_data` | Sign arbitrary hex data with raw Ed25519 (noble, no SDK prefix) |
@@ -437,10 +437,12 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 | `compile_teal` | Compile TEAL source code |
 | `disassemble_teal` | Disassemble TEAL bytecode to source |
 | `send_raw_transaction` | Submit signed transactions to the network |
-| `simulate_raw_transactions` | Simulate raw transactions |
-| `simulate_transactions` | Simulate transactions with detailed config |
+| `simulate_raw_transactions` | Simulate already-encoded transactions (base64 bytes). Pass/fail + log/cost only — no trace, no extra budget. |
+| `simulate_transactions` | Simulate decoded transaction groups with full `SimulateRequest` config (trace, extra opcode budget, unnamed-resource handling, unsigned txns). |
 
 ### Algod API Tools (13 tools)
+
+Live, current-state reads against an Algod node. **Default choice for account/application/asset lookups** — the matching indexer endpoints were intentionally disabled to keep the tool surface lean (see [.notes/redundant-tools-report.md](.notes/redundant-tools-report.md)). Use the indexer family below only when you need historical or filtered queries that algod cannot serve.
 
 | Tool | Description |
 |---|---|
@@ -458,27 +460,24 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 | `api_algod_get_node_status` | Get current node status |
 | `api_algod_get_node_status_after_block` | Get node status after a specific round |
 
-### Indexer API Tools (17 tools)
+### Indexer API Tools (10 tools)
+
+Historical / filtered queries against an Algorand Indexer instance. Use these for time-range scans, paginated searches, log retrieval, and creator/holder discovery — anything algod's current-state endpoints cannot answer.
+
+Seven indexer endpoints that duplicated algod equivalents (account-by-id, account assets, account app local states, application by id, application box, application boxes, asset by id) were intentionally disabled. They live commented-out in [src/tools/apiManager/indexer/](src/tools/apiManager/indexer/) and can be re-enabled in one place if needed.
 
 | Tool | Description |
 |---|---|
-| `api_indexer_lookup_account_by_id` | Get account information |
-| `api_indexer_lookup_account_assets` | Get account assets |
-| `api_indexer_lookup_account_app_local_states` | Get account app local states |
 | `api_indexer_lookup_account_created_applications` | Get apps created by account |
-| `api_indexer_search_for_accounts` | Search accounts with filters |
-| `api_indexer_lookup_applications` | Get application information |
-| `api_indexer_lookup_application_logs` | Get application log messages |
-| `api_indexer_search_for_applications` | Search applications |
-| `api_indexer_lookup_application_box` | Get application box by name |
-| `api_indexer_lookup_application_boxes` | Get all application boxes |
-| `api_indexer_lookup_asset_by_id` | Get asset info and configuration |
-| `api_indexer_lookup_asset_balances` | Get asset holders and balances |
-| `api_indexer_lookup_asset_transactions` | Get transactions for an asset |
-| `api_indexer_search_for_assets` | Search assets |
-| `api_indexer_lookup_transaction_by_id` | Get transaction by ID |
-| `api_indexer_lookup_account_transactions` | Get account transaction history |
-| `api_indexer_search_for_transactions` | Search transactions |
+| `api_indexer_search_for_accounts` | Search accounts with filters (asset/app holdings, balance ranges) |
+| `api_indexer_lookup_application_logs` | Get application log messages over a round range |
+| `api_indexer_search_for_applications` | Search applications by creator |
+| `api_indexer_lookup_asset_balances` | Get all accounts holding an asset with their balances |
+| `api_indexer_lookup_asset_transactions` | Get transactions involving an asset (time/round/address-role filters) |
+| `api_indexer_search_for_assets` | Search assets by creator, name, or unit |
+| `api_indexer_lookup_transaction_by_id` | Get a confirmed transaction by ID |
+| `api_indexer_lookup_account_transactions` | Get an account's transaction history (time/round/type/asset filters) |
+| `api_indexer_search_for_transactions` | Search transactions across the chain with filters |
 
 ### NFDomains Tools (6 tools)
 
@@ -701,7 +700,7 @@ npm test
 | `transactionManager` | Payment, asset, app transaction building; sign_transaction; assign_group_id |
 | `algodManager` | TEAL compile/disassemble, send raw, simulate |
 | `apiAlgod` | All 13 algod API tools with correct mock routing |
-| `apiIndexer` | All 17 indexer API tools with fluent builder mocks |
+| `apiIndexer` | All 10 active indexer API tools with fluent builder mocks |
 | `apiNfd` | NFD get/search/browse with mocked fetch |
 | `apiTinyman` | Tinyman pool/swap with error handling |
 | `arc26Manager` | ARC-26 URI generation and QR code SVG output |

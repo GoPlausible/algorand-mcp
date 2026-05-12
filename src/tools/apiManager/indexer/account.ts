@@ -13,60 +13,64 @@ import type {
 } from 'algosdk/dist/types/client/v2/indexer/models/types';
 
 export const accountTools = [
-  {
-    name: 'api_indexer_lookup_account_by_id',
-    description: 'Get account information from indexer',
-    inputSchema: withCommonParams({
-      type: 'object',
-      properties: {
-        address: {
-          type: 'string',
-          description: 'Account address'
-        }
-      },
-      required: ['address']
-    })
-  },
-  {
-    name: 'api_indexer_lookup_account_assets',
-    description: 'Get account assets',
-    inputSchema: withCommonParams({
-      type: 'object',
-      properties: {
-        address: {
-          type: 'string',
-          description: 'Account address'
-        },
-        limit: {
-          type: 'integer',
-          description: 'Maximum number of assets to return'
-        },
-        assetId: {
-          type: 'integer',
-          description: 'Filter by asset ID'
-        },
-        nextToken: {
-          type: 'string',
-          description: 'Token for retrieving the next page of results'
-        }
-      },
-      required: ['address']
-    })
-  },
-  {
-    name: 'api_indexer_lookup_account_app_local_states',
-    description: 'Get account application local states',
-    inputSchema: withCommonParams({
-      type: 'object',
-      properties: {
-        address: {
-          type: 'string',
-          description: 'Account address'
-        }
-      },
-      required: ['address']
-    })
-  },
+  // Disabled: redundant with api_algod_get_account_info (live algod variant covers the same query).
+  // See .notes/redundant-tools-report.md §1.
+  // {
+  //   name: 'api_indexer_lookup_account_by_id',
+  //   description: 'Get account information from indexer',
+  //   inputSchema: withCommonParams({
+  //     type: 'object',
+  //     properties: {
+  //       address: {
+  //         type: 'string',
+  //         description: 'Account address'
+  //       }
+  //     },
+  //     required: ['address']
+  //   })
+  // },
+  // Disabled: redundant with api_algod_get_account_asset_info.
+  // {
+  //   name: 'api_indexer_lookup_account_assets',
+  //   description: 'Get account assets',
+  //   inputSchema: withCommonParams({
+  //     type: 'object',
+  //     properties: {
+  //       address: {
+  //         type: 'string',
+  //         description: 'Account address'
+  //       },
+  //       limit: {
+  //         type: 'integer',
+  //         description: 'Maximum number of assets to return'
+  //       },
+  //       assetId: {
+  //         type: 'integer',
+  //         description: 'Filter by asset ID'
+  //       },
+  //       nextToken: {
+  //         type: 'string',
+  //         description: 'Token for retrieving the next page of results'
+  //       }
+  //     },
+  //     required: ['address']
+  //   })
+  // },
+  // Disabled: redundant with api_algod_get_account_application_info.
+  // {
+  //   name: 'api_indexer_lookup_account_app_local_states',
+  //   description: 'Get account application local states',
+  //   inputSchema: withCommonParams({
+  //     type: 'object',
+  //     properties: {
+  //       address: {
+  //         type: 'string',
+  //         description: 'Account address'
+  //       }
+  //     },
+  //     required: ['address']
+  //   })
+  // },
   {
     name: 'api_indexer_lookup_account_created_applications',
     description: 'Get applications created by this account',
@@ -260,16 +264,18 @@ export const handleAccountTools = ResponseProcessor.wrapResourceHandler(async fu
   const network = extractNetwork(args);
 
   switch (name) {
-    case 'api_indexer_lookup_account_by_id': {
-      const { address } = args;
-      const info = await lookupAccountByID(address, network);
-      return info;
-    }
-    case 'api_indexer_lookup_account_app_local_states': {
-      const { address } = args;
-      const info = await lookupAccountAppLocalStates(address, network);
-      return info;
-    }
+    // Disabled: redundant with api_algod_get_account_info. See .notes/redundant-tools-report.md §1.
+    // case 'api_indexer_lookup_account_by_id': {
+    //   const { address } = args;
+    //   const info = await lookupAccountByID(address, network);
+    //   return info;
+    // }
+    // Disabled: redundant with api_algod_get_account_application_info.
+    // case 'api_indexer_lookup_account_app_local_states': {
+    //   const { address } = args;
+    //   const info = await lookupAccountAppLocalStates(address, network);
+    //   return info;
+    // }
     case 'api_indexer_lookup_account_created_applications': {
       const { address } = args;
       const info = await lookupAccountCreatedApplications(address, network);
@@ -279,11 +285,12 @@ export const handleAccountTools = ResponseProcessor.wrapResourceHandler(async fu
       const info = await searchAccounts(args, network);
       return info.accounts;
     }
-    case 'api_indexer_lookup_account_assets': {
-      const { address, ...params } = args;
-      const info = await lookupAccountAssets(address, params, network);
-      return info.assets;
-    }
+    // Disabled: redundant with api_algod_get_account_asset_info.
+    // case 'api_indexer_lookup_account_assets': {
+    //   const { address, ...params } = args;
+    //   const info = await lookupAccountAssets(address, params, network);
+    //   return info.assets;
+    // }
     default:
       throw new McpError(
         ErrorCode.MethodNotFound,

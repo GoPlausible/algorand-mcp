@@ -12,16 +12,19 @@ const testAccount = algosdk.generateAccount();
 const VALID_ADDRESS = testAccount.addr.toString();
 
 describe('Indexer API Tools', () => {
-  describe('api_indexer_lookup_account_by_id', () => {
-    it('returns account information', async () => {
-      const result = await handleApiManager('api_indexer_lookup_account_by_id', {
-        address: VALID_ADDRESS,
-        network: 'testnet',
-      });
-      expect(result).toBeDefined();
-      expect(result.content).toBeDefined();
-    });
-  });
+  // Disabled: api_indexer_lookup_account_by_id was removed as redundant with
+  // api_algod_get_account_info (live algod variant covers the same query).
+  // See .notes/redundant-tools-report.md §1 and apiAlgod.test.ts for coverage.
+  // describe('api_indexer_lookup_account_by_id', () => {
+  //   it('returns account information', async () => {
+  //     const result = await handleApiManager('api_indexer_lookup_account_by_id', {
+  //       address: VALID_ADDRESS,
+  //       network: 'testnet',
+  //     });
+  //     expect(result).toBeDefined();
+  //     expect(result.content).toBeDefined();
+  //   });
+  // });
 
   describe('api_indexer_search_for_accounts', () => {
     it('searches accounts with limit', async () => {
@@ -63,15 +66,17 @@ describe('Indexer API Tools', () => {
     });
   });
 
-  describe('api_indexer_lookup_asset_by_id', () => {
-    it('returns asset info', async () => {
-      const result = await handleApiManager('api_indexer_lookup_asset_by_id', {
-        assetId: 456,
-        network: 'testnet',
-      });
-      expect(result).toBeDefined();
-    });
-  });
+  // Disabled: api_indexer_lookup_asset_by_id was removed as redundant with
+  // api_algod_get_asset_by_id. See apiAlgod.test.ts for coverage.
+  // describe('api_indexer_lookup_asset_by_id', () => {
+  //   it('returns asset info', async () => {
+  //     const result = await handleApiManager('api_indexer_lookup_asset_by_id', {
+  //       assetId: 456,
+  //       network: 'testnet',
+  //     });
+  //     expect(result).toBeDefined();
+  //   });
+  // });
 
   describe('error handling', () => {
     it('throws for unknown indexer tool', async () => {

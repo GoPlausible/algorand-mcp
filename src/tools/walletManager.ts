@@ -189,12 +189,12 @@ export class WalletManager {
     },
     {
       name: 'wallet_get_info',
-      description: 'Get the active wallet account info including address, public key, nickname, on-chain balance, and spending limits.',
+      description: 'Get info for the ACTIVE wallet account (an account whose private key this MCP server owns in the OS keychain). Returns nickname, address, public key, network, on-chain balance, min-balance, opted-in apps/assets counts, plus wallet-only fields: per-tx allowance, daily allowance, and daily-spent counter. Use this when you want to know the state of "the wallet you control." For an arbitrary on-chain account that this wallet does NOT own, use api_algod_get_account_info instead.',
       inputSchema: withCommonParams(walletToolSchemas.getInfo),
     },
     {
       name: 'wallet_get_assets',
-      description: 'Get all asset holdings for the active wallet account.',
+      description: 'Get all ASA holdings for the ACTIVE wallet account (an account whose private key this MCP server owns). Returns the wallet nickname, address, network, and the assets array. Use this when listing holdings of "the wallet you control." For asset holdings of an arbitrary on-chain account, use api_algod_get_account_info (returns full account including assets) or api_algod_get_account_asset_info (single asset).',
       inputSchema: withCommonParams(walletToolSchemas.getAssets),
     },
     {

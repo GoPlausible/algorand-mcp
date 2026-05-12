@@ -97,12 +97,12 @@ export class AlgodManager {
     },
     {
       name: 'simulate_raw_transactions',
-      description: 'Simulate raw transactions',
+      description: 'Simulate already-encoded, optionally-signed transactions (base64 bytes). Use this when you have raw txn bytes ready and only need a pass/fail + log/cost result — no execution tracing, no extra opcode budget, no unnamed-resource handling. For a richer simulation (trace, extra budget, unsigned txns, multiple groups), use simulate_transactions.',
       inputSchema: withCommonParams(algodToolSchemas.simulateRawTransactions),
     },
     {
       name: 'simulate_transactions',
-      description: 'Simulate transactions with detailed configuration',
+      description: 'Simulate one or more transaction groups built from decoded transaction objects, with a full SimulateRequest config (allowEmptySignatures, allowMoreLogging, allowUnnamedResources, execTraceConfig, extraOpcodeBudget, round). Use this when you need execution traces, extra opcode budget, to simulate unsigned txns, or to opt into Algorand v9+ simulate features. For a quick pass/fail check on pre-encoded bytes, use simulate_raw_transactions instead.',
       inputSchema: withCommonParams(algodToolSchemas.simulateTransactions),
     }
   ];

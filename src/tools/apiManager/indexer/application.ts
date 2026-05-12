@@ -12,20 +12,22 @@ import type {
 import algosdk from 'algosdk';
 
 export const applicationTools = [
-  {
-    name: 'api_indexer_lookup_applications',
-    description: 'Get application information from indexer',
-    inputSchema: withCommonParams({
-      type: 'object',
-      properties: {
-        appId: {
-          type: 'integer',
-          description: 'Application ID'
-        }
-      },
-      required: ['appId']
-    })
-  },
+  // Disabled: redundant with api_algod_get_application_by_id (live algod variant covers the same query).
+  // See .notes/redundant-tools-report.md §1.
+  // {
+  //   name: 'api_indexer_lookup_applications',
+  //   description: 'Get application information from indexer',
+  //   inputSchema: withCommonParams({
+  //     type: 'object',
+  //     properties: {
+  //       appId: {
+  //         type: 'integer',
+  //         description: 'Application ID'
+  //       }
+  //     },
+  //     required: ['appId']
+  //   })
+  // },
   {
     name: 'api_indexer_lookup_application_logs',
     description: 'Get application log messages',
@@ -85,42 +87,44 @@ export const applicationTools = [
       }
     })
   },
-  {
-    name: 'api_indexer_lookup_application_box',
-    description: 'Get application box by name',
-    inputSchema: withCommonParams({
-      type: 'object',
-      properties: {
-        appId: {
-          type: 'integer',
-          description: 'Application ID'
-        },
-        boxName: {
-          type: 'string',
-          description: 'Box name Buffer'
-        }
-      },
-      required: ['appId', 'boxName']
-    })
-  },
-  {
-    name: 'api_indexer_lookup_application_boxes',
-    description: 'Get all application boxes',
-    inputSchema: withCommonParams({
-      type: 'object',
-      properties: {
-        appId: {
-          type: 'integer',
-          description: 'Application ID'
-        },
-        maxBoxes: {
-          type: 'integer',
-          description: 'Maximum number of boxes to return'
-        }
-      },
-      required: ['appId']
-    })
-  }
+  // Disabled: redundant with api_algod_get_application_box.
+  // {
+  //   name: 'api_indexer_lookup_application_box',
+  //   description: 'Get application box by name',
+  //   inputSchema: withCommonParams({
+  //     type: 'object',
+  //     properties: {
+  //       appId: {
+  //         type: 'integer',
+  //         description: 'Application ID'
+  //       },
+  //       boxName: {
+  //         type: 'string',
+  //         description: 'Box name Buffer'
+  //       }
+  //     },
+  //     required: ['appId', 'boxName']
+  //   })
+  // },
+  // Disabled: redundant with api_algod_get_application_boxes.
+  // {
+  //   name: 'api_indexer_lookup_application_boxes',
+  //   description: 'Get all application boxes',
+  //   inputSchema: withCommonParams({
+  //     type: 'object',
+  //     properties: {
+  //       appId: {
+  //         type: 'integer',
+  //         description: 'Application ID'
+  //       },
+  //       maxBoxes: {
+  //         type: 'integer',
+  //         description: 'Maximum number of boxes to return'
+  //       }
+  //     },
+  //     required: ['appId']
+  //   })
+  // }
 ];
 
 export async function lookupApplications(appId: number, network: NetworkId = 'mainnet'): Promise<ApplicationResponse> {
@@ -300,11 +304,12 @@ export const handleApplicationTools = ResponseProcessor.wrapResourceHandler(asyn
   const network = extractNetwork(args);
 
   switch (name) {
-    case 'api_indexer_lookup_applications': {
-      const { appId } = args;
-      const info = await lookupApplications(appId, network);
-      return info.application;
-    }
+    // Disabled: redundant with api_algod_get_application_by_id. See .notes/redundant-tools-report.md §1.
+    // case 'api_indexer_lookup_applications': {
+    //   const { appId } = args;
+    //   const info = await lookupApplications(appId, network);
+    //   return info.application;
+    // }
     case 'api_indexer_lookup_application_logs': {
       const { appId, ...params } = args;
       const logs = await lookupApplicationLogs(appId, params, network);
@@ -314,16 +319,18 @@ export const handleApplicationTools = ResponseProcessor.wrapResourceHandler(asyn
       const info = await searchForApplications(args, network);
       return info.applications;
     }
-    case 'api_indexer_lookup_application_box': {
-      const { appId, boxName } = args;
-      const box = await lookupApplicationBoxByIDandName(appId, boxName, network);
-      return box;
-    }
-    case 'api_indexer_lookup_application_boxes': {
-      const { appId, maxBoxes } = args;
-      const boxes = await searchForApplicationBoxes(appId, maxBoxes, network);
-      return boxes.boxes;
-    }
+    // Disabled: redundant with api_algod_get_application_box.
+    // case 'api_indexer_lookup_application_box': {
+    //   const { appId, boxName } = args;
+    //   const box = await lookupApplicationBoxByIDandName(appId, boxName, network);
+    //   return box;
+    // }
+    // Disabled: redundant with api_algod_get_application_boxes.
+    // case 'api_indexer_lookup_application_boxes': {
+    //   const { appId, maxBoxes } = args;
+    //   const boxes = await searchForApplicationBoxes(appId, maxBoxes, network);
+    //   return boxes.boxes;
+    // }
     default:
       throw new McpError(
         ErrorCode.MethodNotFound,
