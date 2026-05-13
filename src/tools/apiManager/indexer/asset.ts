@@ -150,7 +150,7 @@ export const assetTools = [
   }
 ];
 
-export async function lookupAssetByID(assetId: number, network: NetworkId = 'mainnet'): Promise<AssetResponse> {
+export async function lookupAssetByID(assetId: number, network: NetworkId = 'testnet'): Promise<AssetResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up asset info for ID ${assetId}`);
@@ -175,7 +175,7 @@ export async function lookupAssetBalances(assetId: number, params?: {
   currencyLessThan?: number;
   nextToken?: string;
   address?: string;
-}, network: NetworkId = 'mainnet'): Promise<AssetBalancesResponse> {
+}, network: NetworkId = 'testnet'): Promise<AssetBalancesResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up balances for asset ${assetId}`);
@@ -220,7 +220,7 @@ export async function lookupAssetTransactions(assetId: number, params?: {
   excludeCloseTo?: boolean;
   nextToken?: string;
   txid?: string;
-}, network: NetworkId = 'mainnet'): Promise<TransactionsResponse> {
+}, network: NetworkId = 'testnet'): Promise<TransactionsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up transactions for asset ${assetId}`);
@@ -276,7 +276,7 @@ export async function searchForAssets(params?: {
   unit?: string;
   assetId?: number;
   nextToken?: string;
-}, network: NetworkId = 'mainnet'): Promise<AssetsResponse> {
+}, network: NetworkId = 'testnet'): Promise<AssetsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error('Searching assets with params:', params);

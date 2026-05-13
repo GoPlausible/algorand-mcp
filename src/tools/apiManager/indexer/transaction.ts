@@ -132,7 +132,7 @@ export const transactionTools = [
   }
 ];
 
-export async function lookupTransactionByID(txId: string, network: NetworkId = 'mainnet'): Promise<TransactionResponse> {
+export async function lookupTransactionByID(txId: string, network: NetworkId = 'testnet'): Promise<TransactionResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up transaction with ID ${txId}`);
@@ -163,7 +163,7 @@ export async function lookupAccountTransactions(address: string, params?: {
   maxRound?: number;
   txType?: string;
   assetId?: number;
-}, network: NetworkId = 'mainnet'): Promise<TransactionsResponse> {
+}, network: NetworkId = 'testnet'): Promise<TransactionsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up transactions for account ${address}`);
@@ -226,7 +226,7 @@ export async function searchForTransactions(params?: {
   currencyLessThan?: number;
   round?: number;
   nextToken?: string;
-}, network: NetworkId = 'mainnet'): Promise<TransactionsResponse> {
+}, network: NetworkId = 'testnet'): Promise<TransactionsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error('Searching transactions with params:', params);

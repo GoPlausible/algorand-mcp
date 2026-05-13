@@ -42,7 +42,7 @@ function getEndpoints(network: NetworkId): NetworkEndpoints {
 const algodClients = new Map<string, algosdk.Algodv2>();
 const indexerClients = new Map<string, algosdk.Indexer>();
 
-export function getAlgodClient(network: NetworkId = 'mainnet'): algosdk.Algodv2 {
+export function getAlgodClient(network: NetworkId = 'testnet'): algosdk.Algodv2 {
   const key = `${network}:${ALGORAND_TOKEN}`;
   let client = algodClients.get(key);
   if (!client) {
@@ -53,7 +53,7 @@ export function getAlgodClient(network: NetworkId = 'mainnet'): algosdk.Algodv2 
   return client;
 }
 
-export function getIndexerClient(network: NetworkId = 'mainnet'): algosdk.Indexer {
+export function getIndexerClient(network: NetworkId = 'testnet'): algosdk.Indexer {
   const key = `${network}:${ALGORAND_TOKEN}`;
   let client = indexerClients.get(key);
   if (!client) {
@@ -69,5 +69,5 @@ export function extractNetwork(args: any): NetworkId {
   if (network && !['mainnet', 'testnet', 'localnet'].includes(network)) {
     throw new Error(`Invalid network: ${network}. Must be mainnet, testnet, or localnet.`);
   }
-  return (network || 'mainnet') as NetworkId;
+  return (network || 'testnet') as NetworkId;
 }

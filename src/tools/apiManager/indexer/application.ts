@@ -127,7 +127,7 @@ export const applicationTools = [
   // }
 ];
 
-export async function lookupApplications(appId: number, network: NetworkId = 'mainnet'): Promise<ApplicationResponse> {
+export async function lookupApplications(appId: number, network: NetworkId = 'testnet'): Promise<ApplicationResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up application info for ID ${appId}`);
@@ -153,7 +153,7 @@ export async function lookupApplicationLogs(appId: number, params?: {
   txid?: string;
   sender?: string;
   nextToken?: string;
-}, network: NetworkId = 'mainnet'): Promise<ApplicationLogsResponse> {
+}, network: NetworkId = 'testnet'): Promise<ApplicationLogsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up logs for application ${appId}`);
@@ -197,7 +197,7 @@ export async function searchForApplications(params?: {
   limit?: number;
   creator?: string;
   nextToken?: string;
-}, network: NetworkId = 'mainnet'): Promise<ApplicationsResponse> {
+}, network: NetworkId = 'testnet'): Promise<ApplicationsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error('Searching applications with params:', params);
@@ -228,7 +228,7 @@ export async function searchForApplications(params?: {
   }
 }
 
-export async function lookupApplicationBoxByIDandName(appId: number, boxName: string, network: NetworkId = 'mainnet'): Promise<Box> {
+export async function lookupApplicationBoxByIDandName(appId: number, boxName: string, network: NetworkId = 'testnet'): Promise<Box> {
   try {
     const indexerClient = getIndexerClient(network);
     const encoder = new TextEncoder();
@@ -276,7 +276,7 @@ export async function lookupApplicationBoxByIDandName(appId: number, boxName: st
   }
 }
 
-export async function searchForApplicationBoxes(appId: number, maxBoxes?: number, network: NetworkId = 'mainnet'): Promise<any> {
+export async function searchForApplicationBoxes(appId: number, maxBoxes?: number, network: NetworkId = 'testnet'): Promise<any> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Searching boxes for application ${appId}`);

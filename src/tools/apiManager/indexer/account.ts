@@ -120,7 +120,7 @@ export const accountTools = [
   }
 ];
 
-export async function lookupAccountByID(address: string, network: NetworkId = 'mainnet'): Promise<AccountResponse> {
+export async function lookupAccountByID(address: string, network: NetworkId = 'testnet'): Promise<AccountResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up account info for address ${address}`);
@@ -143,7 +143,7 @@ export async function lookupAccountAssets(address: string, params?: {
   limit?: number;
   assetId?: number;
   nextToken?: string;
-}, network: NetworkId = 'mainnet'): Promise<AssetHoldingsResponse> {
+}, network: NetworkId = 'testnet'): Promise<AssetHoldingsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up assets for address ${address}`);
@@ -174,7 +174,7 @@ export async function lookupAccountAssets(address: string, params?: {
   }
 }
 
-export async function lookupAccountAppLocalStates(address: string, network: NetworkId = 'mainnet'): Promise<ApplicationLocalStatesResponse> {
+export async function lookupAccountAppLocalStates(address: string, network: NetworkId = 'testnet'): Promise<ApplicationLocalStatesResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up app local states for address ${address}`);
@@ -193,7 +193,7 @@ export async function lookupAccountAppLocalStates(address: string, network: Netw
   }
 }
 
-export async function lookupAccountCreatedApplications(address: string, network: NetworkId = 'mainnet'): Promise<ApplicationsResponse> {
+export async function lookupAccountCreatedApplications(address: string, network: NetworkId = 'testnet'): Promise<ApplicationsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error(`Looking up created applications for address ${address}`);
@@ -219,7 +219,7 @@ export async function searchAccounts(params?: {
   currencyGreaterThan?: number;
   currencyLessThan?: number;
   nextToken?: string;
-}, network: NetworkId = 'mainnet'): Promise<AccountsResponse> {
+}, network: NetworkId = 'testnet'): Promise<AccountsResponse> {
   try {
     const indexerClient = getIndexerClient(network);
     console.error('Searching accounts with params:', params);

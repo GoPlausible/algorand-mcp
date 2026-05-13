@@ -4,7 +4,7 @@ export const networkParam = {
   network: {
     type: 'string',
     enum: ['mainnet', 'testnet', 'localnet'],
-    description: 'Algorand network to use (default: mainnet)',
+    description: 'Algorand network to use (default: testnet)',
   },
 };
 
