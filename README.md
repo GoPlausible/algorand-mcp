@@ -14,7 +14,7 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 ## Features
 
 - Secure wallet management via OS keychain — private keys never exposed to agents or LLMs
-- Wallet accounts nicknames, allowances, and daily limits for safe spending control
+- Wallet accounts with human-readable nicknames
 - Account creation, key management, and rekeying
 - Transaction building, signing, and submission (payments, assets, applications, key registration)
 - Atomic transaction groups
@@ -276,7 +276,7 @@ The wallet system has two layers of storage, each with a distinct security role:
 | Layer | What it stores | Where | Encryption |
 |---|---|---|---|
 | **OS Keychain** | Mnemonics (secret keys) | macOS Keychain / Linux libsecret / Windows Credential Manager | OS-managed, hardware-backed where available |
-| **Embedded SQLite** | Account metadata (nicknames, allowances, spend tracking) | `~/.algorand-mcp/wallet.db` | Plaintext (no secrets) |
+| **Embedded SQLite** | Account metadata (nicknames, active-account index) | `~/.algorand-mcp/wallet.db` | Plaintext (no secrets) |
 
 **Private key material never appears in tool responses, MCP config files, environment variables, or logs.** The agent only sees addresses, public keys, and signed transaction blobs.
 
@@ -290,30 +290,22 @@ The wallet system has two layers of storage, each with a distinct security role:
        │  { nickname: "main" }        │                              │
        │ ──────────────────────────►  │  generate keypair            │
        │                              │  store mnemonic ──────────►  │  OS Keychain (encrypted)
-       │                              │  store metadata ──────────►  │  SQLite (nickname, limits)
+       │                              │  store metadata ──────────►  │  SQLite (nickname)
        │  ◄─ { address, publicKey }   │                              │
        │                              │                              │
        │  wallet_sign_transaction     │                              │
        │  { transaction: {...} }      │                              │
-       │ ──────────────────────────►  │  check spending limits       │
-       │                              │  retrieve mnemonic ◄──────  │  OS Keychain
+       │ ──────────────────────────►  │  retrieve mnemonic ◄──────  │  OS Keychain
        │                              │  sign in memory              │
        │  ◄─ { txID, blob }          │  (key discarded)             │
        │                              │                              │
 ```
 
-1. **Account creation** (`wallet_add_account`) — Generates a keypair, stores the mnemonic in the OS keychain, and stores metadata (nickname, spending limits) in SQLite. Returns **only** address and public key.
+1. **Account creation** (`wallet_add_account`) — Generates a keypair, stores the mnemonic in the OS keychain, and stores the nickname in SQLite. Returns **only** address and public key.
 2. **Active account** — One account is active at a time. `wallet_switch_account` changes it by nickname or index. All signing and query tools operate on the active account.
-3. **Transaction signing** (`wallet_sign_transaction`) — Checks per-transaction and daily spending limits, retrieves the key from the keychain, signs in memory, discards the key. Returns only the signed blob.
+3. **Transaction signing** (`wallet_sign_transaction`) — Retrieves the key from the keychain, signs in memory, discards the key. Returns only the signed blob.
 4. **Data signing** (`wallet_sign_data`) — Signs arbitrary hex data using raw Ed25519 via the [`@noble/curves`](https://github.com/paulmillr/noble-curves) library (no Algorand SDK prefix). Useful for off-chain authentication.
 5. **Asset opt-in** (`wallet_optin_asset`) — Creates, signs, and submits an opt-in transaction for the active account in one step.
-
-### Spending limits
-
-Each account has two configurable limits (in microAlgos, 0 = unlimited):
-
-- **`allowance`** — Maximum amount per single transaction. Rejects any transaction exceeding this.
-- **`dailyAllowance`** — Maximum total spend per calendar day across all transactions. Automatically resets at midnight. Tracked in SQLite.
 
 ### Platform keychain support
 
@@ -365,13 +357,13 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 
 | Tool | Description |
 |---|---|
-| `wallet_add_account` | Create a new Algorand account with nickname and spending limits (returns address + public key only) |
+| `wallet_add_account` | Create a new Algorand account with nickname (returns address + public key only) |
 | `wallet_remove_account` | Remove an account from the wallet by nickname or index |
-| `wallet_list_accounts` | List all accounts with nicknames, addresses, and limits |
+| `wallet_list_accounts` | List all accounts with nicknames and addresses |
 | `wallet_switch_account` | Switch the active account by nickname or index |
-| `wallet_get_info` | Get info for the **active account this MCP server owns** (keychain-backed): address, public key, balance, opted-in counts, plus wallet-only fields (allowance, daily allowance, daily spent). For arbitrary on-chain accounts use `api_algod_get_account_info`. |
+| `wallet_get_info` | Get info for the **active account this MCP server owns** (keychain-backed): address, public key, balance, opted-in counts. For arbitrary on-chain accounts use `api_algod_get_account_info`. |
 | `wallet_get_assets` | Get all ASA holdings for the **active account this MCP server owns**. For arbitrary on-chain accounts use `api_algod_get_account_info` or `api_algod_get_account_asset_info`. |
-| `wallet_sign_transaction` | Sign a single transaction with the active account (enforces spending limits) |
+| `wallet_sign_transaction` | Sign a single transaction with the active account |
 | `wallet_sign_transaction_group` | Sign a group of transactions with the active account (auto-assigns group ID) |
 | `wallet_sign_data` | Sign arbitrary hex data with raw Ed25519 (noble, no SDK prefix) |
 | `wallet_optin_asset` | Opt the active account into an asset (creates, signs, and submits) |

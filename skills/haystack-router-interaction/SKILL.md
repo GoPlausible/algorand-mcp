@@ -37,7 +37,7 @@ Returns: expectedOutput, inputAmount, usdIn, usdOut, userPriceImpact,
 
 ### `api_haystack_execute_swap`
 
-All-in-one swap: quote -> sign (via wallet) -> submit -> confirm. Uses the active wallet account for signing. Enforces wallet spending limits.
+All-in-one swap: quote -> sign (via wallet) -> submit -> confirm. Uses the active wallet account for signing.
 
 ```
 -> api_haystack_execute_swap {

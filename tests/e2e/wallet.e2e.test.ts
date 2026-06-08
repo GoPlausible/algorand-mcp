@@ -17,8 +17,6 @@ describeIf(testConfig.isCategoryEnabled('wallet'))('Wallet Tools (E2E)', () => {
     const data = parseToolResponse(
       await invokeTool('wallet_add_account', {
         nickname: WALLET_NICKNAME,
-        allowance: 5_000_000,
-        dailyAllowance: 10_000_000,
       }),
     );
     expect(data.address).toHaveLength(58);
@@ -48,8 +46,6 @@ describeIf(testConfig.isCategoryEnabled('wallet'))('Wallet Tools (E2E)', () => {
     );
     expect(data.nickname).toBe(WALLET_NICKNAME);
     expect(data.address).toHaveLength(58);
-    expect(data.allowance).toBe(5_000_000);
-    expect(data.dailyAllowance).toBe(10_000_000);
   });
 
   it('wallet_get_assets — returns assets for active account', async () => {

@@ -26,13 +26,11 @@
 Secure wallet management. Private keys are never available to you — use these tools to sign.
 
 ### wallet_add_account
-- **Purpose**: Create a new Algorand account with nickname and spending limits
+- **Purpose**: Create a new Algorand account with a nickname
 - **Parameters**:
 ```json
 {
-  "nickname": "my-account",
-  "allowance": 5000000,
-  "dailyAllowance": 10000000
+  "nickname": "my-account"
 }
 ```
 - **Returns**: `{ address, publicKey, nickname }` — mnemonic is NEVER returned
@@ -42,7 +40,7 @@ Secure wallet management. Private keys are never available to you — use these 
 - **Parameters**: `{ "nickname": "my-account" }` or `{ "index": 0 }`
 
 ### wallet_list_accounts
-- **Purpose**: List all wallet accounts with nicknames, addresses, and spending limits
+- **Purpose**: List all wallet accounts with nicknames and addresses
 - **Parameters**: `{}`
 
 ### wallet_switch_account
@@ -50,7 +48,7 @@ Secure wallet management. Private keys are never available to you — use these 
 - **Parameters**: `{ "nickname": "my-account" }` or `{ "index": 0 }`
 
 ### wallet_get_info
-- **Purpose**: Get active wallet account info including address, balance, and spending limits
+- **Purpose**: Get active wallet account info including address and balance
 - **Parameters**: `{ "network": "testnet" }`
 - **Use**: FIRST tool in EVERY session
 
@@ -59,7 +57,7 @@ Secure wallet management. Private keys are never available to you — use these 
 - **Parameters**: `{ "network": "testnet" }`
 
 ### wallet_sign_transaction
-- **Purpose**: Sign a single transaction with the active wallet account. Enforces spending limits.
+- **Purpose**: Sign a single transaction with the active wallet account
 - **Parameters**:
 ```json
 {
@@ -69,7 +67,7 @@ Secure wallet management. Private keys are never available to you — use these 
 ```
 
 ### wallet_sign_transaction_group
-- **Purpose**: Sign a group of transactions. Assigns group ID automatically and enforces spending limits.
+- **Purpose**: Sign a group of transactions. Assigns group ID automatically.
 - **Parameters**:
 ```json
 {
@@ -823,7 +821,6 @@ Verify asset legitimacy and get detailed asset information from Pera Wallet's ma
 |-------|-------|----------|
 | `No active account` | No wallet account configured | Guide user to `wallet_add_account` |
 | `Invalid Algorand address format` | Bad address | Check with `validate_address` |
-| `Spending limit exceeded` | Transaction exceeds `allowance` or `dailyAllowance` | Inform user, adjust limits |
 | `Asset hasn't been opted in` | Recipient not opted in to ASA | Opt-in first with `wallet_optin_asset` or `make_asset_transfer_txn` |
 | `Overspend` / negative balance | Insufficient funds for amount + fee + MBR | Add funds or reduce amount |
 | `Do not know how to serialize a BigInt` | BigInt in JSON response | Should not occur (patched globally) |

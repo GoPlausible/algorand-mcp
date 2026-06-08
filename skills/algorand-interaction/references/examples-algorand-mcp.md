@@ -15,9 +15,7 @@ wallet_get_info { "network": "testnet" }
 ### Step 2: If no account exists
 ```
 wallet_add_account {
-  "nickname": "my-wallet",
-  "allowance": 5000000,
-  "dailyAllowance": 10000000
+  "nickname": "my-wallet"
 }
 ```
 

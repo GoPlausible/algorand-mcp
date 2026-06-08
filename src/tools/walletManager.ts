@@ -42,10 +42,6 @@ async function getDb(): Promise<Database> {
       address TEXT UNIQUE NOT NULL,
       public_key TEXT NOT NULL,
       nickname TEXT UNIQUE NOT NULL,
-      allowance INTEGER DEFAULT 0,
-      daily_allowance INTEGER DEFAULT 0,
-      daily_spent INTEGER DEFAULT 0,
-      last_spend_date TEXT DEFAULT '',
       created_at TEXT NOT NULL
     )
   `);
@@ -79,10 +75,6 @@ export interface AccountRow {
   address: string;
   public_key: string;
   nickname: string;
-  allowance: number;
-  daily_allowance: number;
-  daily_spent: number;
-  last_spend_date: string;
   created_at: string;
 }
 
@@ -92,9 +84,7 @@ const walletToolSchemas = {
   addAccount: {
     type: 'object',
     properties: {
-      nickname: { type: 'string', description: 'Human-readable nickname for this account' },
-      allowance: { type: 'number', description: 'Max per-transaction amount in microAlgos (0 = unlimited)' },
-      dailyAllowance: { type: 'number', description: 'Max daily spending total in microAlgos (0 = unlimited)' }
+      nickname: { type: 'string', description: 'Human-readable nickname for this account' }
     },
     required: ['nickname']
   },
@@ -169,7 +159,7 @@ export class WalletManager {
   static readonly walletTools = [
     {
       name: 'wallet_add_account',
-      description: 'Create a new Algorand account and store it securely in the OS keychain with a nickname and spending limits. Returns only address and public key.',
+      description: 'Create a new Algorand account and store it securely in the OS keychain with a nickname. Returns only address and public key.',
       inputSchema: withCommonParams(walletToolSchemas.addAccount),
     },
     {
@@ -179,7 +169,7 @@ export class WalletManager {
     },
     {
       name: 'wallet_list_accounts',
-      description: 'List all wallet accounts with their nicknames, addresses, and spending limits.',
+      description: 'List all wallet accounts with their nicknames and addresses.',
       inputSchema: withCommonParams(walletToolSchemas.listAccounts),
     },
     {
@@ -189,7 +179,7 @@ export class WalletManager {
     },
     {
       name: 'wallet_get_info',
-      description: 'Get info for the ACTIVE wallet account (an account whose private key this MCP server owns in the OS keychain). Returns nickname, address, public key, network, on-chain balance, min-balance, opted-in apps/assets counts, plus wallet-only fields: per-tx allowance, daily allowance, and daily-spent counter. Use this when you want to know the state of "the wallet you control." For an arbitrary on-chain account that this wallet does NOT own, use api_algod_get_account_info instead.',
+      description: 'Get info for the ACTIVE wallet account (an account whose private key this MCP server owns in the OS keychain). Returns nickname, address, public key, network, on-chain balance, min-balance, opted-in apps/assets counts. Use this when you want to know the state of "the wallet you control." For an arbitrary on-chain account that this wallet does NOT own, use api_algod_get_account_info instead.',
       inputSchema: withCommonParams(walletToolSchemas.getInfo),
     },
     {
@@ -199,12 +189,12 @@ export class WalletManager {
     },
     {
       name: 'wallet_sign_transaction',
-      description: 'Sign a single transaction with the active wallet account. Enforces per-transaction and daily spending limits.',
+      description: 'Sign a single transaction with the active wallet account.',
       inputSchema: withCommonParams(walletToolSchemas.signTransaction),
     },
     {
       name: 'wallet_sign_transaction_group',
-      description: 'Sign a group of transactions with the active wallet account. Assigns group ID automatically and enforces spending limits.',
+      description: 'Sign a group of transactions with the active wallet account. Assigns group ID automatically.',
       inputSchema: withCommonParams(walletToolSchemas.signTransactionGroup),
     },
     {
@@ -308,45 +298,6 @@ export class WalletManager {
     const account = await WalletManager.getActiveAccount();
     const mnemonic = WalletManager.getMnemonic(account.address);
     return algosdk.mnemonicToSecretKey(mnemonic).sk;
-  }
-
-  // ── Spending Limit Enforcement ─────────────────────────────────────────────
-
-  private static checkSpendingLimits(account: AccountRow, amountMicroAlgos: number): void {
-    if (amountMicroAlgos <= 0) return;
-
-    if (account.allowance > 0 && amountMicroAlgos > account.allowance) {
-      throw new McpError(
-        ErrorCode.InvalidRequest,
-        `Transaction amount ${amountMicroAlgos} microAlgos exceeds per-transaction allowance of ${account.allowance} for account "${account.nickname}"`
-      );
-    }
-
-    if (account.daily_allowance > 0) {
-      const today = new Date().toISOString().split('T')[0];
-      const spent = account.last_spend_date === today ? account.daily_spent : 0;
-      if (spent + amountMicroAlgos > account.daily_allowance) {
-        throw new McpError(
-          ErrorCode.InvalidRequest,
-          `Would exceed daily allowance: ${spent} spent + ${amountMicroAlgos} = ${spent + amountMicroAlgos} > limit ${account.daily_allowance} for "${account.nickname}"`
-        );
-      }
-    }
-  }
-
-  private static async recordSpend(address: string, amountMicroAlgos: number): Promise<void> {
-    if (amountMicroAlgos <= 0) return;
-    const database = await getDb();
-    const today = new Date().toISOString().split('T')[0];
-
-    // Reset if new day, then add
-    database.run(`
-      UPDATE accounts SET
-        daily_spent = CASE WHEN last_spend_date = ? THEN daily_spent + ? ELSE ? END,
-        last_spend_date = ?
-      WHERE address = ?
-    `, [today, amountMicroAlgos, amountMicroAlgos, today, address]);
-    persistDb();
   }
 
   // ── Transaction Helpers ────────────────────────────────────────────────────
@@ -478,12 +429,6 @@ export class WalletManager {
     return txn;
   }
 
-  private static extractTxnAmount(txnObj: any): number {
-    if (typeof txnObj.amount === 'number') return txnObj.amount;
-    if (typeof txnObj.amt === 'number') return txnObj.amt;
-    return 0;
-  }
-
   // ── Tool Handler ───────────────────────────────────────────────────────────
 
   static async handleTool(name: string, args: Record<string, unknown>) {
@@ -523,12 +468,9 @@ export class WalletManager {
           // Store mnemonic in OS keychain
           WalletManager.storeMnemonic(address, mnemonic);
 
-          const allowance = typeof args.allowance === 'number' ? args.allowance : 0;
-          const dailyAllowance = typeof args.dailyAllowance === 'number' ? args.dailyAllowance : 0;
-
           database.run(
-            'INSERT INTO accounts (address, public_key, nickname, allowance, daily_allowance, daily_spent, last_spend_date, created_at) VALUES (?, ?, ?, ?, ?, 0, \'\', ?)',
-            [address, publicKey, args.nickname, allowance, dailyAllowance, new Date().toISOString()]
+            'INSERT INTO accounts (address, public_key, nickname, created_at) VALUES (?, ?, ?, ?)',
+            [address, publicKey, args.nickname, new Date().toISOString()]
           );
           persistDb();
 
@@ -548,8 +490,6 @@ export class WalletManager {
                 publicKey,
                 nickname: args.nickname,
                 index: newIndex,
-                allowance,
-                dailyAllowance,
               }, null, 2),
             }],
           };
@@ -598,7 +538,6 @@ export class WalletManager {
         case 'wallet_list_accounts': {
           const accounts = await WalletManager.getAllAccounts();
           const activeIdx = await WalletManager.getActiveIndex();
-          const today = new Date().toISOString().split('T')[0];
 
           return {
             content: [{
@@ -612,9 +551,6 @@ export class WalletManager {
                   nickname: a.nickname,
                   address: a.address,
                   publicKey: a.public_key,
-                  allowance: a.allowance,
-                  dailyAllowance: a.daily_allowance,
-                  dailySpent: a.last_spend_date === today ? a.daily_spent : 0,
                   createdAt: a.created_at,
                 })),
               }, null, 2),
@@ -654,7 +590,6 @@ export class WalletManager {
           const account = await WalletManager.getActiveAccount();
           const network = extractNetwork(args);
           const algodClient = getAlgodClient(network);
-          const today = new Date().toISOString().split('T')[0];
 
           let onChainInfo: any = {};
           try {
@@ -680,9 +615,6 @@ export class WalletManager {
                 publicKey: account.public_key,
                 network,
                 ...onChainInfo,
-                allowance: account.allowance,
-                dailyAllowance: account.daily_allowance,
-                dailySpent: account.last_spend_date === today ? account.daily_spent : 0,
               }, null, 2),
             }],
           };
@@ -725,15 +657,10 @@ export class WalletManager {
 
           const account = await WalletManager.getActiveAccount();
           const txnObj = args.transaction as any;
-          const amount = WalletManager.extractTxnAmount(txnObj);
-
-          WalletManager.checkSpendingLimits(account, amount);
 
           const txn = WalletManager.prepareTransaction(txnObj);
           const sk = await WalletManager.getActiveSecretKey();
           const signedTxn = algosdk.signTransaction(txn, sk);
-
-          await WalletManager.recordSpend(account.address, amount);
 
           return {
             content: [{
@@ -757,13 +684,6 @@ export class WalletManager {
 
           const account = await WalletManager.getActiveAccount();
 
-          let totalAmount = 0;
-          for (const txnObj of args.transactions) {
-            totalAmount += WalletManager.extractTxnAmount(txnObj);
-          }
-
-          WalletManager.checkSpendingLimits(account, totalAmount);
-
           const txns = args.transactions.map((txnObj: any) => WalletManager.prepareTransaction(txnObj));
           const groupedTxns = algosdk.assignGroupID(txns);
 
@@ -775,8 +695,6 @@ export class WalletManager {
               blob: algosdk.bytesToBase64(signed.blob),
             };
           });
-
-          await WalletManager.recordSpend(account.address, totalAmount);
 
           return {
             content: [{
@@ -891,7 +809,7 @@ export class WalletManager {
 
   // ── Public accessors for external tool integration (e.g., haystack-router) ──
 
-  /** Get active account details (address, nickname, spending limits). */
+  /** Get active account details (address, nickname). */
   static async getActiveWalletAccount(): Promise<AccountRow> {
     return WalletManager.getActiveAccount();
   }
@@ -899,15 +817,5 @@ export class WalletManager {
   /** Get active account's secret key from OS keychain. */
   static async getActiveWalletSecretKey(): Promise<Uint8Array> {
     return WalletManager.getActiveSecretKey();
-  }
-
-  /** Check if transaction amount is within spending limits. Throws on violation. */
-  static checkWalletSpendingLimits(account: AccountRow, amountMicroAlgos: number): void {
-    return WalletManager.checkSpendingLimits(account, amountMicroAlgos);
-  }
-
-  /** Record a spend against the account's daily allowance tracker. */
-  static async recordWalletSpend(address: string, amountMicroAlgos: number): Promise<void> {
-    return WalletManager.recordSpend(address, amountMicroAlgos);
   }
 }

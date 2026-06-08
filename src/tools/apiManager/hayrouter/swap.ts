@@ -107,11 +107,7 @@ export async function handleSwapTools(args: any): Promise<any> {
 
       const quote = await router.newQuote(quoteParams);
 
-      // 4. Check spending limits (estimate based on input amount for ALGO sends)
-      const estimatedSpend = fromASAID === 0 ? Number(amount) : 0;
-      WalletManager.checkWalletSpendingLimits(account, estimatedSpend);
-
-      // 5. Build and execute swap
+      // 4. Build and execute swap
       const swapConfig: any = {
         quote,
         address,
@@ -125,14 +121,11 @@ export async function handleSwapTools(args: any): Promise<any> {
       const swap = await router.newSwap(swapConfig);
       const result = await swap.execute();
 
-      // 6. Record spend
-      await WalletManager.recordWalletSpend(address, estimatedSpend);
-
-      // 7. Get swap summary
+      // 5. Get swap summary
       const summary = swap.getSummary();
       const inputTxnId = swap.getInputTransactionId();
 
-      // 8. Build response
+      // 6. Build response
       const response: any = {
         status: 'confirmed',
         confirmedRound: result.confirmedRound.toString(),
