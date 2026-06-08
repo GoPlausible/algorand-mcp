@@ -8,7 +8,8 @@
   "bugs": {
     "url": "https://github.com/GoPlausible/algorand-mcp/issues"
   },
-  "homepage": "https://github.com/GoPlausible/algorand-mcp#readme",  "publishConfig": {
+  "homepage": "https://github.com/GoPlausible/algorand-mcp#readme",
+  "publishConfig": {
     "access": "public"
   },
   "description": "Algorand Model Context Protocol Local Implementation",
