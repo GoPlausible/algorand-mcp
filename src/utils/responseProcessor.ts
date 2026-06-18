@@ -7,7 +7,10 @@
   return Number(this);
 };
 
-const DEFAULT_ITEMS_PER_PAGE = 10;
+const DEFAULT_ITEMS_PER_PAGE = (() => {
+  const fromEnv = parseInt(process.env.ITEMS_PER_PAGE ?? '', 10);
+  return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : 10;
+})();
 
 export interface PaginationMetadata {
   totalItems: number;
