@@ -17,6 +17,7 @@ import {
 import {
   AccountManager,
   WalletManager,
+  X402Manager,
   UtilityManager,
   TransactionManager,
   AlgodManager,
@@ -109,6 +110,8 @@ class AlgorandMcpServer {
         ...AccountManager.accountTools,
         // Wallet Tools
         ...WalletManager.walletTools,
+        // x402 Tools
+        ...X402Manager.x402Tools,
         // Utility Tools
         ...UtilityManager.utilityTools,
         // Algod Tools
@@ -131,6 +134,11 @@ class AlgorandMcpServer {
       // Handle wallet tools
       if (name.startsWith('wallet_')) {
         return WalletManager.handleTool(name, args);
+      }
+
+      // Handle x402 tools
+      if (name === 'make_http_request_with_x402' || name === 'x402_discover_payment_requirements') {
+        return X402Manager.handleTool(name, args);
       }
 
       // Handle account tools

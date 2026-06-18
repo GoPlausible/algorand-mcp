@@ -30,7 +30,7 @@ At the beginning of every Algorand session:
 
 1. **Load tools** — Call `ToolSearch("+algorand wallet")` to load wallet tools
 2. **Check wallet** — Call `wallet_get_info` with the target network to verify a wallet account exists and is active.
-3. **If no accounts** — Guide the user to create one with `wallet_add_account` (sets nickname and spending limits).
+3. **If no accounts** — Guide the user to create one with `wallet_add_account` (sets the nickname).
 4. **If account needs funding** — Generate an ARC-26 QR code with `generate_algorand_qrcode` (returns `{ qr, uri, link, expires_in }` — display the `qr` text and shareable `link`) or direct the user to the testnet faucet: https://lora.algokit.io/testnet/fund
 5. **If account needs USDC funding** — Direct to testnet USDC faucet: https://faucet.circle.com/
 
@@ -76,8 +76,7 @@ Before ANY transaction:
 2. **Asset opt-in** — Verify with `api_algod_get_account_asset_info` before ASA transfers. If not opted in, opt-in first.
 3. **Fees** — Every transaction costs 0.001 ALGO (1,000 microAlgos) minimum.
 4. **Balance check** — Fetch current balance with `wallet_get_info` or `api_algod_get_account_info` before signing.
-5. **Spending limits** — The wallet enforces per-transaction (`allowance`) and daily (`dailyAllowance`) spending limits set at account creation. Setting either to `0` means **unlimited**.
-6. **Order** — Fund the account with ALGO first, then do asset transactions.
+5. **Order** — Fund the account with ALGO first, then do asset transactions.
 
 ## Transaction Types
 
@@ -92,14 +91,14 @@ Before ANY transaction:
 
 ## Wallet Transaction Workflow (Recommended)
 
-Use the wallet tools for signing — they enforce spending limits and keep keys in the OS keychain.
+Use the wallet tools for signing — they keep keys in the OS keychain.
 
 | Step | Tool | Purpose |
 |------|------|---------|
 | 1 | `wallet_get_info` | Verify active account, check balance |
 | 2 | Query tools | Get blockchain data (account info, asset info, etc.) |
 | 3 | `make_*_txn` | Build the transaction |
-| 4 | `wallet_sign_transaction` | Sign with active wallet account (enforces limits) |
+| 4 | `wallet_sign_transaction` | Sign with active wallet account |
 | 5 | `send_raw_transaction` | Submit signed transaction to network |
 | 6 | Query tools | Verify result on-chain |
 
@@ -204,13 +203,13 @@ Secure wallet with OS keychain storage. Keys never exposed to agents.
 
 | Tool | Purpose |
 |------|---------|
-| `wallet_add_account` | Create new Algorand account (keypair) for agent with nickname + spending limits |
+| `wallet_add_account` | Create new Algorand account (keypair) for agent with nickname |
 | `wallet_remove_account` | Remove account by nickname or index |
 | `wallet_list_accounts` | List all accounts with nicknames and addresses |
 | `wallet_switch_account` | Switch active account by nickname or index |
-| `wallet_get_info` | Active account info: address, balance, limits |
+| `wallet_get_info` | Active account info: address, balance |
 | `wallet_get_assets` | Asset holdings for active account |
-| `wallet_sign_transaction` | Sign single transaction (enforces spending limits) |
+| `wallet_sign_transaction` | Sign single transaction |
 | `wallet_sign_transaction_group` | Sign atomic group (auto-assigns group ID) |
 | `wallet_sign_data` | Sign arbitrary hex data with raw Ed25519 |
 | `wallet_optin_asset` | One-step asset opt-in (create + sign + submit) |
@@ -325,7 +324,6 @@ API responses are paginated. Every API tool accepts optional `itemsPerPage` (def
 2. **Private keys** — Never log, display, disclose or store mnemonics/secret keys
 3. **Address verification** — Validate addresses with `validate_address` before transactions. Transactions are irreversible.
 4. **Asset verification** — Verify asset IDs on-chain before interacting. Scam tokens use similar names. Use `api_pera_asset_verification_status` to check verification tier.
-5. **Spending limits** — Respect wallet spending limits. If a transaction is rejected for exceeding limits, inform the user rather than bypassing.
 
 ## Error Handling
 
@@ -333,7 +331,6 @@ API responses are paginated. Every API tool accepts optional `itemsPerPage` (def
 |-------|-------|----------|
 | `No active account` | No wallet account configured | Guide user to `wallet_add_account` |
 | `Invalid Algorand address format` | Bad address | Check with `validate_address` |
-| `Spending limit exceeded` | Transaction exceeds `allowance` or `dailyAllowance` | Inform user, adjust limits |
 | `Asset hasn't been opted in` | Recipient not opted in to ASA | Opt-in first |
 | `Overspend` / negative balance | Insufficient funds for amount + fee + MBR | Add funds or reduce amount |
 | `Do not know how to serialize a BigInt` | BigInt in JSON response | Should not occur (patched globally) |

@@ -21,7 +21,8 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 - TEAL compilation and disassembly
 - Full Algod and Indexer API access
 - NFDomains (NFD) name service integration
-- x402 and AP2 toolins for Algorand
+- x402 HTTP micropayments — automatic discovery and one-call paid requests using the active wallet (USDC/ALGO)
+- AP2 tooling for Algorand
 - Tinyman AMM integration (pools, swaps, liquidity)
 - Haystack Router DEX aggregation (best-price swaps across Tinyman, Pact, Folks)
 - Alpha Arcade prediction market trading (browse markets, orderbooks, limit/market orders, positions, claims)
@@ -319,6 +320,96 @@ The keychain backend is provided by [`@napi-rs/keyring`](https://github.com/nico
 
 All credentials are stored under the service name `algorand-mcp`. You can inspect them with your OS keychain app (e.g. Keychain Access on macOS).
 
+## x402 HTTP Payments
+
+[x402](https://x402.org) is an HTTP-native micropayments protocol. It uses the long-reserved `402 Payment Required` status as a real handshake: when a client requests a paid resource without paying, the server returns 402 with a JSON body listing what it accepts (networks, assets, amounts, the recipient address). The client constructs a payment, attaches it as an HTTP header, retries the same request, and the server returns 200 with the resource. No API keys, no Stripe webhooks, no accounts to manage — payment is part of the request itself.
+
+This MCP implements the Algorand flavor of x402, where payments are USDC (or native ALGO) transfers on Algorand. It exposes two tools that collapse the seven-step manual flow (probe → parse → opt-in check → build fee payer → build payment → group → sign → encode → header → retry) into a single tool call.
+
+### Protocol shape (Algorand variant)
+
+```
+  Agent (LLM)                  algorand-mcp                   Endpoint                Facilitator
+  ──────────                   ────────────                   ────────                ───────────
+       │                            │                            │                          │
+       │  make_http_request_       │                            │                          │
+       │  with_x402 { url, ... }   │                            │                          │
+       │ ────────────────────────► │  HTTP request              │                          │
+       │                            │ ─────────────────────────► │                          │
+       │                            │  402 PaymentRequired      │                          │
+       │                            │ ◄───────────────────────── │                          │
+       │                            │  pick accepts[i] for      │                          │
+       │                            │  Algorand network          │                          │
+       │                            │  build fee-payer + payment │                          │
+       │                            │  (atomic group of 2)       │                          │
+       │                            │  sign payment leg          │                          │
+       │                            │  via OS keychain           │                          │
+       │                            │  encode unsigned fee-payer │                          │
+       │                            │  base64 PAYMENT-SIGNATURE  │                          │
+       │                            │ ─────────────────────────► │                          │
+       │                            │  HTTP request +            │  forward + settle        │
+       │                            │  PAYMENT-SIGNATURE         │ ───────────────────────► │
+       │                            │                            │  sign fee-payer,         │
+       │                            │                            │  submit atomic group     │
+       │                            │  200 + resource            │ ◄─────────────────────── │
+       │                            │ ◄───────────────────────── │                          │
+       │ ◄─ { result, paid: {...}}│                            │                          │
+       │                            │                            │                          │
+```
+
+### What's different from the Coinbase/EVM version
+
+1. **Header name is `PAYMENT-SIGNATURE`**, not `X-PAYMENT`. The header body is base64-encoded JSON with `x402Version`, `scheme`, `network` (a CAIP-2 identifier like `algorand:wGHE2Pw…` for mainnet), a `payload`, and a verbatim copy of the `accepts[]` entry the client chose.
+2. **Payment is an atomic 2-transaction group.** Index 0 is a fee-payer transaction (sender = facilitator, amount = 0, fee = 2000 µAlgo for the whole group); index 1 is the actual USDC ASA transfer (sender = wallet, fee = 0). The wallet signs only index 1 — the facilitator signs index 0 server-side at settlement. The user's wallet pays only the USDC, not even network fees.
+3. **Network strings are Algorand CAIP-2.** This MCP recognizes mainnet (`wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=`) and testnet (`SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=`). Endpoints that only accept Base, Solana, or other non-Algorand networks are not satisfiable here and the tool returns a clear error.
+
+### Coinbase Wallet MCP compatibility (x402 surface)
+
+The x402 tools — `make_http_request_with_x402` and `x402_discover_payment_requirements` — are intentionally name- and shape-compatible with the Coinbase Wallet MCP's x402 tools. The input parameters (`baseURL`, `path`, `method`, `queryParams`, `body`, `headers`, `correlationId`, `maxAmountPerRequest`, `paymentRequirements`, `preferredNetwork`, `extensions`) are the same. The output envelope (`result`, `_atomicUnitsNote`) is the same.
+
+What this means in practice:
+- **Drop-in for Algorand x402.** Agents and MCP apps written against the Coinbase Wallet MCP's x402 tools work against this server without any prompt changes — they just hit Algorand x402 endpoints instead of Base/Solana ones.
+- **Same agent reflexes.** Models trained on tool-call traces from the Coinbase ecosystem use these tools correctly on first call. Nothing to relearn.
+- **Compatibility is scoped to the x402 surface only.** The wallet, account, transaction-building, and DEX tools in this MCP are Algorand-specific and do not mirror Coinbase's wallet API. Only `make_http_request_with_x402` and `x402_discover_payment_requirements` are drop-in compatible.
+
+The one parameter that necessarily differs: `preferredNetwork` accepts `mainnet | testnet | localnet` only (Algorand networks), because the wallet only signs Algorand transactions. Coinbase's enum lists `base | base-sepolia | solana | solana-devnet`. Agents that pass one of those values get a clear error indicating no Algorand-payable accepts entry exists.
+
+### Example — paid weather API
+
+```
+# Step 1 (optional): peek at the cost
+x402_discover_payment_requirements {
+  "baseURL": "https://example.x402.goplausible.xyz",
+  "path": "/weather",
+  "method": "GET"
+}
+# returns: { result: { accepts: [{ scheme: "exact", network: "algorand:SGO1...",
+#                                  maxAmountRequired: "100", asset: "10458941",
+#                                  payTo: "AAAA...", extra: { feePayer: "BBBB..." } }] } }
+
+# Step 2: pay and fetch in one call
+make_http_request_with_x402 {
+  "baseURL": "https://example.x402.goplausible.xyz",
+  "path": "/weather",
+  "method": "GET",
+  "maxAmountPerRequest": 10000,
+  "preferredNetwork": "testnet"
+}
+# returns: { result: <weather payload>, paid: { network: "testnet",
+#                                                asset: "10458941",
+#                                                amount: "100", payTo: "AAAA..." },
+#           paymentResponse: <decoded X-PAYMENT-RESPONSE> }
+```
+
+The active wallet account must be opted into the target ASA (e.g. USDC) and hold enough balance to cover `maxAmountRequired`. If it isn't opted in, the payment fails at settlement — opt in first with `wallet_optin_asset`.
+
+### Prerequisites
+
+- An active wallet account exists (`wallet_get_info` to verify)
+- That account is opted into the payment asset (USDC mainnet ASA `31566704`, testnet ASA `10458941`)
+- The account has enough of the payment asset for `maxAmountRequired`
+- The endpoint's `accepts[]` includes at least one entry with an Algorand network the MCP recognizes
+
 ## Optional Environment Variables
 
 Environment variables are only needed for special setups. Pass them via the `env` block in your MCP config.
@@ -367,6 +458,15 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 | `wallet_sign_transaction_group` | Sign a group of transactions with the active account (auto-assigns group ID) |
 | `wallet_sign_data` | Sign arbitrary hex data with raw Ed25519 (noble, no SDK prefix) |
 | `wallet_optin_asset` | Opt the active account into an asset (creates, signs, and submits) |
+
+### x402 HTTP Payment Tools (2 tools)
+
+See [x402 HTTP Payments](#x402-http-payments) for the full protocol explanation.
+
+| Tool | Description |
+|---|---|
+| `x402_discover_payment_requirements` | Probe an x402-protected endpoint and return its `accepts[]` array (cost, asset, network, payTo) without paying. Read-only. |
+| `make_http_request_with_x402` | Call an x402-protected endpoint with automatic USDC/ALGO payment from the active wallet. Discovers internally if `paymentRequirements` is not supplied, builds the atomic fee-payer + payment group, signs, and retries with the `PAYMENT-SIGNATURE` header. |
 
 ### Account Management (8 tools)
 

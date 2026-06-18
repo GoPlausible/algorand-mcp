@@ -1,5 +1,6 @@
 export { AccountManager } from './accountManager.js';
 export { WalletManager } from './walletManager.js';
+export { X402Manager } from './x402Manager.js';
 export { KnowledgeManager } from './knowledgeManager.js';
 export { arc26Manager } from './arc26Manager.js';
 export { UtilityManager } from './utilityManager.js';
