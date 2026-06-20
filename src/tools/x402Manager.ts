@@ -28,7 +28,10 @@ function caip2ToNetwork(caip2: string): NetworkId | null {
 interface PaymentRequirement {
   scheme: string;
   network: string;
-  maxAmountRequired: string;
+  // V2 canonical field name; V1 used `maxAmountRequired`. We accept either and
+  // read it via getRequirementAmount(). At least one must be present.
+  amount?: string;
+  maxAmountRequired?: string;
   payTo: string;
   asset: string;
   resource?: string;
@@ -48,6 +51,8 @@ interface PaymentRequiredResponse {
   x402Version: number;
   accepts: PaymentRequirement[];
   error?: string;
+  resource?: unknown;
+  extensions?: Record<string, unknown>;
 }
 
 const ATOMIC_UNITS_NOTE = 'USDC amounts are expressed in atomic units. 1,000,000 atomic units = $1.00 USDC (USDC has 6 decimals).';
@@ -175,7 +180,10 @@ export class X402Manager {
     }
 
     const result = X402Manager.tryParseJson(response.bodyText) ?? response.bodyText;
-    const paymentResponseHeader = response.headers['x-payment-response'] ?? response.headers['X-PAYMENT-RESPONSE'];
+    // Algorand x402 V2 uses lowercase `payment-response`; older deployments
+    // may use Coinbase's `x-payment-response`. Accept either.
+    const paymentResponseHeader = response.headers['payment-response']
+      ?? response.headers['x-payment-response'];
     return X402Manager.textResponse({
       result,
       status: response.status,
@@ -183,7 +191,7 @@ export class X402Manager {
       paid: {
         network: mcpNetwork,
         asset: requirement.asset,
-        amount: requirement.maxAmountRequired,
+        amount: X402Manager.getRequirementAmount(requirement),
         payTo: requirement.payTo,
       },
       extensions,
@@ -191,6 +199,24 @@ export class X402Manager {
   }
 
   // ── x402 protocol helpers ──────────────────────────────────────────────────
+
+  /**
+   * Returns the amount field from a PaymentRequirement, supporting both x402
+   * spec versions:
+   *   - V2 (current): `amount`
+   *   - V1 (legacy):  `maxAmountRequired`
+   * Prefers V2 if both are set (V2 deployments may include both for compat).
+   */
+  private static getRequirementAmount(req: PaymentRequirement): string | undefined {
+    return req.amount ?? req.maxAmountRequired;
+  }
+
+  private static isValidPaymentRequiredResponse(v: unknown): v is PaymentRequiredResponse {
+    return !!v
+      && typeof v === 'object'
+      && typeof (v as PaymentRequiredResponse).x402Version === 'number'
+      && Array.isArray((v as PaymentRequiredResponse).accepts);
+  }
 
   private static async discover(opts: {
     baseURL: string;
@@ -207,22 +233,28 @@ export class X402Manager {
   }> {
     const response = await X402Manager.httpRequest(opts);
 
-    if (response.status !== 402) {
-      return { status: response.status, x402: false, rawBody: X402Manager.tryParseJson(response.bodyText) ?? response.bodyText };
+    // 1. Canonical Algorand x402 V2 transport: requirements arrive in the
+    //    `payment-required` HTTP header as base64-encoded JSON. The body is
+    //    usually empty (`{}`). Check this first.
+    const headerPayload = response.headers['payment-required'];
+    if (headerPayload) {
+      const decoded = X402Manager.decodeBase64Json(headerPayload);
+      if (X402Manager.isValidPaymentRequiredResponse(decoded)) {
+        return { status: response.status, x402: true, accepts: decoded.accepts, x402Version: decoded.x402Version };
+      }
     }
 
-    const parsed = X402Manager.tryParseJson(response.bodyText);
-    if (
-      !parsed ||
-      typeof parsed !== 'object' ||
-      typeof (parsed as PaymentRequiredResponse).x402Version !== 'number' ||
-      !Array.isArray((parsed as PaymentRequiredResponse).accepts)
-    ) {
+    // 2. Fallback transport (some x402 servers put requirements in the 402 body).
+    if (response.status === 402) {
+      const parsed = X402Manager.tryParseJson(response.bodyText);
+      if (X402Manager.isValidPaymentRequiredResponse(parsed)) {
+        return { status: 402, x402: true, accepts: parsed.accepts, x402Version: parsed.x402Version };
+      }
       return { status: 402, x402: false, rawBody: parsed ?? response.bodyText };
     }
 
-    const body = parsed as PaymentRequiredResponse;
-    return { status: 402, x402: true, accepts: body.accepts, x402Version: body.x402Version };
+    // 3. Not an x402-protected response at all.
+    return { status: response.status, x402: false, rawBody: X402Manager.tryParseJson(response.bodyText) ?? response.bodyText };
   }
 
   private static selectRequirement(
@@ -242,14 +274,15 @@ export class X402Manager {
       );
     }
 
+    const amountOf = (req: PaymentRequirement): number => Number(X402Manager.getRequirementAmount(req));
     const inBudget = (req: PaymentRequirement) =>
-      maxAmountPerRequest === undefined || Number(req.maxAmountRequired) <= maxAmountPerRequest;
+      maxAmountPerRequest === undefined || amountOf(req) <= maxAmountPerRequest;
 
     const affordable = ranked.filter(e => inBudget(e.req));
     if (affordable.length === 0) {
       throw new McpError(
         ErrorCode.InvalidRequest,
-        `All Algorand payment requirements exceed maxAmountPerRequest=${maxAmountPerRequest}. Cheapest: ${Math.min(...ranked.map(e => Number(e.req.maxAmountRequired)))}.`
+        `All Algorand payment requirements exceed maxAmountPerRequest=${maxAmountPerRequest}. Cheapest: ${Math.min(...ranked.map(e => amountOf(e.req)))}.`
       );
     }
 
@@ -259,9 +292,7 @@ export class X402Manager {
     }
 
     // No preference (or preference not matched): pick the cheapest affordable.
-    const chosen = affordable.reduce((a, b) =>
-      Number(a.req.maxAmountRequired) <= Number(b.req.maxAmountRequired) ? a : b
-    );
+    const chosen = affordable.reduce((a, b) => amountOf(a.req) <= amountOf(b.req) ? a : b);
     return { requirement: chosen.req, mcpNetwork: chosen.mcpNetwork };
   }
 
@@ -271,9 +302,10 @@ export class X402Manager {
       throw new McpError(ErrorCode.InvalidRequest, 'Payment requirement is missing `extra.feePayer` (facilitator address).');
     }
 
-    const amount = Number(requirement.maxAmountRequired);
+    const amountStr = X402Manager.getRequirementAmount(requirement);
+    const amount = Number(amountStr);
     if (!Number.isFinite(amount) || amount < 0) {
-      throw new McpError(ErrorCode.InvalidRequest, `Invalid maxAmountRequired: ${requirement.maxAmountRequired}`);
+      throw new McpError(ErrorCode.InvalidRequest, `Invalid payment amount: ${amountStr ?? '(missing `amount` / `maxAmountRequired` field)'}`);
     }
 
     const account = await WalletManager.getActiveWalletAccount();
