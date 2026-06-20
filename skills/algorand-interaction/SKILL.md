@@ -9,7 +9,7 @@ Interact with Algorand blockchain through the Algorand MCP server (121 tools acr
 
 ## Key Characteristics
 
-- **Secure signing** — use `wallet_*` tools to sign; private keys are never available to you
+- **Agent-wallet signing** — use `wallet_*` tools to sign; the MCP server holds the mnemonics in a local SQLite DB and signs on your behalf. Mnemonics are never returned in tool responses.
 - **Multi-network** — supports `mainnet`, `testnet`, and `localnet`
 
 ## Calling MCP Tools

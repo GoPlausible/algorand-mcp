@@ -23,7 +23,7 @@
 
 ## Wallet Management Tools
 
-Secure wallet management. Private keys are never available to you — use these tools to sign.
+Agent-wallet management. The MCP server holds the mnemonics in a local SQLite DB and signs on your behalf — use these tools to sign. Mnemonics are never returned in tool responses.
 
 ### wallet_add_account
 - **Purpose**: Create a new Algorand account with a nickname

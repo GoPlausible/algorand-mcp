@@ -4,9 +4,9 @@ This document describes how AI agents should interact with the Algorand blockcha
 
 ## Overview
 
-Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 121 tools across 14 categories for full Algorand blockchain access. Private keys are stored in the **OS keychain** — they never appear in tool responses, logs, or MCP messages.
+Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 121 tools across 14 categories for full Algorand blockchain access. Mnemonics are stored in a **local SQLite agent-wallet DB** (`~/.algorand-mcp/wallet.db`, mode `0600`) — they never appear in tool responses, logs, or MCP messages. The MCP server holds the keys and signs on the agent's behalf.
 
-**Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using OS keychain-stored keys, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
+**Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using mnemonics held in the agent-wallet DB, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
 
 ## Calling MCP Tools
 
@@ -91,7 +91,7 @@ Before ANY transaction:
 
 ## Wallet Transaction Workflow (Recommended)
 
-Use the wallet tools for signing — they keep keys in the OS keychain.
+Use the wallet tools for signing — they hold the agent's mnemonics in the local agent-wallet DB and sign on your behalf.
 
 | Step | Tool | Purpose |
 |------|------|---------|
@@ -199,7 +199,7 @@ Trade on-chain prediction markets (YES/NO outcomes) denominated in USDC via the 
 ## Tool Categories
 
 ### Wallet (10 tools)
-Secure wallet with OS keychain storage. Keys never exposed to agents.
+Agent wallet backed by local SQLite (`~/.algorand-mcp/wallet.db`, mode `0600`). The MCP server holds the mnemonics and signs on your behalf — they are never returned in tool responses.
 
 | Tool | Purpose |
 |------|---------|

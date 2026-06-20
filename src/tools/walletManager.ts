@@ -1,11 +1,11 @@
 import algosdk from 'algosdk';
-import { Entry, findCredentials } from '@napi-rs/keyring';
+import { Entry } from '@napi-rs/keyring';
 import { ed25519 } from '@noble/curves/ed25519.js';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { withCommonParams } from './commonParams.js';
 import { getAlgodClient, extractNetwork, type NetworkId } from '../algorand-client.js';
 import initSqlJs, { type Database } from 'sql.js';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, chmodSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 
@@ -35,13 +35,16 @@ async function getDb(): Promise<Database> {
     db = new SQL.Database();
   }
 
-  // Create tables if they don't exist
+  // Create tables if they don't exist. For fresh installs the schema is
+  // already at the latest shape; for older DBs ensureSchema() below upgrades.
   db.run(`
     CREATE TABLE IF NOT EXISTS accounts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       address TEXT UNIQUE NOT NULL,
       public_key TEXT NOT NULL,
-      nickname TEXT UNIQUE NOT NULL,
+      nickname TEXT NOT NULL,
+      mnemonic TEXT,
+      archived INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL
     )
   `);
@@ -52,20 +55,142 @@ async function getDb(): Promise<Database> {
     )
   `);
 
+  // Idempotent schema migration: add mnemonic + archived columns on
+  // pre-existing DBs; replace the legacy column-level UNIQUE on nickname with
+  // a partial unique index that only enforces uniqueness among non-archived
+  // accounts (so an archived account can keep its original nickname while a
+  // new active account with the same nickname can be created).
+  ensureSchema(db);
+
   // Initialize active index if not set
   const row = db.exec("SELECT value FROM wallet_state WHERE key = 'active_account_index'");
   if (row.length === 0) {
     db.run("INSERT INTO wallet_state (key, value) VALUES ('active_account_index', '0')");
   }
 
+  // Eager keychain → DB migration for any pre-existing accounts whose mnemonic
+  // still lives in the OS keychain. Runs once per startup; idempotent (rows
+  // already populated are skipped).
+  migrateKeychainToDb(db);
+
+  // Any row that's still NULL after the migration attempt is an orphan
+  // (e.g. wallet.db was restored without its keychain counterpart, or this
+  // is a Docker install where the keychain never existed). Archive them so
+  // the agent doesn't see unusable accounts in the default wallet_list, but
+  // the rows stay in the DB and can be surfaced via wallet_list_accounts
+  // { archived: true } for forensics or future recovery.
+  archiveOrphanedAccounts(db);
+
   persistDb();
   return db;
+}
+
+/**
+ * Brings older DBs forward to the latest schema:
+ *   v1 → no mnemonic column, nickname is a column-level UNIQUE
+ *   v2 → mnemonic column added, nickname still column-level UNIQUE
+ *   v3 → archived column added, nickname UNIQUE replaced with a partial unique
+ *        index (idx_active_nickname) that only enforces uniqueness among rows
+ *        WHERE archived = 0
+ *
+ * SQLite cannot drop a column-level UNIQUE constraint via ALTER, so when the
+ * upgrade to v3 is needed we recreate the table. Idempotent: subsequent
+ * startups detect the archived column already exists and skip.
+ */
+function ensureSchema(database: Database): void {
+  const info = database.exec('PRAGMA table_info(accounts)');
+  if (!info.length) return;
+  const cols = info[0].values.map(r => r[1] as string);
+
+  // v1 → v2: add mnemonic column
+  if (!cols.includes('mnemonic')) {
+    database.run('ALTER TABLE accounts ADD COLUMN mnemonic TEXT');
+    cols.push('mnemonic');
+  }
+
+  // v2 → v3: add archived column + drop nickname UNIQUE via table recreation
+  if (!cols.includes('archived')) {
+    database.run(`
+      CREATE TABLE accounts_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        address TEXT UNIQUE NOT NULL,
+        public_key TEXT NOT NULL,
+        nickname TEXT NOT NULL,
+        mnemonic TEXT,
+        archived INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+      )
+    `);
+    database.run(`
+      INSERT INTO accounts_new (id, address, public_key, nickname, mnemonic, archived, created_at)
+      SELECT id, address, public_key, nickname, mnemonic, 0, created_at FROM accounts
+    `);
+    database.run('DROP TABLE accounts');
+    database.run('ALTER TABLE accounts_new RENAME TO accounts');
+  }
+
+  // Partial unique index — applies to fresh and migrated DBs. Idempotent.
+  database.run('CREATE UNIQUE INDEX IF NOT EXISTS idx_active_nickname ON accounts(nickname) WHERE archived = 0');
+}
+
+function migrateKeychainToDb(database: Database): void {
+  const result = database.exec("SELECT address FROM accounts WHERE (mnemonic IS NULL OR mnemonic = '') AND archived = 0");
+  if (!result.length || !result[0].values.length) return;
+  for (const row of result[0].values) {
+    const address = row[0] as string;
+    let mnemonic: string | null = null;
+    try {
+      mnemonic = new Entry(KEYCHAIN_SERVICE, address).getPassword();
+    } catch (err) {
+      // Keychain unavailable, entry not found, or permission denied. Log to
+      // stderr so a user investigating a false archive can see what happened.
+      // The MCP tool surface remains silent.
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[algorand-mcp] keychain read failed for ${address.slice(0, 10)}…: ${msg}`);
+    }
+    if (mnemonic && mnemonic.length > 0) {
+      database.run('UPDATE accounts SET mnemonic = ? WHERE address = ?', [mnemonic, address]);
+    }
+  }
+}
+
+/**
+ * Marks any `accounts` rows that still have no mnemonic after the keychain
+ * migration step as archived (archived = 1). Archived rows:
+ *   - are hidden from the default wallet_list_accounts response
+ *   - never become the active account
+ *   - keep their original nickname (the partial unique index on
+ *     idx_active_nickname allows a new active account to reuse the nickname)
+ *   - are surfaced via wallet_list_accounts { archived: true } for forensics
+ *
+ * Silent at the MCP tool layer. The active-account index is clamped to the
+ * end of the remaining active list (or 0 if no active accounts remain).
+ */
+function archiveOrphanedAccounts(database: Database): void {
+  const orphans = database.exec("SELECT id FROM accounts WHERE (mnemonic IS NULL OR mnemonic = '') AND archived = 0");
+  if (!orphans.length || !orphans[0].values.length) return;
+
+  database.run("UPDATE accounts SET archived = 1 WHERE (mnemonic IS NULL OR mnemonic = '') AND archived = 0");
+
+  // Clamp active_account_index against the (now reduced) active list.
+  const countResult = database.exec('SELECT COUNT(*) FROM accounts WHERE archived = 0');
+  const remaining = countResult.length && countResult[0].values.length
+    ? Number(countResult[0].values[0][0])
+    : 0;
+  const activeResult = database.exec("SELECT value FROM wallet_state WHERE key = 'active_account_index'");
+  const activeIdx = activeResult.length && activeResult[0].values.length
+    ? parseInt(activeResult[0].values[0][0] as string, 10) || 0
+    : 0;
+  if (remaining === 0 || activeIdx >= remaining) {
+    database.run("UPDATE wallet_state SET value = '0' WHERE key = 'active_account_index'");
+  }
 }
 
 function persistDb(): void {
   if (!db) return;
   const data = db.export();
-  writeFileSync(DB_PATH, Buffer.from(data));
+  writeFileSync(DB_PATH, Buffer.from(data), { mode: 0o600 });
+  try { chmodSync(DB_PATH, 0o600); } catch { /* best-effort on platforms that don't support it */ }
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -75,6 +200,8 @@ export interface AccountRow {
   address: string;
   public_key: string;
   nickname: string;
+  mnemonic: string | null;
+  archived: number;
   created_at: string;
 }
 
@@ -98,7 +225,12 @@ const walletToolSchemas = {
   },
   listAccounts: {
     type: 'object',
-    properties: {},
+    properties: {
+      archived: {
+        type: 'boolean',
+        description: 'If true, return archived accounts (rows whose mnemonic could not be recovered from the OS keychain at startup, kept in the DB for forensics). If false or omitted, returns only active (signable) accounts.'
+      }
+    },
     required: []
   },
   switchAccount: {
@@ -159,7 +291,7 @@ export class WalletManager {
   static readonly walletTools = [
     {
       name: 'wallet_add_account',
-      description: 'Create a new Algorand account and store it securely in the OS keychain with a nickname. Returns only address and public key.',
+      description: 'Create a new Algorand account, store it in the agent-wallet database with a nickname, and auto-switch to it if it is the first account. Returns address, public key, nickname, and index. The mnemonic is held internally by the MCP server and never returned to the agent.',
       inputSchema: withCommonParams(walletToolSchemas.addAccount),
     },
     {
@@ -169,7 +301,7 @@ export class WalletManager {
     },
     {
       name: 'wallet_list_accounts',
-      description: 'List all wallet accounts with their nicknames and addresses.',
+      description: 'List wallet accounts with their nicknames and addresses. By default returns only ACTIVE accounts (signable). Pass { archived: true } to return ARCHIVED accounts instead — these are accounts whose mnemonic could not be recovered from the OS keychain at startup (e.g., wallet.db moved to a new machine without keychain, or fresh Docker install over an existing DB). Archived rows stay in the DB for forensics but cannot sign; their nicknames are freed for reuse by new active accounts.',
       inputSchema: withCommonParams(walletToolSchemas.listAccounts),
     },
     {
@@ -211,9 +343,20 @@ export class WalletManager {
 
   // ── Database Helpers ───────────────────────────────────────────────────────
 
-  private static async getAllAccounts(): Promise<AccountRow[]> {
+  /**
+   * Returns accounts from wallet.db.
+   *   - includeArchived = false (default): only active rows (archived = 0).
+   *     Used by every signing/lookup path and by wallet_list_accounts in its
+   *     default mode.
+   *   - includeArchived = true: only archived rows (archived = 1). Used by
+   *     wallet_list_accounts { archived: true } for forensics.
+   */
+  private static async getAllAccounts(includeArchived = false): Promise<AccountRow[]> {
     const database = await getDb();
-    const result = database.exec('SELECT * FROM accounts ORDER BY id');
+    const sql = includeArchived
+      ? 'SELECT * FROM accounts WHERE archived = 1 ORDER BY id'
+      : 'SELECT * FROM accounts WHERE archived = 0 ORDER BY id';
+    const result = database.exec(sql);
     if (result.length === 0) return [];
     const cols = result[0].columns;
     return result[0].values.map(row => {
@@ -267,36 +410,60 @@ export class WalletManager {
     throw new McpError(ErrorCode.InvalidParams, 'Provide either nickname or index');
   }
 
-  // ── Keychain Access ────────────────────────────────────────────────────────
+  // ── Mnemonic Storage ───────────────────────────────────────────────────────
+  //
+  // Mnemonics live in the `accounts.mnemonic` column of wallet.db. The OS
+  // keychain (@napi-rs/keyring) is kept only as a backward-compatibility read
+  // fallback for accounts that pre-date this change; the eager migration in
+  // getDb() copies any such mnemonics into the DB at startup, and the fallback
+  // below catches the rare case where the keychain was unavailable at startup
+  // but becomes available later. New mnemonics are never written to the
+  // keychain.
 
-  private static storeMnemonic(address: string, mnemonic: string): void {
-    const entry = new Entry(KEYCHAIN_SERVICE, address);
-    entry.setPassword(mnemonic);
+  private static async storeMnemonic(address: string, mnemonic: string): Promise<void> {
+    const database = await getDb();
+    database.run('UPDATE accounts SET mnemonic = ? WHERE address = ?', [mnemonic, address]);
+    persistDb();
   }
 
-  private static getMnemonic(address: string): string {
-    try {
-      const entry = new Entry(KEYCHAIN_SERVICE, address);
-      const mnemonic = entry.getPassword();
-      if (!mnemonic) throw new Error('No mnemonic found');
-      return mnemonic;
-    } catch {
-      throw new McpError(ErrorCode.InvalidParams, `No keychain entry found for address: ${address}`);
+  private static async getMnemonic(address: string): Promise<string> {
+    const database = await getDb();
+    const result = database.exec('SELECT mnemonic FROM accounts WHERE address = ?', [address]);
+    if (result.length && result[0].values.length) {
+      const m = result[0].values[0][0];
+      if (typeof m === 'string' && m.length > 0) return m;
     }
+
+    // Fallback: read from keychain (handles the case where eager migration
+    // missed this address because the keychain wasn't available at startup).
+    // On success, copy into the DB so future reads are DB-native.
+    try {
+      const m = new Entry(KEYCHAIN_SERVICE, address).getPassword();
+      if (m) {
+        database.run('UPDATE accounts SET mnemonic = ? WHERE address = ?', [m, address]);
+        persistDb();
+        return m;
+      }
+    } catch {
+      // No keychain entry / keychain unavailable.
+    }
+
+    throw new McpError(ErrorCode.InvalidParams, `No mnemonic found for address: ${address}`);
   }
 
-  private static deleteMnemonic(address: string): boolean {
-    try {
-      const entry = new Entry(KEYCHAIN_SERVICE, address);
-      return entry.deleteCredential();
-    } catch {
-      return false;
-    }
+  private static async deleteMnemonic(address: string): Promise<boolean> {
+    const database = await getDb();
+    database.run('UPDATE accounts SET mnemonic = NULL WHERE address = ?', [address]);
+    persistDb();
+    // Best-effort cleanup of any stale keychain entry left over from a
+    // pre-migration install. Failure here is harmless.
+    try { new Entry(KEYCHAIN_SERVICE, address).deleteCredential(); } catch { /* ignore */ }
+    return true;
   }
 
   private static async getActiveSecretKey(): Promise<Uint8Array> {
     const account = await WalletManager.getActiveAccount();
-    const mnemonic = WalletManager.getMnemonic(account.address);
+    const mnemonic = await WalletManager.getMnemonic(account.address);
     return algosdk.mnemonicToSecretKey(mnemonic).sk;
   }
 
@@ -445,7 +612,10 @@ export class WalletManager {
           const database = await getDb();
 
           // Check nickname uniqueness
-          const existing = database.exec('SELECT id FROM accounts WHERE nickname = ?', [args.nickname]);
+          // Nickname uniqueness is enforced only among ACTIVE accounts (the
+          // partial unique index idx_active_nickname). Archived rows with the
+          // same nickname don't conflict — the new account takes over the name.
+          const existing = database.exec('SELECT id FROM accounts WHERE nickname = ? AND archived = 0', [args.nickname]);
           if (existing.length > 0 && existing[0].values.length > 0) {
             throw new McpError(ErrorCode.InvalidParams, `Account with nickname "${args.nickname}" already exists`);
           }
@@ -465,12 +635,9 @@ export class WalletManager {
             throw new McpError(ErrorCode.InvalidParams, `Account with address ${address} already exists in wallet`);
           }
 
-          // Store mnemonic in OS keychain
-          WalletManager.storeMnemonic(address, mnemonic);
-
           database.run(
-            'INSERT INTO accounts (address, public_key, nickname, created_at) VALUES (?, ?, ?, ?)',
-            [address, publicKey, args.nickname, new Date().toISOString()]
+            'INSERT INTO accounts (address, public_key, nickname, mnemonic, created_at) VALUES (?, ?, ?, ?, ?)',
+            [address, publicKey, args.nickname, mnemonic, new Date().toISOString()]
           );
           persistDb();
 
@@ -506,7 +673,7 @@ export class WalletManager {
           const idx = await WalletManager.resolveAccountIndex(args);
           const removed = accounts[idx];
 
-          WalletManager.deleteMnemonic(removed.address);
+          await WalletManager.deleteMnemonic(removed.address);
 
           const database = await getDb();
           database.run('DELETE FROM accounts WHERE address = ?', [removed.address]);
@@ -536,18 +703,21 @@ export class WalletManager {
         // ── wallet_list_accounts ─────────────────────────────────────────
 
         case 'wallet_list_accounts': {
-          const accounts = await WalletManager.getAllAccounts();
-          const activeIdx = await WalletManager.getActiveIndex();
+          const showArchived = args.archived === true;
+          const accounts = await WalletManager.getAllAccounts(showArchived);
+          const activeIdx = showArchived ? -1 : await WalletManager.getActiveIndex();
 
           return {
             content: [{
               type: 'text',
               text: JSON.stringify({
+                archived: showArchived,
                 activeIndex: activeIdx,
                 count: accounts.length,
                 accounts: accounts.map((a, i) => ({
                   index: i,
-                  active: i === activeIdx,
+                  active: !showArchived && i === activeIdx,
+                  archived: showArchived,
                   nickname: a.nickname,
                   address: a.address,
                   publicKey: a.public_key,

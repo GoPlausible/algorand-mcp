@@ -17,7 +17,7 @@ Interact with Alpha Arcade prediction markets via the Alpha Arcade MCP server (1
 
 ## Setup
 
-Alpha Arcade tools are built into the Algorand MCP server. Trading uses the local wallet (OS keychain) — no separate mnemonic needed.
+Alpha Arcade tools are built into the Algorand MCP server. Trading uses the local agent wallet (SQLite-backed) — no separate mnemonic needed.
 
 | Variable | Required | Description |
 |----------|----------|-------------|

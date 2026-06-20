@@ -13,7 +13,7 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 
 ## Features
 
-- Secure wallet management via OS keychain — private keys never exposed to agents or LLMs
+- Agent wallet — mnemonics stored in a local SQLite database, used by the MCP server to sign on the agent's behalf (mnemonics never returned in tool responses)
 - Wallet accounts with human-readable nicknames
 - Account creation, key management, and rekeying
 - Transaction building, signing, and submission (payments, assets, applications, key registration)
@@ -268,57 +268,79 @@ If no `network` is provided, tools default to **mainnet**.
 
 API responses are automatically paginated. Every tool accepts an optional `itemsPerPage` parameter (default: 10). Pass the `pageToken` from a previous response to fetch the next page.
 
-## Secure Wallet
+## Agent Wallet
 
 ### Architecture
 
-The wallet system has two layers of storage, each with a distinct security role:
+The agent wallet is a local SQLite database that the MCP server controls on the agent's behalf. The server holds the mnemonics and signs transactions for the agent — the agent never sees the mnemonics in any tool response.
 
-| Layer | What it stores | Where | Encryption |
-|---|---|---|---|
-| **OS Keychain** | Mnemonics (secret keys) | macOS Keychain / Linux libsecret / Windows Credential Manager | OS-managed, hardware-backed where available |
-| **Embedded SQLite** | Account metadata (nicknames, active-account index) | `~/.algorand-mcp/wallet.db` | Plaintext (no secrets) |
+| Layer | What it stores | Where |
+|---|---|---|
+| **SQLite (`wallet.db`)** | Account rows (`address`, `public_key`, `nickname`, `mnemonic`, `created_at`) and the active-account index | `~/.algorand-mcp/wallet.db` (mode `0600`) |
 
-**Private key material never appears in tool responses, MCP config files, environment variables, or logs.** The agent only sees addresses, public keys, and signed transaction blobs.
+**Threat model.** The wallet.db file is the secret. Anyone with read access to it can recover every mnemonic stored in the wallet. The mitigations are filesystem permissions (`0600`, owner-only), keeping the data directory off shared/world-readable volumes, and treating the data directory like any other secret store (snapshot it carefully, restrict backups, encrypt the host disk for at-rest protection). For Docker deployments, mount `~/.algorand-mcp` as a named volume and restrict access to it like you would any secret material.
 
 ### How it works
 
 ```
-  Agent (LLM)                    MCP Server                     Storage
-  ──────────                     ──────────                     ───────
-       │                              │                              │
-       │  wallet_add_account          │                              │
-       │  { nickname: "main" }        │                              │
-       │ ──────────────────────────►  │  generate keypair            │
-       │                              │  store mnemonic ──────────►  │  OS Keychain (encrypted)
-       │                              │  store metadata ──────────►  │  SQLite (nickname)
-       │  ◄─ { address, publicKey }   │                              │
-       │                              │                              │
-       │  wallet_sign_transaction     │                              │
-       │  { transaction: {...} }      │                              │
-       │ ──────────────────────────►  │  retrieve mnemonic ◄──────  │  OS Keychain
-       │                              │  sign in memory              │
-       │  ◄─ { txID, blob }          │  (key discarded)             │
-       │                              │                              │
+  Agent (LLM)                    MCP Server                          Storage
+  ──────────                     ──────────                          ───────
+       │                              │                                  │
+       │  wallet_add_account          │                                  │
+       │  { nickname: "main" }        │                                  │
+       │ ──────────────────────────►  │  generate keypair                │
+       │                              │  INSERT (address, public_key,    │
+       │                              │           nickname, mnemonic) ──►│  wallet.db
+       │  ◄─ { address, publicKey,    │                                  │
+       │       nickname, index }      │                                  │
+       │                              │                                  │
+       │  wallet_sign_transaction     │                                  │
+       │  { transaction: {...} }      │                                  │
+       │ ──────────────────────────►  │  SELECT mnemonic FROM accounts ◄─│
+       │                              │   WHERE address=<active>         │
+       │                              │  sign in memory                  │
+       │  ◄─ { txID, blob }           │  (key discarded after sign)      │
+       │                              │                                  │
 ```
 
-1. **Account creation** (`wallet_add_account`) — Generates a keypair, stores the mnemonic in the OS keychain, and stores the nickname in SQLite. Returns **only** address and public key.
+1. **Account creation** (`wallet_add_account`) — Generates a keypair and inserts a row containing the mnemonic into `accounts`. Returns address, public key, nickname, and index. The mnemonic is never returned.
 2. **Active account** — One account is active at a time. `wallet_switch_account` changes it by nickname or index. All signing and query tools operate on the active account.
-3. **Transaction signing** (`wallet_sign_transaction`) — Retrieves the key from the keychain, signs in memory, discards the key. Returns only the signed blob.
+3. **Transaction signing** (`wallet_sign_transaction`) — Reads the mnemonic from the DB, signs in memory, returns only the signed blob.
 4. **Data signing** (`wallet_sign_data`) — Signs arbitrary hex data using raw Ed25519 via the [`@noble/curves`](https://github.com/paulmillr/noble-curves) library (no Algorand SDK prefix). Useful for off-chain authentication.
 5. **Asset opt-in** (`wallet_optin_asset`) — Creates, signs, and submits an opt-in transaction for the active account in one step.
 
-### Platform keychain support
+### Backward compatibility (silent migration from OS keychain)
 
-The keychain backend is provided by [`@napi-rs/keyring`](https://github.com/nicolo-ribaudo/napi-keyring) (Rust-based, prebuilt binaries):
+Older installs of this MCP stored mnemonics in the OS keychain (`@napi-rs/keyring`). On first startup after upgrading, the server runs a one-shot, silent migration:
 
-| Platform | Backend |
+- For every `accounts` row whose `mnemonic` column is `NULL` or empty, it attempts to read the mnemonic from the OS keychain under the service name `algorand-mcp` keyed by the address.
+- If found, the mnemonic is copied into the DB column.
+- The original keychain entry is left in place as a redundant backup; nothing is deleted.
+
+After this completes, the DB is the sole source of truth. The keychain is consulted only as a fallback if the DB still has a `NULL` mnemonic for an address (e.g., the keychain was unavailable during startup and became available later). All new accounts created after the upgrade are written directly to the DB and never touch the keychain.
+
+**Orphan handling (archive, not delete).** If an `accounts` row exists but its mnemonic isn't in the keychain *and* isn't already in the DB (e.g., the user copied `wallet.db` to a new machine without also moving the keychain entries, restored from a partial backup, or installed in Docker where the keychain never existed), that row is unusable for signing. Rather than delete it, the server marks the row as **archived** (`UPDATE accounts SET archived = 1 WHERE mnemonic IS NULL OR mnemonic = ''`). Archived rows:
+
+- are **hidden from the default** `wallet_list_accounts` response
+- **never become the active account** (the active-account index is clamped to the end of the remaining active list, or reset to `0` if no active accounts remain)
+- keep their **original nickname** (a partial unique index `idx_active_nickname` enforces nickname uniqueness only among active rows, so a new `wallet_add_account` can reuse the same nickname for a fresh keypair)
+- are **surfaced via `wallet_list_accounts { archived: true }`** for forensics or future recovery
+
+Archiving is silent at the MCP tool layer. The only diagnostic is a one-line stderr log per failed keychain read (`[algorand-mcp] keychain read failed for <addr>…: <msg>`), so if a user investigates a false archive they can see whether the keychain threw "no entry" vs "access denied" vs "no DBus" etc.
+
+No user action is required for any of this. No prompts, no env vars, no migration tools.
+
+### Schema versions
+
+The DB schema evolves additively via an idempotent migration that runs at startup:
+
+| Version | Change |
 |---|---|
-| macOS | Keychain Services (the system Keychain app) |
-| Linux | libsecret (GNOME Keyring) or KWallet |
-| Windows | Windows Credential Manager |
+| v1 | initial — `accounts` columns: `id`, `address`, `public_key`, `nickname` (UNIQUE), `created_at` |
+| v2 | added `mnemonic TEXT` column |
+| v3 | added `archived INTEGER NOT NULL DEFAULT 0` column; dropped the column-level UNIQUE on `nickname` and replaced it with `CREATE UNIQUE INDEX idx_active_nickname ON accounts(nickname) WHERE archived = 0` so archived rows can keep their original nicknames without blocking reuse |
 
-All credentials are stored under the service name `algorand-mcp`. You can inspect them with your OS keychain app (e.g. Keychain Access on macOS).
+The v2→v3 step recreates the `accounts` table (SQLite cannot drop a column-level UNIQUE constraint via ALTER) and copies data forward with `archived = 0`. Existing wallets keep working unchanged.
 
 ## x402 HTTP Payments
 
@@ -343,7 +365,7 @@ This MCP implements the Algorand flavor of x402, where payments are USDC (or nat
        │                            │  build fee-payer + payment │                          │
        │                            │  (atomic group of 2)       │                          │
        │                            │  sign payment leg          │                          │
-       │                            │  via OS keychain           │                          │
+       │                            │  via agent wallet DB       │                          │
        │                            │  encode unsigned fee-payer │                          │
        │                            │  base64 PAYMENT-SIGNATURE  │                          │
        │                            │ ─────────────────────────► │                          │
@@ -450,9 +472,9 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 |---|---|
 | `wallet_add_account` | Create a new Algorand account with nickname (returns address + public key only) |
 | `wallet_remove_account` | Remove an account from the wallet by nickname or index |
-| `wallet_list_accounts` | List all accounts with nicknames and addresses |
+| `wallet_list_accounts` | List active accounts with nicknames and addresses. Pass `{ archived: true }` to list archived accounts instead (rows whose mnemonic couldn't be recovered from the OS keychain at startup — kept in the DB for forensics, not signable). |
 | `wallet_switch_account` | Switch the active account by nickname or index |
-| `wallet_get_info` | Get info for the **active account this MCP server owns** (keychain-backed): address, public key, balance, opted-in counts. For arbitrary on-chain accounts use `api_algod_get_account_info`. |
+| `wallet_get_info` | Get info for the **active account this MCP server owns** (DB-backed): address, public key, balance, opted-in counts. For arbitrary on-chain accounts use `api_algod_get_account_info`. |
 | `wallet_get_assets` | Get all ASA holdings for the **active account this MCP server owns**. For arbitrary on-chain accounts use `api_algod_get_account_info` or `api_algod_get_account_asset_info`. |
 | `wallet_sign_transaction` | Sign a single transaction with the active account |
 | `wallet_sign_transaction_group` | Sign a group of transactions with the active account (auto-assigns group ID) |
@@ -687,7 +709,7 @@ algorand-mcp/
 │   │   └── wallet/              # Wallet resources
 │   ├── tools/                   # MCP Tools
 │   │   ├── commonParams.ts      # Network + pagination schema fragments
-│   │   ├── walletManager.ts     # Secure wallet (keychain + SQLite)
+│   │   ├── walletManager.ts     # Agent wallet (SQLite-backed)
 │   │   ├── accountManager.ts    # Account operations
 │   │   ├── utilityManager.ts    # Utility functions
 │   │   ├── algodManager.ts      # TEAL compile, simulate, submit
@@ -967,7 +989,7 @@ describeIf(testConfig.isCategoryEnabled('your-category'))('Your Tools (E2E)', ()
 
 - [algosdk](https://github.com/algorand/js-algorand-sdk) v3 — Algorand JavaScript SDK
 - [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk) — MCP TypeScript SDK
-- [@napi-rs/keyring](https://github.com/nicolo-ribaudo/napi-keyring) — Native OS keychain access (macOS Keychain, Linux libsecret, Windows Credential Manager)
+- [@napi-rs/keyring](https://github.com/nicolo-ribaudo/napi-keyring) — Native OS keychain access (macOS Keychain, Linux libsecret, Windows Credential Manager). Used as a backward-compatibility read fallback for accounts created by pre-DB-migration installs; new mnemonics are written only to `wallet.db`.
 - [sql.js](https://github.com/sql-js/sql.js) — Embedded SQLite (WASM) for wallet metadata persistence
 - [@noble/curves](https://github.com/paulmillr/noble-curves) — Pure JS Ed25519 for raw data signing (`wallet_sign_data`)
 - [@tinymanorg/tinyman-js-sdk](https://github.com/tinymanorg/tinyman-js-sdk) — Tinyman AMM SDK
