@@ -34,7 +34,7 @@ class AlgorandMcpServer {
   private server: Server;
   private name: string;
 
-  constructor(name = 'algorand-mcp-server', version = '2.7.5') {
+  constructor(name = 'algorand-mcp-server', version = '4.4.0') {
     this.name = name;
     this.server = new Server(
       {
@@ -136,8 +136,12 @@ class AlgorandMcpServer {
         return WalletManager.handleTool(name, args);
       }
 
-      // Handle x402 tools
-      if (name === 'make_http_request_with_x402' || name === 'x402_discover_payment_requirements') {
+      // Handle x402 tools (payment) + bazaar_* (discovery directory)
+      if (
+        name === 'make_http_request_with_x402' ||
+        name === 'x402_discover_payment_requirements' ||
+        name.startsWith('bazaar_')
+      ) {
         return X402Manager.handleTool(name, args);
       }
 

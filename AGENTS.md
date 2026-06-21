@@ -4,7 +4,7 @@ This document describes how AI agents should interact with the Algorand blockcha
 
 ## Overview
 
-Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 121 tools across 14 categories for full Algorand blockchain access. Mnemonics are stored in a **local SQLite agent-wallet DB** (`~/.algorand-mcp/wallet.db`, mode `0600`) — they never appear in tool responses, logs, or MCP messages. The MCP server holds the keys and signs on the agent's behalf.
+Algorand MCP is a **local** MCP server that runs on the user's machine. It provides 126 tools across 15 categories for full Algorand blockchain access. Mnemonics are stored in a **local SQLite agent-wallet DB** (`~/.algorand-mcp/wallet.db`, mode `0600`) — they never appear in tool responses, logs, or MCP messages. The MCP server holds the keys and signs on the agent's behalf.
 
 **Key difference from remote MCP servers**: This server runs locally, signing happens on the user's machine using mnemonics held in the agent-wallet DB, and the agent provides the `network` parameter (`mainnet`, `testnet`, or `localnet`) on each tool call.
 
@@ -301,6 +301,19 @@ On-chain prediction market trading — browse markets, place orders, manage posi
 | `alpha_split_shares` | Split USDC into equal YES + NO tokens |
 | `alpha_merge_shares` | Merge YES + NO tokens back into USDC |
 | `alpha_claim` | Claim USDC from a resolved market |
+
+### x402 HTTP Payments (5 tools)
+HTTP-native micropayments protocol. The first two tools handle paid-request flow; the three `bazaar_*` tools talk to the discovery directory hosted by the configured facilitator (`facilitator.goplausible.xyz` by default, override with `BAZAAR_BASE_URL`).
+
+| Tool | Purpose |
+|------|---------|
+| `x402_discover_payment_requirements` | Probe an x402 endpoint, return its `accepts[]` (cost, network, asset, payTo). No payment. |
+| `make_http_request_with_x402` | Pay + fetch a paid resource. Auto-discovers if `paymentRequirements` is omitted. Builds an atomic fee-payer + payment group, signs the payment leg with the active wallet, retries with `PAYMENT-SIGNATURE`. |
+| `bazaar_list` | Browse cataloged paid resources. Filters: `network`, `method`, `merchantId`, `limit`, `offset`. Summary by default; `full: true` for verbatim. |
+| `bazaar_search` | Keyword search over Bazaar resources. Server-side: `query`, `network`. Client-side: `scheme`, `maxUsdPrice`, `asset`, `payTo`, `extensions`, `includeTestnets`. |
+| `bazaar_get_resource_details` | Fetch one resource by its exact `resource` URL. |
+
+> **Coinbase Wallet MCP compatibility:** the first two tools mirror Coinbase's x402 surface (same names + input shapes), so agents trained on Coinbase x402 work drop-in against Algorand x402. The `bazaar_*` tools follow the same convention.
 
 ### ARC-26 URI (1 tool)
 Generate Algorand payment URIs and QR codes per the ARC-26 specification via QRClaw service. Returns `{ qr, uri, link, expires_in }` — a UTF-8 text QR code, the `algorand://` URI, a shareable hosted link, and link expiry.

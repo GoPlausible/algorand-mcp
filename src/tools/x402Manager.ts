@@ -23,6 +23,30 @@ function caip2ToNetwork(caip2: string): NetworkId | null {
   return CAIP2_GENESIS_TO_NETWORK[hash] ?? null;
 }
 
+// ── Bazaar (discovery) config ────────────────────────────────────────────────
+
+const BAZAAR_BASE_URL = process.env.BAZAAR_BASE_URL || 'https://facilitator.goplausible.xyz';
+
+/**
+ * Friendly network name → CAIP-2 identifier expected by the Bazaar API.
+ * Anything starting with a known chain prefix (algorand:, eip155:, solana:) is
+ * passed through unchanged. Anything else is left as-is so the agent can
+ * still forward arbitrary upstream-supported network strings.
+ */
+function friendlyToCaip2Network(input: string): string {
+  if (!input) return input;
+  if (input.startsWith('algorand:') || input.startsWith('eip155:') || input.startsWith('solana:')) {
+    return input;
+  }
+  // Algorand friendly aliases.
+  if (input === 'algorand-mainnet' || input === 'mainnet') return NETWORK_TO_CAIP2.mainnet;
+  if (input === 'algorand-testnet' || input === 'testnet') return NETWORK_TO_CAIP2.testnet;
+  if (input === 'algorand-localnet' || input === 'localnet') return NETWORK_TO_CAIP2.localnet;
+  // Pass through for non-Algorand short names — the Bazaar may or may not
+  // recognize them; if not, it returns an empty items[] which is fine.
+  return input;
+}
+
 // ── x402 protocol types ──────────────────────────────────────────────────────
 
 interface PaymentRequirement {
@@ -112,6 +136,40 @@ const x402ToolSchemas = {
     },
     required: ['baseURL', 'path', 'method'],
   },
+  bazaarList: {
+    type: 'object',
+    properties: {
+      network: { type: 'string', description: 'Filter by network. Accepts friendly names ("algorand-mainnet", "algorand-testnet", "algorand-localnet", or bare "mainnet"/"testnet"/"localnet") or raw CAIP-2 strings ("algorand:wGHE2Pw…", "eip155:84532", "solana:EtWT…"). Friendly names are translated to CAIP-2 before the request.' },
+      method: { type: 'string', enum: HTTP_METHODS, description: 'Filter by HTTP method.' },
+      merchantId: { type: 'string', description: 'Filter by merchant id.' },
+      limit: { type: 'integer', description: 'Results per page (default 50, max 100).' },
+      offset: { type: 'integer', description: 'Pagination offset.' },
+      full: { type: 'boolean', description: 'If true, returns each item verbatim from the facilitator (large — includes full accepts[] and discoveryInfo). If false or omitted, returns a compact summary per item (URL, method, description, popularity counters, and just the Algorand-payable accepts).' },
+    },
+    required: [],
+  },
+  bazaarSearch: {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'Keyword to match in resource URL and description (minimum 1 char).', minLength: 1 },
+      limit: { type: 'integer', description: 'Max results to return (1–20, default 10).', minimum: 1, maximum: 20 },
+      network: { type: 'string', description: 'Filter by network (friendly name or CAIP-2). See bazaar_list for accepted values.' },
+      includeTestnets: { type: 'boolean', description: 'If true, include testnet/devnet networks in the results. Default false (mainnet-only).' },
+      scheme: { type: 'string', enum: ['exact', 'upto'], description: 'Client-side filter — only return resources whose accepts[] includes this payment scheme.' },
+      maxUsdPrice: { type: 'number', description: 'Client-side filter — exclude resources whose cheapest accepts entry exceeds this USD price (computed from amount + asset decimals). Assumes USDC pricing.', exclusiveMinimum: 0 },
+      asset: { type: 'string', description: 'Client-side filter — only return resources whose accepts[] includes this asset id.' },
+      payTo: { type: 'string', description: 'Client-side filter — only return resources whose accepts[] includes this recipient address.' },
+      extensions: { type: 'string', description: 'Client-side filter — only return resources whose discoveryInfo / extensions object contains this key (e.g. "bazaar", "outputSchema").' },
+    },
+    required: ['query'],
+  },
+  bazaarGetResourceDetails: {
+    type: 'object',
+    properties: {
+      resource: { type: 'string', description: 'Exact resource URL to fetch details for (must match the resourceUrl as registered in the Bazaar).' },
+    },
+    required: ['resource'],
+  },
 };
 
 // ── X402Manager ──────────────────────────────────────────────────────────────
@@ -128,6 +186,21 @@ export class X402Manager {
       description: 'Call an x402-protected HTTP endpoint with automatic USDC/ALGO payment from the active wallet. If `paymentRequirements` is not supplied, this tool runs discovery internally (one extra request). Builds an atomic 2-transaction group (facilitator fee-payer + wallet payment), signs the payment leg with the wallet, and resends with the `PAYMENT-SIGNATURE` header.',
       inputSchema: withCommonParams(x402ToolSchemas.makeHttpRequestWithX402),
     },
+    {
+      name: 'bazaar_list',
+      description: 'Browse paid API resources cataloged in the Bazaar (the discovery directory hosted by the configured facilitator). Returns a compact summary per resource by default; pass `full: true` for the verbatim facilitator response. Supports filtering by `network`, `method`, `merchantId`, plus standard `limit`/`offset` pagination.',
+      inputSchema: withCommonParams(x402ToolSchemas.bazaarList),
+    },
+    {
+      name: 'bazaar_search',
+      description: 'Search Bazaar paid API resources by keyword. Hits the same /discovery/resources endpoint as bazaar_list but with the `search` query forwarded to the facilitator. Additional filters (`scheme`, `maxUsdPrice`, `asset`, `payTo`, `extensions`, `includeTestnets`) are applied client-side after the response. Defaults to mainnet-only.',
+      inputSchema: withCommonParams(x402ToolSchemas.bazaarSearch),
+    },
+    {
+      name: 'bazaar_get_resource_details',
+      description: 'Fetch full details for a single Bazaar resource by its exact `resource` URL. Internally calls /discovery/resources?search=<url> and exact-matches against resourceUrl. Returns the verbatim resource record (accepts[], discoveryInfo / extensions, popularity counters) or an error if no match is found.',
+      inputSchema: withCommonParams(x402ToolSchemas.bazaarGetResourceDetails),
+    },
   ];
 
   // ── Public dispatch ────────────────────────────────────────────────────────
@@ -139,6 +212,12 @@ export class X402Manager {
           return await X402Manager.handleDiscover(args);
         case 'make_http_request_with_x402':
           return await X402Manager.handlePaidRequest(args);
+        case 'bazaar_list':
+          return await X402Manager.handleBazaarList(args);
+        case 'bazaar_search':
+          return await X402Manager.handleBazaarSearch(args);
+        case 'bazaar_get_resource_details':
+          return await X402Manager.handleBazaarGetResourceDetails(args);
         default:
           throw new McpError(ErrorCode.MethodNotFound, `Unknown x402 tool: ${name}`);
       }
@@ -507,6 +586,204 @@ export class X402Manager {
         },
       ],
     };
+  }
+
+  // ── Bazaar (discovery) handlers ────────────────────────────────────────────
+
+  private static async handleBazaarList(args: Record<string, unknown>) {
+    const network = typeof args.network === 'string' ? friendlyToCaip2Network(args.network) : undefined;
+    const method = typeof args.method === 'string' ? args.method.toUpperCase() : undefined;
+    const merchantId = typeof args.merchantId === 'string' ? args.merchantId : undefined;
+    const limit = typeof args.limit === 'number' ? args.limit : undefined;
+    const offset = typeof args.offset === 'number' ? args.offset : undefined;
+    const full = args.full === true;
+
+    const params: Record<string, string> = {};
+    if (network) params.network = network;
+    if (method) params.method = method;
+    if (merchantId) params.merchantId = merchantId;
+    if (limit !== undefined) params.limit = String(limit);
+    if (offset !== undefined) params.offset = String(offset);
+
+    const body = await X402Manager.bazaarRequest('/discovery/resources', params);
+    const items = Array.isArray((body as any)?.items) ? (body as any).items : [];
+    const pagination = (body as any)?.pagination;
+
+    return X402Manager.textResponse({
+      source: BAZAAR_BASE_URL,
+      pagination,
+      count: items.length,
+      items: full ? items : items.map((it: any) => X402Manager.summarizeBazaarItem(it)),
+    });
+  }
+
+  private static async handleBazaarSearch(args: Record<string, unknown>) {
+    const query = typeof args.query === 'string' ? args.query : '';
+    if (!query || query.length < 1) {
+      throw new McpError(ErrorCode.InvalidParams, '`query` is required and must be a non-empty string.');
+    }
+    const limit = typeof args.limit === 'number' ? args.limit : 10;
+    if (limit < 1 || limit > 20) {
+      throw new McpError(ErrorCode.InvalidParams, '`limit` must be between 1 and 20.');
+    }
+    const network = typeof args.network === 'string' ? friendlyToCaip2Network(args.network) : undefined;
+    const includeTestnets = args.includeTestnets === true;
+    const scheme = typeof args.scheme === 'string' ? args.scheme : undefined;
+    const maxUsdPrice = typeof args.maxUsdPrice === 'number' ? args.maxUsdPrice : undefined;
+    const assetFilter = typeof args.asset === 'string' ? args.asset : undefined;
+    const payToFilter = typeof args.payTo === 'string' ? args.payTo : undefined;
+    const extensionsFilter = typeof args.extensions === 'string' ? args.extensions : undefined;
+
+    // Server-side params we can forward.
+    const params: Record<string, string> = { search: query, limit: String(Math.min(100, Math.max(limit * 5, 50))) };
+    if (network) params.network = network;
+
+    const body = await X402Manager.bazaarRequest('/discovery/resources', params);
+    let items: any[] = Array.isArray((body as any)?.items) ? (body as any).items : [];
+
+    // Client-side filters not supported by the server.
+    if (!includeTestnets) {
+      items = items.filter((it: any) =>
+        Array.isArray(it?.accepts) && it.accepts.some((a: any) => !X402Manager.isTestnetNetwork(a?.network)),
+      );
+    }
+    if (scheme) {
+      items = items.filter((it: any) =>
+        Array.isArray(it?.accepts) && it.accepts.some((a: any) => a?.scheme === scheme),
+      );
+    }
+    if (assetFilter) {
+      items = items.filter((it: any) =>
+        Array.isArray(it?.accepts) && it.accepts.some((a: any) => String(a?.asset) === assetFilter),
+      );
+    }
+    if (payToFilter) {
+      items = items.filter((it: any) =>
+        Array.isArray(it?.accepts) && it.accepts.some((a: any) => a?.payTo === payToFilter),
+      );
+    }
+    if (maxUsdPrice !== undefined) {
+      items = items.filter((it: any) => {
+        const cheapest = X402Manager.cheapestUsdPrice(it?.accepts);
+        return cheapest !== null && cheapest <= maxUsdPrice;
+      });
+    }
+    if (extensionsFilter) {
+      items = items.filter((it: any) => {
+        const info = it?.discoveryInfo;
+        if (extensionsFilter === 'bazaar') return !!info;
+        if (info && typeof info === 'object' && extensionsFilter in info) return true;
+        return false;
+      });
+    }
+
+    items = items.slice(0, limit);
+
+    return X402Manager.textResponse({
+      source: BAZAAR_BASE_URL,
+      query,
+      filtersApplied: { network, includeTestnets, scheme, maxUsdPrice, asset: assetFilter, payTo: payToFilter, extensions: extensionsFilter },
+      count: items.length,
+      items: items.map((it: any) => X402Manager.summarizeBazaarItem(it)),
+    });
+  }
+
+  private static async handleBazaarGetResourceDetails(args: Record<string, unknown>) {
+    const resource = typeof args.resource === 'string' ? args.resource : '';
+    if (!resource) {
+      throw new McpError(ErrorCode.InvalidParams, '`resource` is required (the exact resourceUrl as registered in the Bazaar).');
+    }
+    try { new URL(resource); }
+    catch { throw new McpError(ErrorCode.InvalidParams, `\`resource\` is not a valid URL: ${resource}`); }
+
+    // The facilitator API has no GET-by-id endpoint; we search by URL substring
+    // and exact-match on resourceUrl client-side.
+    const body = await X402Manager.bazaarRequest('/discovery/resources', { search: resource, limit: '100' });
+    const items: any[] = Array.isArray((body as any)?.items) ? (body as any).items : [];
+    const exact = items.find((it: any) => it?.resourceUrl === resource);
+    if (!exact) {
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        `No Bazaar resource found with resourceUrl=${resource}. The facilitator returned ${items.length} partial match(es) for the substring search.`
+      );
+    }
+    return X402Manager.textResponse({ source: BAZAAR_BASE_URL, resource: exact });
+  }
+
+  // ── Bazaar helpers ─────────────────────────────────────────────────────────
+
+  private static async bazaarRequest(path: string, query: Record<string, string>): Promise<unknown> {
+    const base = BAZAAR_BASE_URL.endsWith('/') ? BAZAAR_BASE_URL.slice(0, -1) : BAZAAR_BASE_URL;
+    const tail = path.startsWith('/') ? path : `/${path}`;
+    const url = new URL(base + tail);
+    for (const [k, v] of Object.entries(query)) url.searchParams.set(k, v);
+
+    const response = await fetch(url.toString(), { method: 'GET', headers: { accept: 'application/json' } });
+    const text = await response.text();
+    if (!response.ok) {
+      throw new McpError(
+        ErrorCode.InternalError,
+        `Bazaar request failed (${response.status} ${response.statusText}) for ${url.pathname}${url.search}: ${X402Manager.snippet(text)}`
+      );
+    }
+    const parsed = X402Manager.tryParseJson(text);
+    if (parsed === null) {
+      throw new McpError(ErrorCode.InternalError, `Bazaar returned non-JSON body: ${X402Manager.snippet(text)}`);
+    }
+    return parsed;
+  }
+
+  private static summarizeBazaarItem(item: any): Record<string, unknown> {
+    const accepts: any[] = Array.isArray(item?.accepts) ? item.accepts : [];
+    const algorandAccepts = accepts
+      .filter(a => typeof a?.network === 'string' && a.network.startsWith('algorand:'))
+      .map(a => ({
+        network: a.network,
+        mcpNetwork: caip2ToNetwork(a.network) ?? null,
+        scheme: a.scheme,
+        amount: a.amount ?? a.maxAmountRequired,
+        asset: a.asset,
+        payTo: a.payTo,
+        usdPrice: X402Manager.usdPriceOfAccept(a),
+      }));
+
+    return {
+      resourceUrl: item?.resourceUrl,
+      method: item?.method,
+      description: item?.description,
+      merchantId: item?.merchantId,
+      algorandPayable: algorandAccepts.length > 0,
+      algorandAccepts,
+      totalAcceptedNetworks: accepts.length,
+      otherNetworks: accepts.filter(a => !algorandAccepts.find(ao => ao.network === a.network)).map(a => a?.network).filter(Boolean),
+      hasDiscoveryInfo: !!item?.discoveryInfo,
+      popularity: { verifyCount: item?.verifyCount ?? 0, settleCount: item?.settleCount ?? 0 },
+      firstSeen: item?.firstSeen,
+      lastSeen: item?.lastSeen,
+      id: item?.id,
+    };
+  }
+
+  /** USDC has 6 decimals; assume non-USDC assets are USDC-like for ballpark filtering. */
+  private static usdPriceOfAccept(accept: any): number | null {
+    const amountStr = accept?.amount ?? accept?.maxAmountRequired;
+    const decimals = typeof accept?.extra?.decimals === 'number' ? accept.extra.decimals : 6;
+    const n = Number(amountStr);
+    if (!Number.isFinite(n)) return null;
+    return n / Math.pow(10, decimals);
+  }
+
+  private static cheapestUsdPrice(accepts: any): number | null {
+    if (!Array.isArray(accepts) || accepts.length === 0) return null;
+    const prices = accepts.map(a => X402Manager.usdPriceOfAccept(a)).filter((p): p is number => p !== null);
+    if (prices.length === 0) return null;
+    return Math.min(...prices);
+  }
+
+  private static isTestnetNetwork(caip2: unknown): boolean {
+    if (typeof caip2 !== 'string') return false;
+    if (caip2 === NETWORK_TO_CAIP2.testnet) return true;
+    return /sepolia|devnet|testnet/i.test(caip2);
   }
 }
 

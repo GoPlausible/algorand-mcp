@@ -481,7 +481,7 @@ See [Secure Wallet](#secure-wallet) for full architecture details.
 | `wallet_sign_data` | Sign arbitrary hex data with raw Ed25519 (noble, no SDK prefix) |
 | `wallet_optin_asset` | Opt the active account into an asset (creates, signs, and submits) |
 
-### x402 HTTP Payment Tools (2 tools)
+### x402 HTTP Payment Tools (5 tools)
 
 See [x402 HTTP Payments](#x402-http-payments) for the full protocol explanation.
 
@@ -489,6 +489,9 @@ See [x402 HTTP Payments](#x402-http-payments) for the full protocol explanation.
 |---|---|
 | `x402_discover_payment_requirements` | Probe an x402-protected endpoint and return its `accepts[]` array (cost, asset, network, payTo) without paying. Read-only. |
 | `make_http_request_with_x402` | Call an x402-protected endpoint with automatic USDC/ALGO payment from the active wallet. Discovers internally if `paymentRequirements` is not supplied, builds the atomic fee-payer + payment group, signs, and retries with the `PAYMENT-SIGNATURE` header. |
+| `bazaar_list` | Browse paid API resources cataloged in the Bazaar discovery directory hosted by the configured facilitator (`facilitator.goplausible.xyz` by default). Compact summary by default; `full: true` returns verbatim records. Filters: `network`, `method`, `merchantId`, `limit`, `offset`. |
+| `bazaar_search` | Keyword search over Bazaar resources (URL + description). Server-side: `query`, `network`. Client-side post-filters: `scheme`, `maxUsdPrice`, `asset`, `payTo`, `extensions`, `includeTestnets`. |
+| `bazaar_get_resource_details` | Fetch a single Bazaar resource by its exact `resource` URL. Returns the verbatim record (accepts[], discoveryInfo, popularity counters). |
 
 ### Account Management (8 tools)
 

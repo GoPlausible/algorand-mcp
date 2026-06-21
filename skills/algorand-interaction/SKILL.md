@@ -5,7 +5,7 @@ description: Interact with Algorand blockchain via the Algorand MCP server — w
 
 # Algorand MCP Interaction
 
-Interact with Algorand blockchain through the Algorand MCP server (121 tools across 14 categories).
+Interact with Algorand blockchain through the Algorand MCP server (126 tools across 15 categories).
 
 ## Key Characteristics
 
@@ -197,6 +197,8 @@ All prices and quantities use **microunits** (1,000,000 = $1.00 or 1 share). Ord
 
 **Alpha Arcade** (14): `alpha_get_live_markets`, `alpha_get_reward_markets`, `alpha_get_market`, `alpha_get_orderbook`, `alpha_get_open_orders`, `alpha_get_positions`, `alpha_create_limit_order`, `alpha_create_market_order`, `alpha_cancel_order`, `alpha_amend_order`, `alpha_propose_match`, `alpha_split_shares`, `alpha_merge_shares`, `alpha_claim`
 
+**x402 HTTP Payments** (5): `x402_discover_payment_requirements`, `make_http_request_with_x402`, `bazaar_list`, `bazaar_search`, `bazaar_get_resource_details` — Coinbase Wallet MCP-compatible x402 payment tools plus Bazaar discovery directory queries against `facilitator.goplausible.xyz`
+
 **ARC-26 URI** (1): `generate_algorand_qrcode`
 
 **Knowledge Base** (1): `get_knowledge_doc`
@@ -207,11 +209,55 @@ API responses are paginated. All API tools accept optional `itemsPerPage` (defau
 
 ## x402 Payment Workflow
 
-**IMPORTANT: Do NOT attempt x402 payments using only this skill.** When you encounter an HTTP 402 response or need to pay for an x402-protected resource, you MUST load the `algorand-x402-payment` skill which contains the complete, authoritative payment flow.
+Use the two algorand-mcp x402 tools to access x402-protected HTTP resources — the MCP tools handle transaction construction, signing, base64 encoding, and `PAYMENT-SIGNATURE` assembly internally. You only orchestrate the discover → select → pay flow.
 
-This skill provides the MCP tools needed for x402 (wallet, transactions, signing), but the `algorand-x402-payment` skill has the correct payload format, critical rules, and step-by-step recipe.
+### Recommended supervised pattern (default)
 
-For reference examples, see [references/examples-algorand-mcp.md](references/examples-algorand-mcp.md).
+1. **Probe** the endpoint to read what it costs:
+   ```
+   x402_discover_payment_requirements {
+     baseURL: "https://example.x402.goplausible.xyz",
+     path: "/avm/weather",
+     method: "GET"
+   }
+   ```
+
+2. **Inspect** the returned `accepts[]` array. Pick the entry you'll pay with — usually the cheapest Algorand entry on the network you want, within budget. On mainnet, confirm the cost with the user before continuing.
+
+3. **Pay and fetch** in one call, passing the pre-fetched requirements back so the tool doesn't re-probe:
+   ```
+   make_http_request_with_x402 {
+     baseURL: "https://example.x402.goplausible.xyz",
+     path: "/avm/weather",
+     method: "GET",
+     paymentRequirements: <accepts[] from step 1>,
+     preferredNetwork: "testnet",
+     maxAmountPerRequest: 10000
+   }
+   ```
+
+### Faster unsupervised pattern (testnet, known endpoints)
+
+Skip step 1. Call `make_http_request_with_x402 { baseURL, path, method }` — it discovers, selects the cheapest affordable Algorand requirement, builds the atomic group, signs the payment leg with the active wallet, retries, and returns the resource. Always pass `maxAmountPerRequest` as a guardrail; pass `preferredNetwork` to pin testnet/mainnet.
+
+### Bazaar discovery (find paid resources to call)
+
+Three tools query the facilitator's directory of cataloged paid resources:
+
+- `bazaar_list { network?, method?, merchantId?, limit?, offset?, full? }` — browse cataloged resources. Compact summary per item by default (URL, description, Algorand-payable accepts, popularity counters); pass `full: true` for verbatim records including `discoveryInfo`.
+- `bazaar_search { query, limit?, network?, includeTestnets?, scheme?, maxUsdPrice?, asset?, payTo?, extensions? }` — keyword search with budget and asset filters.
+- `bazaar_get_resource_details { resource }` — fetch a single resource by exact URL.
+
+Then feed the chosen `accepts[]` (or the `resourceUrl`) into `make_http_request_with_x402`.
+
+### Always
+
+- **Mainnet = real money** — confirm cost with the user before mainnet payments. Use `maxAmountPerRequest` as a budget cap.
+- Amounts are in **atomic units**. USDC has 6 decimals: 1,000,000 atomic units = $1.00.
+- `preferredNetwork` accepts `mainnet | testnet | localnet`; if omitted, the selector picks the cheapest affordable Algorand entry regardless of which Algorand network it's on.
+- **`paymentRequirements` is an ARRAY OF OBJECTS** — `preferredNetwork` and `maxAmountPerRequest` are TOP-LEVEL siblings, not array members. The schema rejects malformed inputs with a specific message.
+
+For reference examples and common error reactions, see [references/examples-algorand-mcp.md](references/examples-algorand-mcp.md).
 
 ## References
 
