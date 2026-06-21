@@ -1,6 +1,6 @@
 {
   "name": "@goplausible/algorand-mcp",
-  "version": "4.3.2",
+  "version": "4.3.3",
   "publishConfig": {
     "access": "public"
   },

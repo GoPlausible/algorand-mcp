@@ -85,8 +85,29 @@ const x402ToolSchemas = {
       headers: { type: 'object', description: 'Optional additional request headers', additionalProperties: { type: 'string' } },
       correlationId: { type: 'string', description: 'Optional correlation id; forwarded as X-Correlation-ID header' },
       maxAmountPerRequest: { type: 'integer', description: 'Maximum payment in USDC atomic units (1,000,000 = $1.00). If a payment requirement exceeds this, the call is refused.' },
-      paymentRequirements: { type: 'array', description: 'Pre-fetched accepts[] array from a prior x402_discover_payment_requirements call. If omitted, this tool discovers internally.' },
-      preferredNetwork: { type: 'string', enum: ['mainnet', 'testnet', 'localnet'], description: 'Preferred Algorand network. When multiple accepts entries match, this network wins. If omitted, the active wallet network is used.' },
+      paymentRequirements: {
+        type: 'array',
+        description: 'Pre-fetched accepts[] array from a prior x402_discover_payment_requirements call. If omitted, this tool discovers internally. Each element must be an OBJECT with at least { scheme, network, payTo, asset, amount }. Common mistake: passing `preferredNetwork` or `maxAmountPerRequest` as array elements instead of sibling top-level fields.',
+        items: {
+          type: 'object',
+          required: ['scheme', 'network', 'payTo', 'asset'],
+          properties: {
+            scheme: { type: 'string' },
+            network: { type: 'string', description: 'CAIP-2 network identifier, e.g. "algorand:SGO1…" for testnet.' },
+            amount: { type: 'string', description: 'x402 V2 canonical amount field (atomic units as decimal string).' },
+            maxAmountRequired: { type: 'string', description: 'x402 V1 legacy amount field. Either `amount` or `maxAmountRequired` must be present.' },
+            payTo: { type: 'string' },
+            asset: { type: 'string' },
+            maxTimeoutSeconds: { type: 'integer' },
+            extra: { type: 'object' }
+          }
+        }
+      },
+      preferredNetwork: {
+        type: 'string',
+        enum: ['mainnet', 'testnet', 'localnet'],
+        description: 'TOP-LEVEL sibling of paymentRequirements (NOT an array element). Preferred Algorand network when multiple accepts entries match. If omitted, the cheapest affordable Algorand entry is chosen.'
+      },
       extensions: { type: 'object', description: 'Optional pre-fetched PaymentRequired extensions (e.g. Bazaar resource details). Passed through to the response under `extensions`.' },
     },
     required: ['baseURL', 'path', 'method'],
@@ -145,9 +166,40 @@ export class X402Manager {
     const maxAmountPerRequest = typeof args.maxAmountPerRequest === 'number' ? args.maxAmountPerRequest : undefined;
     const preferredNetwork = typeof args.preferredNetwork === 'string' ? (args.preferredNetwork as NetworkId) : undefined;
     const extensions = (args.extensions as Record<string, unknown> | undefined) ?? undefined;
-    let accepts = Array.isArray(args.paymentRequirements) ? (args.paymentRequirements as PaymentRequirement[]) : undefined;
+    let accepts = Array.isArray(args.paymentRequirements) ? (args.paymentRequirements as unknown[]) : undefined;
 
-    // 1. Discover if needed
+    // 1a. Defensive validation: every paymentRequirements entry must be an
+    //     object with at least { network, payTo, asset } and an amount field
+    //     (either x402 V2 `amount` or V1 `maxAmountRequired`). LLMs frequently
+    //     malform JSON by appending sibling field names (e.g. "preferredNetwork")
+    //     as bare strings inside this array — catch that here with an actionable
+    //     message rather than crashing later in selectRequirement.
+    if (accepts) {
+      for (let i = 0; i < accepts.length; i++) {
+        const entry = accepts[i];
+        const isObject = !!entry && typeof entry === 'object' && !Array.isArray(entry);
+        if (!isObject) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `paymentRequirements[${i}] must be an OBJECT (got ${entry === null ? 'null' : Array.isArray(entry) ? 'array' : typeof entry}: ${JSON.stringify(entry)}). Tip: pass the accepts[] array verbatim from x402_discover_payment_requirements. Other arguments like preferredNetwork and maxAmountPerRequest are TOP-LEVEL siblings of paymentRequirements, not array members.`
+          );
+        }
+        const e = entry as Record<string, unknown>;
+        const missing: string[] = [];
+        if (typeof e.network !== 'string') missing.push('network');
+        if (typeof e.payTo !== 'string') missing.push('payTo');
+        if (typeof e.asset !== 'string') missing.push('asset');
+        if (typeof e.amount !== 'string' && typeof e.maxAmountRequired !== 'string') missing.push('amount (or maxAmountRequired)');
+        if (missing.length > 0) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `paymentRequirements[${i}] is missing required string field(s): ${missing.join(', ')}. Expected shape: { scheme, network, payTo, asset, amount, extra: { feePayer, ... } }. Pass the accepts[] entry verbatim from x402_discover_payment_requirements.`
+          );
+        }
+      }
+    }
+
+    // 1b. Discover if needed
     if (!accepts || accepts.length === 0) {
       const discovered = await X402Manager.discover({ baseURL, path, method, queryParams, body });
       if (!discovered.x402 || !Array.isArray(discovered.accepts) || discovered.accepts.length === 0) {
@@ -160,7 +212,7 @@ export class X402Manager {
     }
 
     // 2. Select a requirement we can satisfy on Algorand
-    const { requirement, mcpNetwork } = X402Manager.selectRequirement(accepts, preferredNetwork, maxAmountPerRequest);
+    const { requirement, mcpNetwork } = X402Manager.selectRequirement(accepts as PaymentRequirement[], preferredNetwork, maxAmountPerRequest);
 
     // 3. Build and sign the payment group
     const paymentHeader = await X402Manager.buildPaymentHeader(requirement, mcpNetwork);
