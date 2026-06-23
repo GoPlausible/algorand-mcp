@@ -28,30 +28,20 @@ Read-only tools work without a wallet. Trading tools require an active wallet ac
 
 ## Units & Price Format
 
-All prices and quantities in tool **inputs** use **microunits**: 1,000,000 = $1.00 or 1 share.
+All prices, quantities, and probabilities use **microunits**: 1,000,000 = $1.00, 1 share, or 100%.
 
-| Human value | Microunit value |
-|---|---|
-| $0.50 | 500,000 |
-| $0.05 slippage | 50,000 |
-| 1 share | 1,000,000 |
-| 30 shares | 30,000,000 |
-
-Tool **outputs** from read tools (`get_orderbook`, `get_open_orders`, `get_positions`) return pre-formatted strings. Write tools accept raw microunit integers.
-
-### API probability fields are microunits, NOT percentages
-
-**Critical**: The `yesProb` and `noProb` fields returned by market data (e.g., `get_market`, `get_live_markets`) are in **microunits** (0–1,000,000), NOT percentages (0–100).
-
-| `yesProb` value | Meaning | Display price |
+| Human value | Microunit value | Context |
 |---|---|---|
-| 862,500 | 86.25% chance | $0.86 |
-| 500,000 | 50% chance | $0.50 |
-| 50,000 | 5% chance | $0.05 |
+| $0.50 / 50% probability | 500,000 | Price input or `yesProb`/`noProb` field |
+| $0.05 slippage | 50,000 | Slippage parameter |
+| 1 share | 1,000,000 | Quantity input |
+| 30 shares | 30,000,000 | Quantity input |
 
-To convert for display: `price = yesProb / 1,000,000` → e.g., `862500 / 1000000 = $0.86`
+- **Tool inputs** (write tools): pass raw microunit integers
+- **Tool outputs** (read tools like `get_orderbook`, `get_positions`): return pre-formatted strings
+- **Probability fields** (`yesProb`, `noProb`): range 0–1,000,000 (NOT 0–100). Convert for display: `price = yesProb / 1,000,000` (e.g., `862500 → $0.86`)
 
-**Do NOT** divide by 100 or treat as a percentage — this produces values like 8,625,000,000 which overflow uint64 and cause transaction failures.
+**CRITICAL:** Do NOT divide probabilities by 100 or treat as percentages — this causes uint64 overflow and transaction failures.
 
 ## Market Data Model
 
@@ -163,16 +153,12 @@ If a trade fails with an "overspend" error, the wallet lacks sufficient ALGO or 
 
 ## Common Pitfalls
 
-- **Probabilities are microunits, NOT percentages**: `yesProb` / `noProb` range from 0–1,000,000 (not 0–100). Treating them as percentages causes uint64 overflow and transaction failures. To display: divide by 1,000,000. To pass as price: use as-is.
-- **Market orders become positions, not open orders**: After a market order fills, check `get_positions` for token balances — not `get_open_orders`. Open orders only shows unfilled limit orders.
-- **Multi-choice markets**: The parent has no `marketAppId` for trading. Use `options[].marketAppId`.
-- **Prices are microunits in inputs**: $0.50 = 500,000, not 0.5 or 50.
-- **Both ALGO and USDC needed**: Orders require ALGO for MBR (~0.957 per order) AND USDC for buy collateral. An "overspend" error means one of these is insufficient.
-- **Orderbook cross-side**: If you only check YES asks, you miss cheaper liquidity from NO bids. The `get_orderbook` tool handles this automatically.
-- **Save escrowAppId**: It's the only way to cancel or amend your order later.
-- **USDC opt-in**: The wallet must be opted into USDC (ASA 31566704) before trading.
-- **Wallet required for trading**: Read-only tools work without a wallet, but trading tools require an active wallet account via `wallet_get_info`.
-- **Mainnet by default**: The server defaults to mainnet. Real money is at stake. Pass `network: "testnet"` for testing.
+- **Market orders become positions, not open orders**: After a market order fills, check `get_positions` — not `get_open_orders` (which only shows unfilled limit orders).
+- **Multi-choice markets**: Trade using `options[].marketAppId`, not the parent market ID.
+- **Both ALGO and USDC needed**: Orders require ALGO for MBR (~0.957 per order) AND USDC for buy collateral. "Overspend" error = insufficient balance in one of these.
+- **Save `escrowAppId`**: Only way to cancel or amend an order later.
+- **USDC opt-in required**: Wallet must be opted into USDC (ASA 31566704) before trading.
+- **Mainnet by default**: Server defaults to mainnet (real money). Pass `network: "testnet"` for testing.
 
 ## Links
 
