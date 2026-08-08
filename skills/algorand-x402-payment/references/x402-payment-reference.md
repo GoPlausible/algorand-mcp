@@ -1,5 +1,18 @@
 # x402 Payment Protocol Reference
 
+## Protocol Headers at a Glance
+
+| Direction | V2 header | V1 header (legacy) | Content |
+|-----------|-----------|--------------------|---------|
+| Server → client (402 challenge) | `PAYMENT-REQUIRED` | JSON in response body | Base64 PaymentRequired JSON |
+| Client → server (payment) | `PAYMENT-SIGNATURE` | `X-PAYMENT` | Base64 PaymentPayload JSON |
+| Server → client (settle result) | `PAYMENT-RESPONSE` | `X-PAYMENT-RESPONSE` | Base64 SettleResponse JSON |
+
+Current servers send the 402 challenge in the `PAYMENT-REQUIRED` header with a body of
+`{}` — always check the header first and treat body JSON as the legacy fallback.
+
+---
+
 ## PAYMENT-SIGNATURE Header
 
 HTTP header name: `PAYMENT-SIGNATURE`
@@ -30,19 +43,21 @@ Header value: Base64-encoded JSON string of the payment payload.
 | `network` | `string` | CAIP-2 network identifier from `accepts[]` |
 | `payload.paymentGroup` | `string[]` | Array of base64-encoded msgpack transaction bytes |
 | `payload.paymentIndex` | `number` | Index of the payment transaction in the group (`1`) |
-| `accepted` | `object` | **Required.** Exact copy of the chosen `accepts[]` entry. Without this, the server rejects with 402. |
+| `accepted` | `object` | **Required.** Exact copy of the chosen `accepts[]` entry. Without this, the server rejects with 402. The verbatim copy also preserves campaign tags (`extra.tag`). |
 
 ---
 
-## 402 Response Body (PaymentRequired V2)
+## 402 Challenge (PaymentRequired V2)
 
-When a server returns HTTP 402, the JSON body contains:
+Delivered base64-encoded in the **`PAYMENT-REQUIRED` response header** (body is `{}`
+on current servers; legacy servers put this JSON in the body instead):
 
 ```json
 {
   "x402Version": 2,
+  "error": "Payment required",
   "resource": {
-    "url": "/api/data",
+    "url": "https://api.example.com/data",
     "description": "Premium weather data",
     "mimeType": "application/json"
   },
@@ -50,49 +65,71 @@ When a server returns HTTP 402, the JSON body contains:
     {
       "scheme": "exact",
       "network": "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=",
-      "maxAmountRequired": "1000000",
-      "resource": "/api/data",
-      "description": "Premium weather data",
-      "mimeType": "application/json",
+      "amount": "1000",
+      "asset": "10458941",
       "payTo": "ALGORAND_ADDRESS_58_CHARS",
       "maxTimeoutSeconds": 300,
-      "asset": "10458941",
-      "outputSchema": null,
       "extra": {
         "name": "USDC",
         "decimals": 6,
         "feePayer": "FACILITATOR_ADDRESS_58_CHARS"
       }
     }
-  ],
-  "error": "Payment Required"
+  ]
 }
 ```
 
-### PaymentRequirements Fields
+`accepts` is often **multi-chain** (Algorand + EVM + SVM entries) — select the entry
+whose `network` starts with `algorand:`.
+
+### PaymentRequirements Fields (V2)
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `scheme` | `string` | Payment scheme — `"exact"` for Algorand |
 | `network` | `string` | CAIP-2 identifier for the target network |
-| `maxAmountRequired` | `string` | Amount in atomic units (e.g., `"1000000"` = 1 USDC) |
+| `amount` | `string` | Amount in atomic units (e.g., `"1000000"` = 1 USDC). **V1 called this `maxAmountRequired`** — fall back to that name if `amount` is absent. |
 | `payTo` | `string` | 58-character Algorand address to receive payment |
 | `asset` | `string` | `"0"` for native ALGO, or ASA ID as string |
 | `maxTimeoutSeconds` | `number` | Transaction validity window in seconds |
 | `extra.name` | `string` | Token name (e.g., `"USDC"`) |
 | `extra.decimals` | `number` | Token decimals (e.g., `6`) |
 | `extra.feePayer` | `string` | Facilitator address that sponsors transaction fees |
+| `extra.tag` | `string` | Optional campaign tag (e.g. hackathons) — preserved automatically by the verbatim `accepted` copy |
+
+---
+
+## PAYMENT-RESPONSE Header (settle result)
+
+On a successful paid request the server returns HTTP 200 with the protected resource
+**and** a `PAYMENT-RESPONSE` header (legacy: `X-PAYMENT-RESPONSE`) — base64 JSON:
+
+```json
+{
+  "success": true,
+  "transaction": "ON_CHAIN_TXN_ID",
+  "network": "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=",
+  "payer": "PAYER_ADDRESS"
+}
+```
+
+Always decode it and report the `transaction` id to the user. On MainNet a shareable
+receipt is available at `https://facilitator.goplausible.xyz/api/receipt/<transaction>`.
 
 ---
 
 ## CAIP-2 Network Identifiers
 
-[CAIP-2](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md) format: `algorand:<base64 genesis hash>`
+[CAIP-2](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md) format: `algorand:<genesis hash reference>`
 
-| Network | CAIP-2 Identifier | MCP `network` param |
-|---------|-------------------|---------------------|
-| Testnet | `algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=` | `"testnet"` |
-| Mainnet | `algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=` | `"mainnet"` |
+Two reference forms exist in the wild — the x402 full base64 genesis hash, and the
+CAIP/CASA-spec **truncated** form (first 32 characters of the URL-safe base64 hash),
+used by some SDK constants. **Match by prefix**, never by exact string:
+
+| Network | Full form | Truncated form | MCP `network` param |
+|---------|-----------|----------------|---------------------|
+| Testnet | `algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=` | `algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDe` | `"testnet"` |
+| Mainnet | `algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=` | `algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k` | `"mainnet"` |
 
 V1 legacy identifiers (`algorand-testnet`, `algorand-mainnet`) are mapped automatically by servers.
 
@@ -105,7 +142,7 @@ V1 legacy identifiers (`algorand-testnet`, `algorand-mainnet`) are mapped automa
 | ALGO | `0` (native) | `0` (native) | 6 | 1,000,000 atomic units |
 | USDC | `10458941` | `31566704` | 6 | 1,000,000 atomic units |
 
-`maxAmountRequired` is always in **atomic units** (base units). For USDC with 6 decimals: `"1000000"` = 1.00 USDC.
+`amount` is always in **atomic units** (base units). For USDC with 6 decimals: `"1000000"` = 1.00 USDC. Only pay with an asset actually offered in `accepts[]`.
 
 ---
 
@@ -134,7 +171,7 @@ The facilitator:
 2. Simulates the atomic group to verify validity
 3. Signs the fee payer transaction (index 0)
 4. Submits both transactions to the Algorand network
-5. Confirms finality (~3.3 seconds)
+5. Confirms finality (~3 seconds)
 
 The facilitator address comes from `extra.feePayer` in the PaymentRequirements.
 
@@ -146,7 +183,11 @@ IMPORTANT: YOU MUST USE V2 ALWAYS! V1 is deprecated and may be removed without n
 
 | Aspect | V1 | V2 |
 |--------|----|----|
+| 402 challenge location | JSON response body | **`PAYMENT-REQUIRED` header** (base64) |
+| Payment header | `X-PAYMENT` | `PAYMENT-SIGNATURE` |
+| Settle-result header | `X-PAYMENT-RESPONSE` | `PAYMENT-RESPONSE` |
+| Amount field | `maxAmountRequired` | **`amount`** |
 | Network identifiers | `"algorand-testnet"` | CAIP-2: `"algorand:SGO1..."` |
 | `x402Version` | `1` | `2` |
 | `accepted` field | Not required | **Required** in payment header |
-| Response structure | Flat | Nested with `resource` and `accepts[]` |
+| Requirements entry | Carries `resource`, `mimeType`, `outputSchema` | Lean — resource info lives at the top level of PaymentRequired |

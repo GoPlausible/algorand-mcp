@@ -4,29 +4,43 @@ Step-by-step recipe for you (the Agent) to pay for x402-protected resources usin
 
 ---
 
-## Step 1: Detect 402
+## Step 1: Detect 402 and decode the challenge
 
-Make the initial request with `curl`:
+Make the initial request with `curl`, capturing the **response headers** — on current
+servers the payment challenge travels in the `PAYMENT-REQUIRED` header and the body is
+just `{}`:
 
+```bash
+curl -s -D /tmp/x402_headers.txt -w "\n%{http_code}" <url>
 ```
-curl -s -w "\n%{http_code}" <url>
-```
 
-If the HTTP status is `402` and the body contains `"x402Version"` and `"accepts"`, this is an x402-protected resource. Parse the JSON body.
+If the HTTP status is `402`:
+
+1. Look for a `PAYMENT-REQUIRED` header in the captured headers. Base64-decode its
+   value → the PaymentRequired JSON (`x402Version`, `accepts[]`).
+2. **Fallback (older servers only):** if there is no such header, the JSON is in the
+   response body instead.
+
+```bash
+grep -i "^payment-required" /tmp/x402_headers.txt | sed 's/^[^:]*: //' | tr -d '\r' | base64 -d
+```
 
 ---
 
 ## Step 2: Parse PaymentRequirements
 
-From the 402 response body, extract the `accepts` array. Choose an entry that matches a supported network and asset. Store it as `chosen`:
+From the decoded PaymentRequired JSON, take the `accepts` array. **It is often
+multi-chain** (Algorand + EVM + SVM entries) — choose the entry whose `network`
+starts with `algorand:`. Store it as `chosen`. A real V2 entry looks like:
 
 ```json
 {
   "scheme": "exact",
   "network": "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=",
-  "maxAmountRequired": "1000000",
-  "payTo": "RECEIVER_ADDRESS",
+  "amount": "1000",
   "asset": "10458941",
+  "payTo": "RECEIVER_ADDRESS",
+  "maxTimeoutSeconds": 300,
   "extra": {
     "name": "USDC",
     "decimals": 6,
@@ -37,24 +51,30 @@ From the 402 response body, extract the `accepts` array. Choose an entry that ma
 
 Extract these values:
 - `network_caip2` = `chosen.network`
-- `amount` = `chosen.maxAmountRequired` (as integer)
+- `amount` = `chosen.amount` (as integer) — **V2 field name.** If absent, this is a V1
+  response: use `chosen.maxAmountRequired` instead.
 - `payTo` = `chosen.payTo`
 - `asset` = `chosen.asset`
 - `feePayer` = `chosen.extra.feePayer`
 - `is_algo` = `asset == "0"`
 
-**Save the entire `chosen` object** — you need it verbatim in the PAYMENT-SIGNATURE header.
+**Save the entire `chosen` object** — you need it verbatim in the PAYMENT-SIGNATURE
+header (verbatim also preserves campaign tags like `extra.tag`, which is how tagged
+traffic gets counted).
 
 ---
 
 ## Step 3: Map CAIP-2 to MCP Network
 
-| CAIP-2 genesis hash | MCP `network` parameter |
-|----------------------|-------------------------|
-| `SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=` | `"testnet"` |
-| `wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=` | `"mainnet"` |
+Match by **prefix** — some SDKs advertise the CAIP-spec truncated reference (first 32
+URL-safe characters of the genesis hash) instead of the full base64 hash:
 
-Extract the hash after `algorand:` and match. If mainnet, **confirm with the user** before proceeding — real funds.
+| `network` after `algorand:` starts with | MCP `network` parameter |
+|------------------------------------------|-------------------------|
+| `SGO1GKSzyE7IEPItTxCByw9x8FmnrCDe` | `"testnet"` |
+| `wGHE2Pwdvd7S12BL5FaOP20EGYesN73k` | `"mainnet"` |
+
+If mainnet, **confirm with the user** before proceeding — real funds.
 
 ---
 
@@ -220,16 +240,16 @@ Build this JSON object:
 - `paymentGroup[0]` = unsigned fee payer (index 0)
 - `paymentGroup[1]` = signed payment (index 1)
 - `paymentIndex` = `1` (the payment transaction)
-- `accepted` = **exact copy** of the `accepts[]` entry you chose — all fields including `scheme`, `network`, `maxAmountRequired`, `payTo`, `asset`, `extra`, etc. Without this, the server rejects.
+- `accepted` = **exact copy** of the `accepts[]` entry you chose — all fields including `scheme`, `network`, `amount`, `payTo`, `asset`, `extra`, etc. Without this, the server rejects.
 
 Base64-encode the entire JSON string for the HTTP header.
 
 ---
 
-## Step 12: Retry with Payment
+## Step 12: Retry with Payment and Report the Result
 
 ```bash
-curl -s -H "PAYMENT-SIGNATURE: $(echo '<JSON from step 11>' | base64)" <url>
+curl -s -D /tmp/x402_paid_headers.txt -H "PAYMENT-SIGNATURE: $(echo '<JSON from step 11>' | base64)" <url>
 ```
 
 The server:
@@ -237,6 +257,12 @@ The server:
 2. Forwards the payment group to the facilitator
 3. Facilitator simulates, signs fee payer, submits atomically
 4. Server returns HTTP 200 with the protected resource
+
+**On success, decode the settle result** from the `PAYMENT-RESPONSE` response header
+(older servers: `X-PAYMENT-RESPONSE`) — base64 JSON containing `success`,
+`transaction` (the on-chain txn id), `network`, and `payer`. **Report the txn id to
+the user.** On MainNet you can also offer the receipt:
+`https://facilitator.goplausible.xyz/api/receipt/<txn id>`.
 
 If you get another 402, the payment was rejected — check the error message.
 
@@ -246,10 +272,12 @@ If you get another 402, the payment was rejected — check the error message.
 
 | Error | Cause | Recovery |
 |-------|-------|----------|
+| No `accepts` in body | Current servers put the challenge in the `PAYMENT-REQUIRED` header | Decode that header (Step 1) |
+| `amount` missing | V1 response | Use `maxAmountRequired` instead |
 | No active wallet account | Wallet not configured | `wallet_add_account` |
 | Asset not opted in | Wallet hasn't opted into the ASA | `wallet_optin_asset` |
 | Insufficient balance | Not enough ALGO/USDC | Inform user, show balance vs required |
-| Invalid network | CAIP-2 identifier not recognized | Check mapping table |
+| Invalid network | CAIP-2 identifier not recognized | Prefix-match per the mapping table (handles truncated form) |
 | Simulation failed | Transaction would fail on-chain | Check balances, opt-in, group structure |
 | Missing `accepted` field | PAYMENT-SIGNATURE lacks `accepted` | Add verbatim copy of chosen `accepts[]` entry |
 | Second 402 after retry | Payment rejected by server/facilitator | Check error in response body, do not retry again |
@@ -258,32 +286,32 @@ If you get another 402, the payment was rejected — check the error message.
 
 ## Worked Example
 
-Accessing `https://example.x402.goplausible.xyz/weather` on testnet with USDC:
+Accessing `https://example.x402.goplausible.xyz/avm/weather` on testnet with USDC:
 
 ### Initial request
 ```bash
-curl -s -w "\n%{http_code}" https://example.x402.goplausible.xyz/weather
+curl -s -D /tmp/x402_headers.txt -w "\n%{http_code}" https://example.x402.goplausible.xyz/avm/weather
 ```
-Response: 402 with `accepts` containing USDC payment on testnet.
+Response: status 402, body `{}`. Decode the `PAYMENT-REQUIRED` header → PaymentRequired
+JSON whose `accepts` has three entries (Algorand, EVM, SVM). Choose the `algorand:` one.
 
-### Parse
-- `network_caip2` = `"algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI="`
-- `mcp_network` = `"testnet"`
-- `amount` = `100` (0.0001 USDC)
-- `payTo` = `"AAAA..."` (from response)
+### Parse (real values from this endpoint)
+- `network_caip2` = `"algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI="` → `mcp_network` = `"testnet"`
+- `amount` = `1000` (0.001 USDC)
+- `payTo` = `"MPY54CLPH2OKEGC6S5N2LDAFDNO5BVNV532NBZ5VD6GOND3STPNXZYXOFE"`
 - `asset` = `"10458941"` (testnet USDC)
-- `feePayer` = `"BBBB..."` (from `extra.feePayer`)
+- `feePayer` = `"ZMFK2OI7ZBD2U27ISERZC4S6LKM6WMFJPZQ4MYNJDZ2VNBNMBA67RA22AA"` (from `extra.feePayer`)
 
 ### MCP tool calls (in order)
 1. `wallet_get_info { "network": "testnet" }` → address: `CCCC...`
 2. `api_algod_get_account_asset_info { "address": "CCCC...", "assetId": 10458941, "network": "testnet" }` → opted in, balance: 5000000
-3. `make_payment_txn { "from": "BBBB...", "to": "BBBB...", "amount": 0, "fee": 2000, "flatFee": true, "network": "testnet" }` → fee_payer_txn
-4. `make_asset_transfer_txn { "from": "CCCC...", "to": "AAAA...", "assetIndex": 10458941, "amount": 100, "fee": 0, "flatFee": true, "network": "testnet" }` → payment_txn
+3. `make_payment_txn { "from": "ZMFK2...", "to": "ZMFK2...", "amount": 0, "fee": 2000, "flatFee": true, "network": "testnet" }` → fee_payer_txn
+4. `make_asset_transfer_txn { "from": "CCCC...", "to": "MPY54...", "assetIndex": 10458941, "amount": 1000, "fee": 0, "flatFee": true, "network": "testnet" }` → payment_txn
 5. `assign_group_id { "transactions": [fee_payer_txn, payment_txn] }` → [grouped_fee_payer, grouped_payment]
 6. `wallet_sign_transaction { "transaction": grouped_payment, "network": "testnet" }` → signed_payment_base64
 7. `encode_unsigned_transaction { "transaction": grouped_fee_payer }` → unsigned_fee_payer_base64
 
-### Construct header and retry
+### Construct header, retry, report
 Build PAYMENT-SIGNATURE JSON with `paymentGroup: [unsigned_fee_payer_base64, signed_payment_base64]`, `paymentIndex: 1`, and the full `accepted` object. Base64-encode and retry with `curl -H`.
 
-Response: 200 with weather data.
+Response: 200 with weather data. Decode the `PAYMENT-RESPONSE` header → `{ "success": true, "transaction": "<txn id>", "network": "algorand:SGO1...", "payer": "CCCC..." }` — report the txn id to the user.
