@@ -102,34 +102,14 @@ The `type` parameter determines whether the `amount` is the exact input or the e
 
 ### How to parse user intent
 
-| User says | Means | `type` | `amount` is | `fromASAID` | `toASAID` |
-|-----------|-------|--------|-------------|-------------|-----------|
-| "Buy 10 ALGO with USDC" | Want exactly 10 ALGO out | `"fixed-output"` | 10000000 (the ALGO) | USDC | ALGO |
-| "Buy 10 USDC with ALGO" | Want exactly 10 USDC out | `"fixed-output"` | 10000000 (the USDC) | ALGO | USDC |
-| "Sell 10 ALGO for USDC" | Spend exactly 10 ALGO | `"fixed-input"` | 10000000 (the ALGO) | ALGO | USDC |
-| "Swap 10 ALGO to USDC" | Spend exactly 10 ALGO | `"fixed-input"` | 10000000 (the ALGO) | ALGO | USDC |
-| "Use 10 ALGO to buy USDC" | Spend exactly 10 ALGO | `"fixed-input"` | 10000000 (the ALGO) | ALGO | USDC |
-| "Buy USDC for 10 ALGO" | Spend exactly 10 ALGO | `"fixed-input"` | 10000000 (the ALGO) | ALGO | USDC |
-| "Get me 5 USDC" | Want exactly 5 USDC out | `"fixed-output"` | 5000000 (the USDC) | (ask user) | USDC |
+| Pattern | `type` | `amount` refers to | Example |
+|---------|--------|--------------------|---------|
+| **"Buy X of Y"** | `"fixed-output"` | Desired output (Y) | "Buy 10 ALGO" → amount=10000000, toASAID=ALGO |
+| **"Sell/swap/convert X of Y"** | `"fixed-input"` | Exact input spend (Y) | "Sell 10 ALGO" → amount=10000000, fromASAID=ALGO |
+| **"Buy Y for/with X of Z"** | `"fixed-input"` | Exact input spend (Z) | "Buy USDC for 10 ALGO" → amount=10000000, fromASAID=ALGO |
 
-**Rules:**
-1. **"Buy X of Y"** -> user wants exactly X of Y as output -> `type: "fixed-output"`, `amount` = X in base units, `toASAID` = Y
-2. **"Sell/swap/convert X of Y"** -> user wants to spend exactly X of Y as input -> `type: "fixed-input"`, `amount` = X in base units, `fromASAID` = Y
-3. **"Buy Y for/with X of Z"** -> user specifies exact input spend -> `type: "fixed-input"`, `amount` = X in base units, `fromASAID` = Z
-4. **If ambiguous, ASK the user** — never guess. Wrong direction = wrong amount spent/received.
-
-### fixed-input vs fixed-output behavior
-
-- **`fixed-input`**: The `amount` field is the **exact input** the user will spend. The output varies based on market price. User knows exactly what they pay.
-- **`fixed-output`**: The `amount` field is the **exact output** the user will receive. The input varies based on market price. User knows exactly what they get.
-
-## Key Concepts
-
-- **Amounts** are always in base units (microAlgos for ALGO, smallest unit for ASAs)
-- **ASA IDs**: 0 = ALGO, 31566704 = USDC, etc.
-- **Quote types**: `fixed-input` (default) — specify input amount; `fixed-output` — specify desired output
-- **Slippage**: Percentage tolerance on output (e.g., 1 = 1%). Applied to the final output, not individual hops
-- **Routing**: Supports multi-hop and parallel (combo) swaps for optimal pricing
+- **`fixed-input`**: `amount` = exact spend, output varies. **`fixed-output`**: `amount` = exact receipt, input varies.
+- **If ambiguous, ASK the user** — wrong direction = wrong amount spent/received.
 
 ## Reference Files
 
