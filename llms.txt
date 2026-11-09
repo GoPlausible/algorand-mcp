@@ -73,8 +73,8 @@ docs_url: https://github.com/GoPlausible/algorand-mcp/blob/main/packages/server/
     - encode_uint64 - Encode uint64 to bytes
     - decode_uint64 - Decode bytes to uint64
 
-### ARC-26 Tools
-  - /tools/arc26
+### ARC-90 Tools
+  - /tools/arc90
     - generate_algorand_qrcode - Generate Algorand URI
     - generate_qr_code - Generate QR code for URI
 

@@ -65,7 +65,7 @@ Replace `/path/to/algorand-mcp` with the actual path where the server is install
 - Byte Conversion
 - Application Tools
 
-### 4. ARC-26 Tools
+### 4. ARC-90 Tools
 - URI Generation
 - QR Code Creation
 

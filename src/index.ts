@@ -24,7 +24,7 @@ import {
   transactionTools,
   apiManager,
   handleApiManager,
-  arc26Manager,
+  arc90Manager,
   KnowledgeManager
 } from './tools/index.js';
 import { ResourceManager } from './resources/index.js';
@@ -34,7 +34,7 @@ class AlgorandMcpServer {
   private server: Server;
   private name: string;
 
-  constructor(name = 'algorand-mcp-server', version = '4.4.0') {
+  constructor(name = 'algorand-mcp-server', version = '4.4.1') {
     this.name = name;
     this.server = new Server(
       {
@@ -120,8 +120,8 @@ class AlgorandMcpServer {
         ...transactionTools,
         // API Tools
         ...apiManager,
-        // ARC-26 Tools
-        ...arc26Manager.arc26Tools,
+        // ARC-90 Tools
+        ...arc90Manager.arc90Tools,
         // Knowledge Tools
         ...KnowledgeManager.knowledgeTools,
       ],
@@ -208,9 +208,9 @@ class AlgorandMcpServer {
         return handleApiManager(name, args);
       }
 
-      // Handle ARC-26 tools
+      // Handle ARC-90 tools
       if (name === 'generate_algorand_qrcode') {
-        return arc26Manager.handleTool(name, args);
+        return arc90Manager.handleTool(name, args);
       }
 
       // Handle knowledge tools

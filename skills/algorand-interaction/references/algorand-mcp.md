@@ -16,7 +16,7 @@
 9. [Tinyman DEX API Tools](#tinyman-dex-api-tools)
 10. [Haystack Router Tools](#haystack-router-tools)
 11. [Pera Asset Verification Tools](#pera-asset-verification-tools)
-12. [ARC-26 URI Tools](#arc-26-uri-tools)
+12. [ARC-90 URI Tools](#arc-90-uri-tools)
 13. [Knowledge Base Tools](#knowledge-base-tools)
 
 ---
@@ -775,10 +775,10 @@ Verify asset legitimacy and get detailed asset information from Pera Wallet's ma
 
 ---
 
-## ARC-26 URI Tools
+## ARC-90 URI Tools
 
 ### generate_algorand_qrcode
-- **Purpose**: Generate an Algorand payment URI and QR code per ARC-26 specification via QRClaw service
+- **Purpose**: Generate an Algorand payment URI per ARC-90 (which supersedes ARC-26) and its QR code via the QRClaw service. Mainnet URIs have no authority; testnet and localnet URIs carry the genesis hash as a `gh:` authority (`algorand://gh:<genesis hash>/<address>?...`)
 - **Parameters**:
 ```json
 {
@@ -787,10 +787,12 @@ Verify asset legitimacy and get detailed asset information from Pera Wallet's ma
   "amount": 1000000,
   "asset": 31566704,
   "note": "Payment note",
-  "xnote": "Exclusive note"
+  "xnote": "Exclusive note",
+  "network": "testnet"
 }
 ```
-- **Returns**: `qr` (UTF-8 text QR code), `uri` (the `algorand://` URI), `link` (shareable hosted QR URL), `expires_in` (link validity period)
+- **Notes**: `amount` is in base units (microAlgos, or the asset's smallest unit); omit `asset` for Algo; `note` and `xnote` are plain text that the tool percent-encodes; `network` (default testnet) decides the URI's network authority
+- **Returns**: text with a UTF-8 QR code, then `URI:` (the `algorand://` URI), `Link:` (shareable hosted QR URL) and `Expires in:` (link validity period) lines
 
 ---
 

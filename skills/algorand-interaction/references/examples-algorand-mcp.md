@@ -24,10 +24,11 @@ wallet_add_account {
 generate_algorand_qrcode {
   "address": "[wallet_address]",
   "amount": 5000000,
-  "note": "Fund testnet account"
+  "note": "Fund testnet account",
+  "network": "testnet"
 }
 ```
-Response returns `{ qr, uri, link, expires_in }` — display the `qr` text block, `uri`, and `link` to the user.
+The response is text: the QR code, then `URI:`, `Link:` and `Expires in:` lines. Display the QR block, the URI and the link to the user.
 Or direct user to: https://lora.algokit.io/testnet/fund
 
 ### Step 4: If account needs USDC funding
@@ -36,10 +37,11 @@ generate_algorand_qrcode {
   "address": "[wallet_address]",
   "asset": 10458941, // USDC on testnet
   "amount": 1000000, // 1 USDC with 6 decimals
-  "note": "Fund testnet account with USDC"
+  "note": "Fund testnet account with USDC",
+  "network": "testnet"
 }
 ```
-Response returns `{ qr, uri, link, expires_in }` — display the `qr` text block, `uri`, and `link` to the user.
+The response is text: the QR code, then `URI:`, `Link:` and `Expires in:` lines. Display the QR block, the URI and the link to the user.
 Or direct user to: https://faucet.circle.com/
 
 ---
@@ -644,21 +646,22 @@ send_raw_transaction {
 
 ## Top-Up QR Code (Insufficient Funds)
 
-When balance is insufficient, generate an ARC-26 QR code for easy funding:
+When balance is insufficient, generate an ARC-90 payment QR code for easy funding. Pass the wallet's `network`: the URI names it (no authority on mainnet, `gh:<genesis hash>` on testnet and localnet).
 
 ```
 generate_algorand_qrcode {
   "address": "[wallet_address]",
   "amount": 5000000,
-  "note": "Fund account for transaction"
+  "note": "Fund account for transaction",
+  "network": "[wallet_network]"
 }
 ```
 
-The response includes:
-- **`qr`**: UTF-8 text QR code (Unicode block characters) — paste directly in a code block
-- **`uri`**: The `algorand://` URI for wallet deep links
-- **`link`**: Shareable URL to the hosted QR code (e.g. `https://qrclaw.goplausible.xyz/q/abc123...`)
-- **`expires_in`**: How long the hosted link remains valid (e.g. `"24h"`)
+The response is text with, in order:
+- the UTF-8 QR code (Unicode block characters) — paste it directly in a code block
+- `URI:` the `algorand://` URI for wallet deep links (on testnet: `algorand://gh:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9_cOUJOiI/<address>?amount=5000000&note=...`)
+- `Link:` a shareable URL to the hosted QR code (e.g. `https://qrclaw.goplausible.xyz/q/abc123...`)
+- `Expires in:` how long the hosted link remains valid (e.g. `24h`)
 
 Display the QR code text block, the URI, and the shareable link to the user.
 

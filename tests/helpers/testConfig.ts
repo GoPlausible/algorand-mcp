@@ -12,7 +12,7 @@
  *   E2E_INDEXER_API=1      — enable indexer-api category
  *   E2E_NFD=1              — enable nfd category
  *   E2E_TINYMAN=1          — enable tinyman category
- *   E2E_ARC26=1            — enable arc26 category
+ *   E2E_ARC90=1            — enable arc90 category
  *   E2E_KNOWLEDGE=1        — enable knowledge category
  *   E2E_TOOLS=tool1,tool2  — enable specific tools only
  *
@@ -21,7 +21,7 @@
 
 export const TOOL_CATEGORIES = [
   'wallet', 'account', 'utility', 'transaction', 'algod',
-  'algod-api', 'indexer-api', 'nfd', 'tinyman', 'arc26', 'knowledge',
+  'algod-api', 'indexer-api', 'nfd', 'tinyman', 'arc90', 'knowledge',
 ] as const;
 
 export type ToolCategory = typeof TOOL_CATEGORIES[number];
@@ -65,7 +65,7 @@ const toolCategoryMap: Record<string, ToolCategory> = {
   'api_indexer_': 'indexer-api',
   'api_nfd_': 'nfd',
   'api_tinyman_': 'tinyman',
-  'generate_algorand_qrcode': 'arc26',
+  'generate_algorand_qrcode': 'arc90',
   'get_knowledge_': 'knowledge',
 };
 

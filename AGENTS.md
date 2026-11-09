@@ -31,7 +31,7 @@ At the beginning of every Algorand session:
 1. **Load tools** — Call `ToolSearch("+algorand wallet")` to load wallet tools
 2. **Check wallet** — Call `wallet_get_info` with the target network to verify a wallet account exists and is active.
 3. **If no accounts** — Guide the user to create one with `wallet_add_account` (sets the nickname).
-4. **If account needs funding** — Generate an ARC-26 QR code with `generate_algorand_qrcode` (returns `{ qr, uri, link, expires_in }` — display the `qr` text and shareable `link`) or direct the user to the testnet faucet: https://lora.algokit.io/testnet/fund
+4. **If account needs funding** — Generate an ARC-90 payment QR code with `generate_algorand_qrcode`, passing the account's `network` (the URI names it). It returns text with the QR code, then `URI:`, `Link:` and `Expires in:` lines: display the QR block and the shareable link. Or direct the user to the testnet faucet: https://lora.algokit.io/testnet/fund
 5. **If account needs USDC funding** — Direct to testnet USDC faucet: https://faucet.circle.com/
 
 ## Network Selection
@@ -315,8 +315,8 @@ HTTP-native micropayments protocol. The first two tools handle paid-request flow
 
 > **Coinbase Wallet MCP compatibility:** the first two tools mirror Coinbase's x402 surface (same names + input shapes), so agents trained on Coinbase x402 work drop-in against Algorand x402. The `bazaar_*` tools follow the same convention.
 
-### ARC-26 URI (1 tool)
-Generate Algorand payment URIs and QR codes per the ARC-26 specification via QRClaw service. Returns `{ qr, uri, link, expires_in }` — a UTF-8 text QR code, the `algorand://` URI, a shareable hosted link, and link expiry.
+### ARC-90 URI (1 tool)
+Generate Algorand payment URIs per ARC-90 (which supersedes ARC-26) and their QR codes via the QRClaw service. The URI names the network: mainnet URIs have no authority (`algorand://<address>?...`), testnet and localnet URIs carry the genesis hash (`algorand://gh:<genesis hash>/<address>?...`), so pass the `network` the payment is meant for. Returns text: a UTF-8 QR code, then `URI:` (the `algorand://` URI), `Link:` (a shareable hosted QR) and `Expires in:` (link validity) lines.
 
 `generate_algorand_qrcode`
 

@@ -26,7 +26,7 @@ Algorand is a carbon-negative, pure proof-of-stake Layer 1 blockchain with insta
 - Tinyman AMM integration (pools, swaps, liquidity)
 - Haystack Router DEX aggregation (best-price swaps across Tinyman, Pact, Folks)
 - Alpha Arcade prediction market trading (browse markets, orderbooks, limit/market orders, positions, claims)
-- ARC-26 URI and QR code generation
+- ARC-90 payment URI and QR code generation (ARC-90 supersedes ARC-26)
 - Algorand knowledge base with full developer documentation taxonomy
 - Per-tool-call network selection (mainnet, testnet, localnet) and pagination
 
@@ -662,11 +662,11 @@ Trade on-chain prediction markets (YES/NO outcomes) denominated in USDC. All pri
 
 > Optional env var: `ALPHA_API_KEY` — needed for reward market data. `ALPHA_API_BASE_URL` — custom API endpoint (default: `https://platform.alphaarcade.com/api`).
 
-### ARC-26 URI Tools (1 tool)
+### ARC-90 URI Tools (1 tool)
 
 | Tool | Description |
 |---|---|
-| `generate_algorand_qrcode` | Generate Algorand URI and QR code per ARC-26 spec |
+| `generate_algorand_qrcode` | Generate an ARC-90 payment URI and its QR code via QRClaw. Mainnet URIs have no authority; testnet and localnet URIs carry the genesis hash as a `gh:` authority |
 
 ### Knowledge Tools (1 tool)
 
@@ -716,7 +716,7 @@ algorand-mcp/
 │   │   ├── accountManager.ts    # Account operations
 │   │   ├── utilityManager.ts    # Utility functions
 │   │   ├── algodManager.ts      # TEAL compile, simulate, submit
-│   │   ├── arc26Manager.ts      # ARC-26 URI generation
+│   │   ├── arc90Manager.ts      # ARC-90 URI generation
 │   │   ├── knowledgeManager.ts  # Knowledge document access
 │   │   ├── transactionManager/  # Transaction building
 │   │   │   ├── accountTransactions.ts
@@ -820,7 +820,7 @@ npm test
 | `apiIndexer` | All 10 active indexer API tools with fluent builder mocks |
 | `apiNfd` | NFD get/search/browse with mocked fetch |
 | `apiTinyman` | Tinyman pool/swap with error handling |
-| `arc26Manager` | ARC-26 URI generation and QR code SVG output |
+| `arc90Manager` | ARC-90 payment URIs (spec examples, network authority, encoding, validation) and QRClaw handling, with mocked fetch |
 | `knowledgeManager` | Knowledge document retrieval and missing-doc error handling |
 
 #### How mocking works
@@ -864,7 +864,7 @@ E2E_MNEMONIC="word1 word2 ... word25" npm run test:e2e
 | `indexerApi` | Account lookup, asset/transaction/account search via indexer |
 | `nfd` | Look up "algo.algo", search NFDs, browse NFDs |
 | `tinyman` | Get ALGO/USDC pool |
-| `arc26` | Generate ARC-26 URI, verify format + QR SVG |
+| `arc90` | Generate testnet and mainnet ARC-90 URIs, verify format + QRClaw link |
 | `knowledge` | Retrieve known knowledge doc content |
 
 ### Category activation
@@ -892,7 +892,7 @@ E2E_ALGOD=1 E2E_UTILITY=1 npm run test:e2e  # Algod + utility tests
 | `E2E_INDEXER_API=1` | Indexer API tools |
 | `E2E_NFD=1` | NFDomains tools |
 | `E2E_TINYMAN=1` | Tinyman tools |
-| `E2E_ARC26=1` | ARC-26 tools |
+| `E2E_ARC90=1` | ARC-90 tools |
 | `E2E_KNOWLEDGE=1` | Knowledge tools |
 
 **Important:** Setting any individual flag (e.g. `E2E_WALLET=1`) disables all other categories unless `E2E_ALL=1` is also set.
@@ -924,7 +924,7 @@ tests/
 │   ├── apiIndexer.test.ts
 │   ├── apiNfd.test.ts
 │   ├── apiTinyman.test.ts
-│   ├── arc26Manager.test.ts
+│   ├── arc90Manager.test.ts
 │   └── knowledgeManager.test.ts
 ├── e2e/                       # 11 E2E test files (*.e2e.test.ts)
 │   ├── globalSetup.ts         # Account provisioning + fund-check
@@ -938,7 +938,7 @@ tests/
 │   ├── indexerApi.e2e.test.ts
 │   ├── nfd.e2e.test.ts
 │   ├── tinyman.e2e.test.ts
-│   ├── arc26.e2e.test.ts
+│   ├── arc90.e2e.test.ts
 │   └── knowledge.e2e.test.ts
 └── jest.config.e2e.js         # E2E-specific Jest config
 ```
@@ -998,7 +998,7 @@ describeIf(testConfig.isCategoryEnabled('your-category'))('Your Tools (E2E)', ()
 - [@tinymanorg/tinyman-js-sdk](https://github.com/tinymanorg/tinyman-js-sdk) — Tinyman AMM SDK
 - [@alpha-arcade/sdk](https://github.com/pfrfrfr/alpha-js-sdk) — Alpha Arcade prediction market SDK
 - [zod](https://github.com/colinhacks/zod) — Runtime type validation
-- [qrcode](https://github.com/soldair/node-qrcode) — QR code generation for ARC-26
+- [qrcode](https://github.com/soldair/node-qrcode) — Local QR code rendering for a parked fallback; QR codes currently come from the QRClaw service
 
 ## License
 
