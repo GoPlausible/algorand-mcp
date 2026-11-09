@@ -14,7 +14,14 @@ export const indexerTools = [
 
 // Handle all indexer API tools
 export async function handleIndexerTools(name: string, args: any): Promise<any> {
-  const toolArgs = { ...args, name };
+  // The handlers dispatch on `name`, which is set to the tool name here. That would overwrite a
+  // caller's own `name` argument (the asset-name filter of api_indexer_search_for_assets), so the
+  // caller's value travels as `assetName`.
+  const toolArgs = {
+    ...args,
+    name,
+    ...(args && args.name !== undefined ? { assetName: args.name } : {}),
+  };
 
   // Transaction tools (including account transactions)
   if (name === 'api_indexer_lookup_transaction_by_id' ||

@@ -44,6 +44,31 @@ describe('Indexer API Tools', () => {
       });
       expect(result).toBeDefined();
     });
+
+    it("sends the caller's name filter to the indexer, never the tool name", async () => {
+      // Records every builder call: searchForAssets().name(x).unit(y)...do()
+      let calls: Record<string, unknown[]> = {};
+      const builder: any = new Proxy({}, {
+        get(_target, prop: string) {
+          if (prop === 'do') return async () => ({ assets: [] });
+          return (...callArgs: unknown[]) => { (calls[prop] ||= []).push(...callArgs); return builder; };
+        },
+      });
+      const original = mocks.__mockIndexer.searchForAssets;
+      mocks.__mockIndexer.searchForAssets = jest.fn(() => builder) as any;
+      try {
+        await handleApiManager('api_indexer_search_for_assets', { name: 'USDC', unit: 'USDC', network: 'testnet' });
+        expect(calls.name).toEqual(['USDC']);
+        expect(calls.unit).toEqual(['USDC']);
+
+        calls = {};
+        await handleApiManager('api_indexer_search_for_assets', { creator: VALID_ADDRESS, network: 'testnet' });
+        expect(calls.creator).toEqual([VALID_ADDRESS]);
+        expect(calls.name).toBeUndefined();
+      } finally {
+        mocks.__mockIndexer.searchForAssets = original;
+      }
+    });
   });
 
   describe('api_indexer_search_for_transactions', () => {

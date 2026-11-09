@@ -338,7 +338,9 @@ export const handleAssetTools = ResponseProcessor.wrapResourceHandler(async func
       return transactions.transactions;
     }
     case 'api_indexer_search_for_assets': {
-      const assets = await searchForAssets(args, network);
+      // `name` is the tool name here; the caller's asset-name filter arrives as `assetName`.
+      const { name: _toolName, assetName, ...params } = args;
+      const assets = await searchForAssets({ ...params, name: assetName }, network);
       return assets.assets;
     }
     default:
