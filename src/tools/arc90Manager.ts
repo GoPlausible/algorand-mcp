@@ -1,4 +1,3 @@
-import * as QRCode from 'qrcode';
 import algosdk from 'algosdk';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { withCommonParams } from './commonParams.js';
@@ -54,18 +53,28 @@ function optionalText(args: Record<string, unknown>, field: string): string | un
   return value;
 }
 
-function optionalInteger(
+/** Largest uint64, the range of transaction amounts and asset IDs. */
+const UINT64_MAX = 18446744073709551615n;
+
+/**
+ * Reads an optional uint64 given as a JSON integer (up to Number.MAX_SAFE_INTEGER) or as a
+ * decimal-digit string (any uint64). Returns it as a plain decimal string without leading zeros.
+ */
+function optionalUint64(
   args: Record<string, unknown>,
   field: string,
-  min: number,
+  min: bigint,
   rule: string,
-): number | undefined {
+): string | undefined {
   const value = args[field];
   if (value === undefined || value === null) return undefined;
-  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < min) {
+  let n: bigint | undefined;
+  if (typeof value === 'number' && Number.isSafeInteger(value)) n = BigInt(value);
+  else if (typeof value === 'string' && /^[0-9]+$/.test(value)) n = BigInt(value);
+  if (n === undefined || n < min || n > UINT64_MAX) {
     throw new McpError(ErrorCode.InvalidParams, `${field} must be ${rule}`);
   }
-  return value;
+  return n.toString();
 }
 
 /** The URI authority plus its trailing "/", or "" for MainNet. */
@@ -141,14 +150,18 @@ export class Arc90Manager {
             description: 'Label for the address (e.g. name of receiver)',
           },
           amount: {
-            type: 'integer',
+            type: ['integer', 'string'],
             minimum: 0,
-            description: 'Amount in base units: microAlgos for Algo, the smallest unit for an ASA',
+            pattern: '^[0-9]+$',
+            description:
+              'Amount in base units: microAlgos for Algo, the smallest unit for an ASA. ' +
+              'A number, or a decimal string for amounts above 9007199254740991 (up to the uint64 maximum)',
           },
           asset: {
-            type: 'integer',
+            type: ['integer', 'string'],
             minimum: 1,
-            description: 'Asset ID for an ASA transfer; omit for Algo',
+            pattern: '^[0-9]+$',
+            description: 'Asset ID for an ASA transfer (a number or a decimal string); omit for Algo',
           },
           note: {
             type: 'string',
@@ -169,16 +182,23 @@ export class Arc90Manager {
    * genesis hash is read, so invalid input never needs the network.
    */
   async generatePaymentUri(args: Record<string, unknown>): Promise<{ uri: string }> {
-    const address = args.address;
-    if (typeof address !== 'string' || !algosdk.isValidAddress(address)) {
+    const input = args.address;
+    if (typeof input !== 'string' || !algosdk.isValidAddress(input)) {
       throw new McpError(ErrorCode.InvalidParams, 'address must be a valid 58-character Algorand address');
     }
+    // The last base32 character carries 2 padding bits that the checksum ignores, so several
+    // strings decode to the same account. Emit the canonical encoding of that account.
+    const address = algosdk.Address.fromString(input).toString();
     const label = optionalText(args, 'label');
-    const amount = optionalInteger(
-      args, 'amount', 0,
-      'a non-negative integer in base units (microAlgos for Algo, the smallest unit for an ASA)',
+    const amount = optionalUint64(
+      args, 'amount', 0n,
+      'a non-negative integer in base units (microAlgos for Algo, the smallest unit for an ASA), ' +
+      'at most 18446744073709551615; pass amounts above 9007199254740991 as a decimal string',
     );
-    const asset = optionalInteger(args, 'asset', 1, 'a positive integer asset ID; omit it for Algo');
+    const asset = optionalUint64(
+      args, 'asset', 1n,
+      'a positive integer asset ID (a number or a decimal string, at most 18446744073709551615); omit it for Algo',
+    );
     const note = optionalText(args, 'note');
     const xnote = optionalText(args, 'xnote');
 
@@ -201,40 +221,18 @@ export class Arc90Manager {
     return { uri };
   }
 
-  // Parked alternative to QRClaw: render the QR code locally with `qrcode`.
-  // async generateUriAndQr(args: Record<string, unknown>): Promise<{ uri: string; qrCodePng: string; qrCodeUtf8: string }> {
-  //   const { uri } = await this.generatePaymentUri(args);
-  //   const qrCodeUtf8Raw = await QRCode.toString(uri, { type: 'utf8', errorCorrectionLevel: 'H', width: 128 });
-  //   // Invert for better terminal contrast
-  //   const qrCodeUtf8 = qrCodeUtf8Raw
-  //     .replace(/█/g, '⬜').replace(/ /g, '█').replace(/⬜/g, ' ')
-  //     .replace(/▀/g, '⬛').replace(/▄/g, '▀').replace(/⬛/g, '▄');
-  //   const qrCodePng = await QRCode.toDataURL(uri, {
-  //     type: 'image/png',
-  //     errorCorrectionLevel: 'H',
-  //     color: { dark: '#000000', light: '#FFFFFF' },
-  //     margin: 4,
-  //     width: 128,
-  //   });
-  //   return { uri, qrCodePng, qrCodeUtf8 };
-  // }
-  //
-  // Matching handleTool result:
-  //   content: [
-  //     { type: 'text', text: qrCodeUtf8 + '\n\n```\n' + uri + '\n```' },
-  //     { type: 'image', data: qrCodePng.replace(/^data:image\/png;base64,/, ''), mimeType: 'image/png' },
-  //   ]
-
   async handleTool(name: string, args: Record<string, unknown>) {
     if (name !== 'generate_algorand_qrcode') {
       throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
     }
     const { uri } = await this.generatePaymentUri(args);
     const data = await requestQrClaw(uri);
+    const lines = [data.qr, '', `URI: ${uri}`, `Link: ${data.link}`];
+    if (typeof data.expires_in === 'string' && data.expires_in !== '') {
+      lines.push(`Expires in: ${data.expires_in}`);
+    }
     return {
-      content: [
-        { type: 'text', text: data.qr + '\n\nURI: ' + uri + '\nLink: ' + data.link + '\nExpires in: ' + data.expires_in },
-      ],
+      content: [{ type: 'text', text: lines.join('\n') }],
     };
   }
 }

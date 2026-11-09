@@ -171,12 +171,40 @@ describe('arc90Manager', () => {
       expect(await mainnet({ amount: 0 })).toBe(`algorand://${SPEC_ADDRESS}?amount=0`);
     });
 
-    it.each([[-1], [1.5], ['1000'], [2 ** 53]])('rejects amount %p', async (amount) => {
-      await expectMcpError(mainnet({ amount }), ErrorCode.InvalidParams, /amount must be a non-negative integer/);
+    it.each([[-1], [1.5], [2 ** 53], ['-1'], ['1.5'], ['1e3'], [''], [' 1'], ['18446744073709551616'], [true]])(
+      'rejects amount %p',
+      async (amount) => {
+        await expectMcpError(mainnet({ amount }), ErrorCode.InvalidParams, /amount must be a non-negative integer/);
+      },
+    );
+
+    it('accepts an amount given as a decimal string', async () => {
+      expect(await mainnet({ amount: '1000' })).toBe(`algorand://${SPEC_ADDRESS}?amount=1000`);
     });
 
-    it.each([[0], [-1], [1.5], ['45']])('rejects asset %p', async (asset) => {
+    it('accepts amounts up to the uint64 maximum as decimal strings', async () => {
+      expect(await mainnet({ amount: '18446744073709551615' }))
+        .toBe(`algorand://${SPEC_ADDRESS}?amount=18446744073709551615`);
+      expect(await mainnet({ amount: '9007199254740993' })).toBe(`algorand://${SPEC_ADDRESS}?amount=9007199254740993`);
+    });
+
+    it('drops leading zeros from a decimal-string amount', async () => {
+      expect(await mainnet({ amount: '000150' })).toBe(`algorand://${SPEC_ADDRESS}?amount=150`);
+    });
+
+    it.each([[0], [-1], [1.5], ['0'], ['4.5'], ['x'], ['18446744073709551616']])('rejects asset %p', async (asset) => {
       await expectMcpError(mainnet({ asset }), ErrorCode.InvalidParams, /asset must be a positive integer/);
+    });
+
+    it('accepts an asset ID given as a decimal string', async () => {
+      expect(await mainnet({ asset: '45' })).toBe(`algorand://${SPEC_ADDRESS}?asset=45`);
+    });
+
+    it('emits the canonical form of an address whose last character is not canonical', async () => {
+      // Same account: the last character carries 2 padding bits that the checksum ignores.
+      const nonCanonical = SPEC_ADDRESS.slice(0, -1) + '7';
+      expect(algosdk.isValidAddress(nonCanonical)).toBe(true);
+      expect(await mainnet({ address: nonCanonical })).toBe(`algorand://${SPEC_ADDRESS}`);
     });
 
     it('rejects a label that is not a string', async () => {
@@ -194,6 +222,12 @@ describe('arc90Manager', () => {
       expect(result.content).toEqual([
         { type: 'text', text: `QR-BLOCK\n\nURI: ${uri}\nLink: https://qrclaw.goplausible.xyz/q/abc\nExpires in: 24h` },
       ]);
+    });
+
+    it('omits the expiry line when QRClaw reports no expiry', async () => {
+      qrclawReturns({ qr: 'QR-BLOCK', link: 'https://qrclaw.goplausible.xyz/q/abc' });
+      const result = await arc90Manager.handleTool('generate_algorand_qrcode', { address: SPEC_ADDRESS, network: 'mainnet' });
+      expect(result.content[0].text).toBe(`QR-BLOCK\n\nURI: algorand://${SPEC_ADDRESS}\nLink: https://qrclaw.goplausible.xyz/q/abc`);
     });
 
     it('reports a QRClaw HTTP error as an internal error that carries the URI', async () => {

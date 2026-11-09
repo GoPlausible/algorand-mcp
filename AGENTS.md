@@ -316,7 +316,7 @@ HTTP-native micropayments protocol. The first two tools handle paid-request flow
 > **Coinbase Wallet MCP compatibility:** the first two tools mirror Coinbase's x402 surface (same names + input shapes), so agents trained on Coinbase x402 work drop-in against Algorand x402. The `bazaar_*` tools follow the same convention.
 
 ### ARC-90 URI (1 tool)
-Generate Algorand payment URIs per ARC-90 (which supersedes ARC-26) and their QR codes via the QRClaw service. The URI names the network: mainnet URIs have no authority (`algorand://<address>?...`), testnet and localnet URIs carry the genesis hash (`algorand://gh:<genesis hash>/<address>?...`), so pass the `network` the payment is meant for. Returns text: a UTF-8 QR code, then `URI:` (the `algorand://` URI), `Link:` (a shareable hosted QR) and `Expires in:` (link validity) lines.
+Generate Algorand payment URIs per ARC-90 (which supersedes ARC-26) and their QR codes via the QRClaw service. The URI names the network: mainnet URIs have no authority (`algorand://<address>?...`), testnet and localnet URIs carry the genesis hash (`algorand://gh:<genesis hash>/<address>?...`), so pass the `network` the payment is meant for. `amount` and `asset` take a number, or a decimal string for values above 9007199254740991. Returns text: a UTF-8 QR code, then `URI:` (the `algorand://` URI), `Link:` (a shareable hosted QR) and, when QRClaw reports one, `Expires in:` (link validity) lines.
 
 `generate_algorand_qrcode`
 

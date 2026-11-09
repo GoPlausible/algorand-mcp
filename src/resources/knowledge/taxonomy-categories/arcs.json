@@ -66,6 +66,7 @@
         {"name": "ARC-0076", "path": "arcs:specs:arc-0076.md"},
         {"name": "ARC-0078", "path": "arcs:specs:arc-0078.md"},
         {"name": "ARC-0079", "path": "arcs:specs:arc-0079.md"},
+        {"name": "ARC-0082", "path": "arcs:specs:arc-0082.md"},
         {"name": "ARC-0090", "path": "arcs:specs:arc-0090.md"},
         {"name": "ARC-0200", "path": "arcs:specs:arc-0200.md"}
       ]

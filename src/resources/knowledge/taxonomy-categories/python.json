@@ -26,11 +26,6 @@
               "name": "assets",
               "description": "Asset Operations",
               "path": "developer:python:code:example:assets.md"
-            },
-            {
-              "name": "transactions",
-              "description": "Transaction Handling",
-              "path": "developer:python:code:example:transactions.md"
             }
           ]
         },

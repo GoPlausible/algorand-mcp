@@ -86,14 +86,6 @@
           "description": "JavaScript API implementation",
           "path": "liquid-auth:services:liquid-auth-api-js:src",
           "subcategories": {
-            "auth": {
-              "name": "Auth Controllers",
-              "description": "Authentication controllers",
-              "path": "liquid-auth:services:liquid-auth-api-js:src:auth",
-              "documents": [
-                {"name": "Get User", "path": "liquid-auth:services:liquid-auth-api-js:src:auth:auth.controller.get.user.md"}
-              ]
-            },
             "assertion": {
               "name": "Assertion Controllers",
               "description": "Assertion controllers",

@@ -59,13 +59,6 @@
         "devportal-code-examples:projects:python-contract-examples:README.md",
         "devportal-code-examples:README.md"
       ]
-    },
-    "models": {
-      "name": "Models",
-      "description": "Data models and structures",
-      "items": [
-        "algo-models:README.md"
-      ]
     }
   }
 }

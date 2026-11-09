@@ -50,7 +50,7 @@ export type AssetHolding = z.infer<typeof AssetHoldingSchema>;
 
 export const ApplicationStateSchema = z.object({
   appId: z.union([z.number(), z.bigint()]),
-  globalState: z.record(z.any()),
-  localState: z.record(z.any()).optional(),
+  globalState: z.record(z.string(), z.any()),
+  localState: z.record(z.string(), z.any()).optional(),
 });
 export type ApplicationState = z.infer<typeof ApplicationStateSchema>;

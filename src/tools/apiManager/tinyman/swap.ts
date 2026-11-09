@@ -1,5 +1,5 @@
 import { Tool, ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
-import { Swap, poolUtils, SwapType, SupportedNetwork } from '@tinymanorg/tinyman-js-sdk';
+import { Swap, poolUtils, SwapType, SupportedNetwork } from '../../../../vendor/tinyman-js-sdk/dist/index.js';
 import { getAlgodClient, extractNetwork } from '../../../algorand-client.js';
 import { withCommonParams } from '../../commonParams.js';
 

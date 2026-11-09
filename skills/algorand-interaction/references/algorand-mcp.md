@@ -791,8 +791,8 @@ Verify asset legitimacy and get detailed asset information from Pera Wallet's ma
   "network": "testnet"
 }
 ```
-- **Notes**: `amount` is in base units (microAlgos, or the asset's smallest unit); omit `asset` for Algo; `note` and `xnote` are plain text that the tool percent-encodes; `network` (default testnet) decides the URI's network authority
-- **Returns**: text with a UTF-8 QR code, then `URI:` (the `algorand://` URI), `Link:` (shareable hosted QR URL) and `Expires in:` (link validity period) lines
+- **Notes**: `amount` is in base units (microAlgos, or the asset's smallest unit); `amount` and `asset` take a number, or a decimal string for values above 9007199254740991 (up to the uint64 maximum); omit `asset` for Algo; `note` and `xnote` are plain text that the tool percent-encodes; the URI always carries the canonical form of `address`; `network` (default testnet) decides the URI's network authority
+- **Returns**: text with a UTF-8 QR code, then `URI:` (the `algorand://` URI), `Link:` (shareable hosted QR URL) and, when QRClaw reports one, `Expires in:` (link validity period) lines
 
 ---
 
