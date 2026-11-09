@@ -89,64 +89,8 @@
       "description": "Documentation for the Python SDK",
       "path": "sdks:python",
       "documents": [
-        {"name": "README", "path": "sdks:python:README.md"},
-        {"name": "Index", "path": "sdks:python:index.rst"}
-      ],
-      "subcategories": {
-        "algosdk": {
-          "name": "AlgoSDK",
-          "description": "Core Python SDK modules",
-          "path": "sdks:python:algosdk",
-          "documents": [
-            {"name": "Account", "path": "sdks:python:algosdk:account.rst"},
-            {"name": "Atomic Transaction Composer", "path": "sdks:python:algosdk:atomic_transaction_composer.rst"},
-            {"name": "Box Reference", "path": "sdks:python:algosdk:box_reference.rst"},
-            {"name": "Constants", "path": "sdks:python:algosdk:constants.rst"},
-            {"name": "Dryrun Results", "path": "sdks:python:algosdk:dryrun_results.rst"},
-            {"name": "Encoding", "path": "sdks:python:algosdk:encoding.rst"},
-            {"name": "Error", "path": "sdks:python:algosdk:error.rst"},
-            {"name": "KMD", "path": "sdks:python:algosdk:kmd.rst"},
-            {"name": "Logic", "path": "sdks:python:algosdk:logic.rst"},
-            {"name": "Mnemonic", "path": "sdks:python:algosdk:mnemonic.rst"},
-            {"name": "Source Map", "path": "sdks:python:algosdk:source_map.rst"},
-            {"name": "Transaction", "path": "sdks:python:algosdk:transaction.rst"},
-            {"name": "Wallet", "path": "sdks:python:algosdk:wallet.rst"}
-          ],
-          "subcategories": {
-            "abi": {
-              "name": "ABI",
-              "description": "Application Binary Interface modules",
-              "path": "sdks:python:algosdk:abi",
-              "documents": [
-                {"name": "Address Type", "path": "sdks:python:algosdk:abi:address_type.rst"},
-                {"name": "Array Dynamic Type", "path": "sdks:python:algosdk:abi:array_dynamic_type.rst"},
-                {"name": "Array Static Type", "path": "sdks:python:algosdk:abi:array_static_type.rst"},
-                {"name": "Base Type", "path": "sdks:python:algosdk:abi:base_type.rst"},
-                {"name": "Bool Type", "path": "sdks:python:algosdk:abi:bool_type.rst"},
-                {"name": "Byte Type", "path": "sdks:python:algosdk:abi:byte_type.rst"},
-                {"name": "Contract", "path": "sdks:python:algosdk:abi:contract.rst"},
-                {"name": "Interface", "path": "sdks:python:algosdk:abi:interface.rst"},
-                {"name": "Method", "path": "sdks:python:algosdk:abi:method.rst"},
-                {"name": "Reference", "path": "sdks:python:algosdk:abi:reference.rst"},
-                {"name": "String Type", "path": "sdks:python:algosdk:abi:string_type.rst"},
-                {"name": "Transaction", "path": "sdks:python:algosdk:abi:transaction.rst"},
-                {"name": "Tuple Type", "path": "sdks:python:algosdk:abi:tuple_type.rst"},
-                {"name": "UFixed Type", "path": "sdks:python:algosdk:abi:ufixed_type.rst"},
-                {"name": "UInt Type", "path": "sdks:python:algosdk:abi:uint_type.rst"}
-              ]
-            },
-            "v2client": {
-              "name": "V2 Client",
-              "description": "V2 API client modules",
-              "path": "sdks:python:algosdk:v2client",
-              "documents": [
-                {"name": "Algod", "path": "sdks:python:algosdk:v2client:algod.rst"},
-                {"name": "Indexer", "path": "sdks:python:algosdk:v2client:indexer.rst"}
-              ]
-            }
-          }
-        }
-      }
+        {"name": "README", "path": "sdks:python:README.md"}
+      ]
     }
   }
 }

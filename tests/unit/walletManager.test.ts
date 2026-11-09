@@ -11,6 +11,7 @@ jest.unstable_mockModule('fs', () => ({
   mkdirSync: jest.fn(),
   readFileSync: jest.fn(),
   writeFileSync: jest.fn(),
+  chmodSync: jest.fn(),
 }));
 
 const { WalletManager } = await import('../../src/tools/walletManager.js');
