@@ -34,7 +34,7 @@ class AlgorandMcpServer {
   private server: Server;
   private name: string;
 
-  constructor(name = 'algorand-mcp-server', version = '4.4.1') {
+  constructor(name = 'algorand-mcp-server', version = '4.4.2') {
     this.name = name;
     this.server = new Server(
       {
